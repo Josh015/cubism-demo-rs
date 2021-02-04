@@ -17,4 +17,5 @@ A Bevy Engine port of an old C++ OpenGL demo I made back in 2010.
 - [ ] Add debug view of G-Buffer?
 
 ## Old Video
-[![Watch the video](https://i.vimeocdn.com/video/93015207_472x266.jpg)](https://player.vimeo.com/video/15442169)
+[![Watch the video](https://i.vimeocdn.com/video/93015207_472x266.jpg)](https://vimeo.com/15442169)
+<p><a href="https://vimeo.com/15442169">Cubism Demo (ver. 2)</a> from <a href="https://vimeo.com/user2176585">Josh 015</a> on <a href="https://vimeo.com">Vimeo</a>.</p>
