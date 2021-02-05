@@ -109,13 +109,13 @@ fn animate_grid_voxels(time: Res<Time>, mut query: Query<(&mut Transform, &mut G
             GridVoxelMovementType::Ripple => {
                 voxel.wave_movement = (voxel.wave_movement + (1.0 * time.delta_seconds()))
                     % (2.0 * std::f32::consts::PI);
-                transform.translation.y = (voxel.wave_movement + voxel.x + voxel.y).sin() * 0.025;
+                transform.translation.y = (voxel.wave_movement + 10.0 * (voxel.x + voxel.y)).sin() * 0.025;
             }
             GridVoxelMovementType::Wave => {
                 voxel.wave_movement = (voxel.wave_movement + (1.0 * time.delta_seconds()))
                     % (2.0 * std::f32::consts::PI);
-                transform.translation.y = ((voxel.wave_movement + voxel.x).sin()
-                    + (voxel.wave_movement + voxel.y).sin())
+                transform.translation.y = ((voxel.wave_movement + 10.0 * voxel.x).sin()
+                    + (voxel.wave_movement + 10.0 * voxel.y).sin())
                     * 0.025;
             }
             _ => {}
