@@ -103,6 +103,7 @@ const BLUE_XPM: [&str; 23] = [
     "....................",
 ];
 
+#[derive(Clone, Copy)]
 enum GridVoxelMovementType {
     Static,
     Ripple,
@@ -111,12 +112,44 @@ enum GridVoxelMovementType {
 
 struct GridVoxel {
     movement_type: GridVoxelMovementType,
-    grid_position: f32,
-    grid_height: f32,
+    wave_movement: f32,
+    x: f32,
+    y: f32,
 }
 
-/// Animate all voxel entities based on their movement type.
-fn move_grid_voxels() {}
+struct LightRingVoxel;
+
+/// Animate all grid voxel entities based on their movement type.
+fn animate_grid_voxels(time: Res<Time>, mut query: Query<(&mut Transform, &mut GridVoxel)>) {
+    for (mut transform, mut voxel) in query.iter_mut() {
+        match voxel.movement_type {
+            GridVoxelMovementType::Ripple => {
+                voxel.wave_movement = (voxel.wave_movement + (1.0 * time.delta_seconds())) % (2.0 * std::f32::consts::PI);
+                transform.translation.y = (voxel.wave_movement + voxel.x + voxel.y).sin() * 0.025;
+            }
+            GridVoxelMovementType::Wave => {
+                voxel.wave_movement = (voxel.wave_movement + (1.0 * time.delta_seconds())) % (2.0 * std::f32::consts::PI);
+                transform.translation.y = ((voxel.wave_movement + voxel.x).sin() + (voxel.wave_movement + voxel.y).sin()) * 0.025;
+            }
+            _ => {}
+        }
+    }
+}
+
+/// Animate all light ring voxel entities.
+fn animate_light_ring_voxels(time: Res<Time>, mut query: Query<(&mut Transform, &LightRingVoxel)>) {
+    for (mut transform, voxel) in query.iter_mut() {
+        // vector4     NewPosition;
+        // matrix4x4   Rotation;
+    
+        // m_Angle     = fmodf(m_Angle + (0.5f * DeltaTime), TWO_PI);
+        // Rotation.SetRotation(m_Angle, WORLD_UP_DIRECTION);
+        // NewPosition = vector4(m_RadiusFromCenter, 0.0f, 0.0f, 1.0f) * Rotation;
+        // m_Position  = vector3(NewPosition * m_Rotation) + m_CenterPoint;
+    
+        // m_PointLight->SetPosition(m_Position);
+    }
+}
 
 /// Takes xpm image data and converts its pixels into a grid of cube entities.
 fn spawn_voxel_grid(
@@ -124,10 +157,43 @@ fn spawn_voxel_grid(
     materials: &mut ResMut<Assets<StandardMaterial>>,
     cube: &Handle<Mesh>,
     voxel_scale: f32,
-    xpm_image: &[&str],
+    xpm_data: &[&str],
     movement_type: GridVoxelMovementType,
     transform: Transform,
 ) {
+    // Build palette as hashmap of chars to materials
+    let parts: Vec<&str> = xpm_data[0].split(" ").collect();
+    let width: usize = parts[0].parse().unwrap();
+    let height: usize = parts[1].parse().unwrap();
+    let palette_size: usize = parts[2].parse().unwrap();
+    let mut palette = HashMap::with_capacity(palette_size);
+
+    for i in 1..=palette_size {
+        let row = xpm_data[i];
+        let palette_index: char = row.chars().nth(0).unwrap();
+        let hex_color: &str = row.split(" ").last().unwrap();
+
+        let material = match hex_color {
+            "None" => None,
+            _ => {
+                let parts: Vec<&str> = hex_color.split("#").collect();
+                let color = Color::hex(parts[1]).unwrap();
+
+                Some(materials.add(color.into()))
+            }
+        };
+
+        palette.insert(palette_index, material);
+    }
+
+    // Ensure that the largest dimension will be scaled into [0, 1].
+    let scale_factor = cmp::max(width, height) as f32;
+    let voxel_scale = Vec3::splat(voxel_scale / scale_factor);
+    let half_width = width as f32 * 0.5;
+    let width_offset = half_width - 0.5;
+    let half_height = height as f32 * 0.5;
+    let height_offset = half_height - 0.5;
+
     commands
         .spawn(PbrBundle {
             transform,
@@ -135,92 +201,38 @@ fn spawn_voxel_grid(
             ..Default::default()
         })
         .with_children(|parent| {
-            // Build palette as hashmap of chars to materials
-            let parts: Vec<&str> = xpm_image[0].split(" ").collect();
-            let width: usize = parts[0].parse().unwrap();
-            let height: usize = parts[1].parse().unwrap();
-            let palette_size: usize = parts[2].parse().unwrap();
-            let mut palette = HashMap::with_capacity(palette_size);
-
-            for i in 1..=palette_size {
-                let row = xpm_image[i];
-                let palette_index: char = row.chars().nth(0).unwrap();
-                let hex_color: &str = row.split(" ").last().unwrap();
-
-                let material = match hex_color {
-                    "None" => None,
-                    _ => {
-                        let parts: Vec<&str> = hex_color.split("#").collect();
-                        let color = Color::hex(parts[1]).unwrap();
-
-                        Some(materials.add(color.into()))
-                    }
-                };
-
-                palette.insert(palette_index, material);
-            }
-
-            let half_width = width as f32 * 0.5;
-            let width_offset = half_width - 0.5;
-            let half_height = height as f32 * 0.5;
-            let height_offset = half_height - 0.5;
-
-            // Ensure that the largest dimension will be scaled into [0, 1].
-            let scale_factor = cmp::max(width, height) as f32;
-
             for h in 0..height {
-                let row = xpm_image[h + palette_size + 1];
+                let row = xpm_data[h + palette_size + 1];
 
                 for w in 0..width {
                     let palette_index = row.chars().nth(w).unwrap();
 
                     if let Some(material) = &palette[&palette_index] {
-                        let mut transform = Transform::from_translation(Vec3::new(
+                        let translation = Vec3::new(
                             (w as f32 - width_offset) / (width as f32),
                             0.0,
                             (h as f32 - height_offset) / (height as f32),
-                        ));
+                        );
 
-                        transform.scale = Vec3::splat(voxel_scale / scale_factor);
-                        parent.spawn(PbrBundle {
-                            transform,
-                            mesh: cube.clone(),
-                            material: material.clone(),
-                            ..Default::default()
-                        });
-
-                        //        c = XpmImage[h + PaletteSize + 1][w];
-
-                        //         if (0.0f != Palette[c].w)
-                        //         {
-                        //             Material.DiffuseTint = Palette[c];
-
-                        //             // Determine position in imaginary "default" grid
-                        //             // Centered at <0,0,0>, facing <0,0,1>
-                        //             Position2D.x    = (x / (Width - 1.0f));
-                        //             Position2D.y    = (y / (Height - 1.0f));
-                        //             BasePosition.x  = Position2D.x * 2.0f - 1.0f;
-                        //             BasePosition.y  = Position2D.y * 2.0f - 1.0f;
-                        //             BasePosition.z  = 0.0f;
-
-                        //             // Transform the Object's base position to its location in the grid
-                        //             // in world-space.
-                        //             BasePosition   *= GridScale;
-                        //             BasePosition    = vector3(vector4(BasePosition, 1.0f) * Rotation);
-                        //             BasePosition   += Translation;
-
-                        //             // Each object must be scales by an amount proportional to the
-                        //             // grid dimensions, and allowing for slight gaps to see lighting
-                        //             // from the other side of the grid.
-                        //             BaseScale = (2.0f * ObjectScale * GridScale) / vector3(Width, Height, Width);
-
-                        //             // Generate entity based on template type
-                        //             m_Entities.push_back(new T(Position2D, BasePosition, Rotation, BaseScale, Material, m_EntityModel));
-                        //         }
-                        //         x += 1.0f;
-                        //     }
-                        //     x = 0.0f;
-                        //     y += 1.0f;
+                        parent
+                            .spawn(PbrBundle {
+                                transform: Transform::from_matrix(
+                                    Mat4::from_scale_rotation_translation(
+                                        voxel_scale,
+                                        Quat::identity(),
+                                        translation,
+                                    ),
+                                ),
+                                mesh: cube.clone(),
+                                material: material.clone(),
+                                ..Default::default()
+                            })
+                            .with(GridVoxel {
+                                wave_movement: 0.0,
+                                movement_type,
+                                x: w as f32 / (width - 1) as f32,
+                                y: h as f32 / (height - 1) as f32,
+                            });
                     }
                 }
             }
@@ -229,7 +241,7 @@ fn spawn_voxel_grid(
 
 /// Spawns a field of randomly colored and positioned lights that form a
 /// tube/ring shape and spins in place.
-fn spawn_light_ring(
+fn spawn_voxel_light_ring(
     commands: &mut Commands,
     materials: &mut ResMut<Assets<StandardMaterial>>,
     cube: &Handle<Mesh>,
@@ -241,45 +253,54 @@ fn spawn_light_ring(
     max_color: Color,
     transform: Transform,
 ) {
+    let voxel_scale = Vec3::splat(0.05);
     let mut rng = rand::thread_rng();
     let color_randomizer = Uniform::from(0f32..=1f32);
     let radius_randomizer = Uniform::from(inner_radius..=outer_radius);
     let height_randomizer = Uniform::from((-0.5 * height)..=(0.5 * height));
     let x_randomizer = Uniform::from(-1f32..=1f32);
-    let y_randomizer = Uniform::from(-1f32..=1f32);
+    let z_randomizer = Uniform::from(-1f32..=1f32);
 
-    for _i in 0..lights_count {
-        commands
-            .spawn(PbrBundle {
-                transform,
-                ..Default::default()
-            })
-            // TODO: Add component with angle to increment and spin?
-            .with_children(|parent| {
-                let s = color_randomizer.sample(&mut rng);
-                let color = Color::from(Vec4::from(min_color).lerp(Vec4::from(max_color), s));
+    commands
+        .spawn(PbrBundle {
+            transform,
+            ..Default::default()
+        })
+        // TODO: Add component with angle to increment and spin?
+        .with_children(|parent| {
+            for _i in 0..lights_count {
                 let mut translation = Vec3::new(
                     x_randomizer.sample(&mut rng),
                     0.0,
-                    y_randomizer.sample(&mut rng),
+                    z_randomizer.sample(&mut rng),
                 );
 
                 translation = translation.normalize() * radius_randomizer.sample(&mut rng);
                 translation.y = height_randomizer.sample(&mut rng);
 
-                parent.spawn(PbrBundle {
-                    transform: Transform::from_matrix(Mat4::from_scale_rotation_translation(
-                        Vec3::splat(0.05),
-                        Quat::identity(),
-                        translation,
-                    )),
-                    material: materials.add(color.into()).clone(),
-                    mesh: cube.clone(),
-                    ..Default::default()
-                });
-                //         Material.EmissiveTint = LightColor;
-            });
-    }
+                parent
+                    .spawn(PbrBundle {
+                        transform: Transform::from_matrix(Mat4::from_scale_rotation_translation(
+                            voxel_scale,
+                            Quat::identity(),
+                            translation,
+                        )),
+                        material: materials
+                            .add(
+                                Color::from(Vec4::from(min_color).lerp(
+                                    Vec4::from(max_color),
+                                    color_randomizer.sample(&mut rng),
+                                ))
+                                .into(),
+                            )
+                            .clone(),
+                        // Material.EmissiveTint = LightColor;
+                        mesh: cube.clone(),
+                        ..Default::default()
+                    })
+                    .with(LightRingVoxel);
+            }
+        });
 }
 
 #[bevy_main]
@@ -297,6 +318,8 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_startup_system(setup.system())
         .add_startup_system(create_scene.system())
+        .add_system(animate_grid_voxels.system())
+        .add_system(animate_light_ring_voxels.system())
         .run();
 }
 
@@ -327,7 +350,7 @@ fn create_scene(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    // Add meshes
+    // Load cube mesh
     let cube = meshes.add(Mesh::from(shape::Cube { size: 1.0 }));
 
     // ---- Voxel grids ----
@@ -399,7 +422,7 @@ fn create_scene(
 
     // ---- Light rings ----
     // Green-yellow light ring
-    spawn_light_ring(
+    spawn_voxel_light_ring(
         commands,
         &mut materials,
         &cube,
@@ -413,7 +436,7 @@ fn create_scene(
     );
 
     // Cyan light ring
-    spawn_light_ring(
+    spawn_voxel_light_ring(
         commands,
         &mut materials,
         &cube,
@@ -427,7 +450,7 @@ fn create_scene(
     );
 
     // Orange light ring
-    spawn_light_ring(
+    spawn_voxel_light_ring(
         commands,
         &mut materials,
         &cube,
@@ -444,7 +467,7 @@ fn create_scene(
     );
 
     // Magenta light ring
-    spawn_light_ring(
+    spawn_voxel_light_ring(
         commands,
         &mut materials,
         &cube,
@@ -470,11 +493,12 @@ fn create_scene(
     ];
 
     for t in transforms {
-        let mut transform = Transform::from_translation(t.0);
-
-        transform.apply_non_uniform_scale(1.0 * t.1);
         commands.spawn(PbrBundle {
-            transform,
+            transform: Transform::from_matrix(Mat4::from_scale_rotation_translation(
+                t.1,
+                Quat::identity(),
+                t.0,
+            )),
             material: material.clone(),
             mesh: cube.clone(),
             ..Default::default()
