@@ -4,8 +4,8 @@ A Bevy Engine port of an old C++ OpenGL demo I made back in 2010.
 ## TODO
 - [ ] Get basic layout of all objects and camera.
 - [ ] Add in lights and see how default renderer performs.
-- [ ] Add material caching using xpm palettes?
-- [ ] Ensure that cube groups are parented? How to animate?
+- [x] Add material caching using xpm palettes?
+- [x] Ensure that cube groups are parented? How to animate?
 - [ ] Convert central sprite to Rust mascot Ferris.
 - [ ] Add different animations via systems and enum component.
 - [ ] Add spinning light animation.
