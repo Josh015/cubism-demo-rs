@@ -7,8 +7,8 @@ A Bevy Engine port of an old C++ OpenGL demo I made back in 2010.
 - [x] Add material caching using xpm palettes?
 - [x] Ensure that cube groups are parented? How to animate?
 - [ ] Convert central sprite to Rust mascot Ferris.
-- [ ] Add different animations via systems and enum component.
-- [ ] Add spinning light animation.
+- [x] Add different animations via systems and enum component.
+- [x] Add spinning light animation.
 - [ ] Add different camera angles.
 - [ ] Add onscreen instructions UI that can be minimized.
 - [ ] Switch to custom material for emissive objects.

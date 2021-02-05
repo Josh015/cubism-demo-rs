@@ -117,19 +117,23 @@ struct GridVoxel {
     y: f32,
 }
 
-struct LightRingVoxel;
+struct LightRing;
 
 /// Animate all grid voxel entities based on their movement type.
 fn animate_grid_voxels(time: Res<Time>, mut query: Query<(&mut Transform, &mut GridVoxel)>) {
     for (mut transform, mut voxel) in query.iter_mut() {
         match voxel.movement_type {
             GridVoxelMovementType::Ripple => {
-                voxel.wave_movement = (voxel.wave_movement + (1.0 * time.delta_seconds())) % (2.0 * std::f32::consts::PI);
+                voxel.wave_movement = (voxel.wave_movement + (1.0 * time.delta_seconds()))
+                    % (2.0 * std::f32::consts::PI);
                 transform.translation.y = (voxel.wave_movement + voxel.x + voxel.y).sin() * 0.025;
             }
             GridVoxelMovementType::Wave => {
-                voxel.wave_movement = (voxel.wave_movement + (1.0 * time.delta_seconds())) % (2.0 * std::f32::consts::PI);
-                transform.translation.y = ((voxel.wave_movement + voxel.x).sin() + (voxel.wave_movement + voxel.y).sin()) * 0.025;
+                voxel.wave_movement = (voxel.wave_movement + (1.0 * time.delta_seconds()))
+                    % (2.0 * std::f32::consts::PI);
+                transform.translation.y = ((voxel.wave_movement + voxel.x).sin()
+                    + (voxel.wave_movement + voxel.y).sin())
+                    * 0.025;
             }
             _ => {}
         }
@@ -137,17 +141,9 @@ fn animate_grid_voxels(time: Res<Time>, mut query: Query<(&mut Transform, &mut G
 }
 
 /// Animate all light ring voxel entities.
-fn animate_light_ring_voxels(time: Res<Time>, mut query: Query<(&mut Transform, &LightRingVoxel)>) {
-    for (mut transform, voxel) in query.iter_mut() {
-        // vector4     NewPosition;
-        // matrix4x4   Rotation;
-    
-        // m_Angle     = fmodf(m_Angle + (0.5f * DeltaTime), TWO_PI);
-        // Rotation.SetRotation(m_Angle, WORLD_UP_DIRECTION);
-        // NewPosition = vector4(m_RadiusFromCenter, 0.0f, 0.0f, 1.0f) * Rotation;
-        // m_Position  = vector3(NewPosition * m_Rotation) + m_CenterPoint;
-    
-        // m_PointLight->SetPosition(m_Position);
+fn animate_light_ring_voxels(time: Res<Time>, mut query: Query<(&mut Transform, &LightRing)>) {
+    for (mut transform, _) in query.iter_mut() {
+        transform.rotate(Quat::from_axis_angle(Vec3::unit_y(), time.delta_seconds()));
     }
 }
 
@@ -208,19 +204,17 @@ fn spawn_voxel_grid(
                     let palette_index = row.chars().nth(w).unwrap();
 
                     if let Some(material) = &palette[&palette_index] {
-                        let translation = Vec3::new(
-                            (w as f32 - width_offset) / (width as f32),
-                            0.0,
-                            (h as f32 - height_offset) / (height as f32),
-                        );
-
                         parent
                             .spawn(PbrBundle {
                                 transform: Transform::from_matrix(
                                     Mat4::from_scale_rotation_translation(
                                         voxel_scale,
                                         Quat::identity(),
-                                        translation,
+                                        Vec3::new(
+                                            (w as f32 - width_offset) / (width as f32),
+                                            0.0,
+                                            (h as f32 - height_offset) / (height as f32),
+                                        ),
                                     ),
                                 ),
                                 mesh: cube.clone(),
@@ -266,7 +260,7 @@ fn spawn_voxel_light_ring(
             transform,
             ..Default::default()
         })
-        // TODO: Add component with angle to increment and spin?
+        .with(LightRing)
         .with_children(|parent| {
             for _i in 0..lights_count {
                 let mut translation = Vec3::new(
@@ -278,27 +272,25 @@ fn spawn_voxel_light_ring(
                 translation = translation.normalize() * radius_randomizer.sample(&mut rng);
                 translation.y = height_randomizer.sample(&mut rng);
 
-                parent
-                    .spawn(PbrBundle {
-                        transform: Transform::from_matrix(Mat4::from_scale_rotation_translation(
-                            voxel_scale,
-                            Quat::identity(),
-                            translation,
-                        )),
-                        material: materials
-                            .add(
-                                Color::from(Vec4::from(min_color).lerp(
-                                    Vec4::from(max_color),
-                                    color_randomizer.sample(&mut rng),
-                                ))
-                                .into(),
+                parent.spawn(PbrBundle {
+                    transform: Transform::from_matrix(Mat4::from_scale_rotation_translation(
+                        voxel_scale,
+                        Quat::identity(),
+                        translation,
+                    )),
+                    material: materials
+                        .add(
+                            Color::from(
+                                Vec4::from(min_color)
+                                    .lerp(Vec4::from(max_color), color_randomizer.sample(&mut rng)),
                             )
-                            .clone(),
-                        // Material.EmissiveTint = LightColor;
-                        mesh: cube.clone(),
-                        ..Default::default()
-                    })
-                    .with(LightRingVoxel);
+                            .into(),
+                        )
+                        .clone(),
+                    // Material.EmissiveTint = LightColor;
+                    mesh: cube.clone(),
+                    ..Default::default()
+                });
             }
         });
 }
