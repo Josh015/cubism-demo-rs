@@ -251,9 +251,6 @@ fn main() {
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)
-        // .add_plugin(BoardPlugin)
-        // .add_plugin(PiecesPlugin)
-        // .add_plugin(UiPlugin)
         .add_startup_system(setup.system())
         .add_startup_system(create_scene.system())
         .run();
@@ -265,7 +262,7 @@ fn setup(commands: &mut Commands) {
         .spawn(Camera3dBundle {
             transform: Transform::from_matrix(Mat4::from_rotation_translation(
                 Quat::from_xyzw(-0.3, -0.5, -0.3, 0.5).normalize(),
-                Vec3::new(-7.0, 20.0, 4.0),
+                Vec3::new(-2.0, 5.0, 0.0),
             )),
             // transform: Transform::from_matrix(Mat4::look_at_rh(
             //     Vec3::new(0.0, 0.0, -5.0),
@@ -307,6 +304,9 @@ fn create_scene(
         1.0,
     );
 
+    let grid_scale = 1.8;
+    let voxel_scale = 0.87;
+
     // Magenta ripple
     spawn_voxel_grid(
         commands,
@@ -314,10 +314,10 @@ fn create_scene(
         &cube,
         &MAGENTA_XPM,
         GridVoxelMovementType::Ripple,
-        1.1 * Vec3::unit_x(),
+        1.0 * Vec3::unit_x(),
         Quat::from_axis_angle(Vec3::unit_z(), -90f32.to_radians()),
-        2.1,
-        0.87,
+        grid_scale,
+        voxel_scale,
     );
 
     // Orange ripple
@@ -327,10 +327,10 @@ fn create_scene(
         &cube,
         &ORANGE_XPM,
         GridVoxelMovementType::Ripple,
-        -1.1 * Vec3::unit_z(),
+        -1.0 * Vec3::unit_z(),
         Quat::from_axis_angle(Vec3::unit_x(), 90f32.to_radians()),
-        2.1,
-        0.87,
+        grid_scale,
+        voxel_scale,
     );
 
     // Blue wave
@@ -340,62 +340,31 @@ fn create_scene(
         &cube,
         &BLUE_XPM,
         GridVoxelMovementType::Wave,
-        -1.1 * Vec3::unit_y(),
+        -1.0 * Vec3::unit_y(),
         Quat::from_axis_angle(Vec3::unit_z(), 0f32.to_radians()),
-        2.1,
-        0.87,
+        grid_scale,
+        voxel_scale,
     );
 
     // ---- Pedestal & Braces ----
-    let mut transform = Transform::from_translation(-1.0 * Vec3::unit_y());
+    let material = materials.add(Color::rgb(0.7, 0.7, 0.7).into());
+    let transforms: &[(Vec3, Vec3); 4] = &[
+        (Vec3::new(0.0, -1.0, 0.0), Vec3::new(0.340, 1.200, 0.340)),
+        (Vec3::new(1.0, 0.05, -1.0), Vec3::new(0.125, 2.0, 0.125)),
+        (Vec3::new(1.0, -1.0, 0.05), Vec3::new(0.125, 0.125, 2.0)),
+        (Vec3::new(-0.05, -1.0, -1.0), Vec3::new(2.0, 0.125, 0.125)),
+    ];
 
-    transform.apply_non_uniform_scale(2.0 * Vec3::new(0.170, 0.600, 0.170));
-
-    commands
-        .spawn(PbrBundle {
-            transform: transform,
-            mesh: cube.clone(),
-            ..Default::default()
-        });
+    for t in transforms {
+        let mut transform = Transform::from_translation(t.0);
+    
+        transform.apply_non_uniform_scale(1.0 * t.1);
+        commands
+            .spawn(PbrBundle {
+                transform,
+                material: material.clone(),
+                mesh: cube.clone(),
+                ..Default::default()
+            });
+    }
 }
-
-
-
-// afterlights_demo::GeneratePillars(
-//     const vector3& Translation,
-//     const matrix4x4& Rotation,
-//     const float Scale)
-// {
-//     vector3 BasePosition;
-//     vector3 ObjectTranslation;
-//     vector3 ObjectScale;
-//     material Material;
-
-//     vector3 BasePositions[] = {
-//         vector3( 0.0f,  0.0f, 0.1f),
-//         vector3(-0.5f, -0.5f, 0.5f),
-//         vector3( 0.0f, -0.5f, 0.0f),
-//         vector3(-0.5f,  0.0f, 0.0f),
-//     };
-
-//     vector3 BaseScales[] = {
-//         vector3(0.170f, 0.170f, 0.600f),
-//         vector3(0.125f, 0.125f, 1.000f),
-//         vector3(1.000f, 0.125f, 0.125f),
-//         vector3(0.125f, 1.000f, 0.125f),
-//     };
-
-//     Material.MaterialShader = m_EntityShader;
-//     Material.DiffuseTint    = GammaToLinear(vector4(0.7f, 0.7f, 0.7f, 1.0f));
-//     Material.SpecularTint   = GammaToLinear(vector4(0.3f, 0.3f, 0.3f, 1.0f));
-//     Material.EmissiveTint   = GammaToLinear(vector4(0.0f, 0.0f, 0.0f, 1.0f));
-
-//     for (uint32 i = 0; i < COUNT_OF(BasePositions); ++i)
-//     {
-//         ObjectScale = BaseScales[i] * Scale;
-//         BasePosition = BasePositions[i] * Scale;
-//         BasePosition = vector3(vector4(BasePosition, 1.0f) * Rotation);
-//         ObjectTranslation = BasePosition + Translation;
-//         m_Entities.push_back(new static_object(vector2(0.0f), ObjectTranslation, Rotation, ObjectScale, Material, m_EntityModel));
-//     }
-// }
