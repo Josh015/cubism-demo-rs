@@ -6,7 +6,7 @@ struct LightRingVoxel;
 
 /// Spawns a field of randomly colored and positioned lights that form a
 /// tube/ring shape and spins in place.
-fn spawn_voxel_light_ring(
+pub fn spawn_voxel_light_ring(
     commands: &mut Commands,
     materials: &mut ResMut<Assets<StandardMaterial>>,
     cube: &Handle<Mesh>,
@@ -81,82 +81,10 @@ fn animate_light_ring_voxels(time: Res<Time>, mut query: Query<(&mut Transform, 
     }
 }
 
-fn create_light_rings(
-    commands: &mut Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
-    // Load cube mesh
-    let cube = meshes.add(Mesh::from(shape::Cube { size: 1.0 }));
-
-    // Green-yellow light ring
-    spawn_voxel_light_ring(
-        commands,
-        &mut materials,
-        &cube,
-        200,
-        1.0,
-        0.4,
-        0.9,
-        Color::rgb(0.3, 0.3, 0.05),
-        Color::rgb(0.6, 0.7, 0.1),
-        Transform::from_translation(-0.65 * Vec3::unit_y()),
-    );
-
-    // Cyan light ring
-    spawn_voxel_light_ring(
-        commands,
-        &mut materials,
-        &cube,
-        100,
-        0.125,
-        0.4,
-        1.0,
-        Color::rgb(0.05, 0.4, 0.5),
-        Color::rgb(0.1, 0.5, 0.7),
-        Transform::from_translation(-1.2 * Vec3::unit_y()),
-    );
-
-    // Orange light ring
-    spawn_voxel_light_ring(
-        commands,
-        &mut materials,
-        &cube,
-        100,
-        0.125,
-        0.25,
-        1.0,
-        Color::rgb(0.5, 0.4, 0.05),
-        Color::rgb(0.6, 0.5, 0.1),
-        Transform::from_matrix(Mat4::from_rotation_translation(
-            Quat::from_axis_angle(Vec3::unit_x(), 90f32.to_radians()),
-            -1.2 * Vec3::unit_z(),
-        )),
-    );
-
-    // Magenta light ring
-    spawn_voxel_light_ring(
-        commands,
-        &mut materials,
-        &cube,
-        100,
-        0.125,
-        0.25,
-        1.0,
-        Color::rgb(0.1, 0.1, 0.5),
-        Color::rgb(0.6, 0.2, 0.7),
-        Transform::from_matrix(Mat4::from_rotation_translation(
-            Quat::from_axis_angle(Vec3::unit_z(), -90f32.to_radians()),
-            1.2 * Vec3::unit_x(),
-        )),
-    );
-}
-
 pub struct LightRingsPlugin;
 impl Plugin for LightRingsPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_startup_system(create_light_rings.system())
-            .add_system(animate_light_ring.system())
+        app.add_system(animate_light_ring.system())
             .add_system(animate_light_ring_voxels.system());
     }
 }
