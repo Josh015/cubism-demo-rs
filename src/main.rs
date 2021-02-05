@@ -118,6 +118,7 @@ struct GridVoxel {
 }
 
 struct LightRing;
+struct LightRingVoxel;
 
 /// Animate all grid voxel entities based on their movement type.
 fn animate_grid_voxels(time: Res<Time>, mut query: Query<(&mut Transform, &mut GridVoxel)>) {
@@ -141,9 +142,15 @@ fn animate_grid_voxels(time: Res<Time>, mut query: Query<(&mut Transform, &mut G
 }
 
 /// Animate all light ring voxel entities.
-fn animate_light_ring_voxels(time: Res<Time>, mut query: Query<(&mut Transform, &LightRing)>) {
+fn animate_light_ring(time: Res<Time>, mut query: Query<(&mut Transform, &LightRing)>) {
     for (mut transform, _) in query.iter_mut() {
         transform.rotate(Quat::from_axis_angle(Vec3::unit_y(), time.delta_seconds()));
+    }
+}
+
+fn animate_light_ring_voxels(time: Res<Time>, mut query: Query<(&mut Transform, &LightRingVoxel)>) {
+    for (mut transform, _) in query.iter_mut() {
+        transform.rotate(Quat::from_axis_angle(Vec3::unit_y(), -time.delta_seconds()));
     }
 }
 
@@ -290,7 +297,8 @@ fn spawn_voxel_light_ring(
                     // Material.EmissiveTint = LightColor;
                     mesh: cube.clone(),
                     ..Default::default()
-                });
+                })
+                .with(LightRingVoxel);
             }
         });
 }
@@ -311,6 +319,7 @@ fn main() {
         .add_startup_system(setup.system())
         .add_startup_system(create_scene.system())
         .add_system(animate_grid_voxels.system())
+        .add_system(animate_light_ring.system())
         .add_system(animate_light_ring_voxels.system())
         .run();
 }
