@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use rand::distributions::{Distribution, Uniform};
 
+const RING_ROTATION_SPEED: f32 = 1.0;
+
 struct LightRing;
 struct LightRingVoxel;
 
@@ -71,13 +73,19 @@ pub fn spawn_voxel_light_ring(
 /// Animate all light ring voxel entities.
 fn animate_light_ring(time: Res<Time>, mut query: Query<(&mut Transform, &LightRing)>) {
     for (mut transform, _) in query.iter_mut() {
-        transform.rotate(Quat::from_axis_angle(Vec3::unit_y(), time.delta_seconds()));
+        transform.rotate(Quat::from_axis_angle(
+            Vec3::unit_y(),
+            RING_ROTATION_SPEED * time.delta_seconds(),
+        ));
     }
 }
 
 fn animate_light_ring_voxels(time: Res<Time>, mut query: Query<(&mut Transform, &LightRingVoxel)>) {
     for (mut transform, _) in query.iter_mut() {
-        transform.rotate(Quat::from_axis_angle(Vec3::unit_y(), -time.delta_seconds()));
+        transform.rotate(Quat::from_axis_angle(
+            Vec3::unit_y(),
+            RING_ROTATION_SPEED * -time.delta_seconds(),
+        ));
     }
 }
 

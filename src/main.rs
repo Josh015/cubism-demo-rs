@@ -116,9 +116,6 @@ fn setup(
 
     // ---- Voxel grids ----
     // Sprite
-    let rotation1 = Quat::from_axis_angle(Vec3::unit_x(), 90f32.to_radians());
-    let rotation2 = Quat::from_axis_angle(Vec3::unit_z(), 45f32.to_radians());
-
     spawn_voxel_grid(
         commands,
         &mut materials,
@@ -128,7 +125,9 @@ fn setup(
         GridVoxelMovementType::Static,
         Transform::from_matrix(Mat4::from_scale_rotation_translation(
             Vec3::splat(0.55),
-            (rotation1 * rotation2).normalize(),
+            (Quat::from_axis_angle(Vec3::unit_x(), 90f32.to_radians())
+                * Quat::from_axis_angle(Vec3::unit_z(), 45f32.to_radians()))
+            .normalize(),
             Vec3::zero(),
         )),
     );
@@ -161,7 +160,9 @@ fn setup(
         GridVoxelMovementType::Ripple,
         Transform::from_matrix(Mat4::from_scale_rotation_translation(
             grid_scale,
-            Quat::from_axis_angle(Vec3::unit_x(), 90f32.to_radians()),
+            (Quat::from_axis_angle(Vec3::unit_x(), 90f32.to_radians())
+                * Quat::from_axis_angle(Vec3::unit_z(), 180f32.to_radians()))
+            .normalize(),
             -Vec3::unit_z(),
         )),
     );

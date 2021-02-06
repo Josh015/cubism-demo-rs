@@ -2,6 +2,10 @@ use std::{cmp, collections::HashMap};
 
 use bevy::prelude::*;
 
+const GRID_WAVE_TILING: f32 = 10.0;
+const GRID_WAVE_HEIGHT: f32 = 0.025;
+const GRID_WAVE_SPEED: f32 = 2.0;
+
 #[derive(Clone, Copy)]
 pub enum GridVoxelMovementType {
     Static,
@@ -91,8 +95,8 @@ pub fn spawn_voxel_grid(
                                 ..Default::default()
                             })
                             .with(GridVoxel {
-                                wave_movement: 0.0,
                                 movement_type,
+                                wave_movement: 0.0,
                                 x: w as f32 / (width - 1) as f32,
                                 y: h as f32 / (height - 1) as f32,
                             });
@@ -107,16 +111,19 @@ fn animate_grid_voxels(time: Res<Time>, mut query: Query<(&mut Transform, &mut G
     for (mut transform, mut voxel) in query.iter_mut() {
         match voxel.movement_type {
             GridVoxelMovementType::Ripple => {
-                voxel.wave_movement = (voxel.wave_movement + (1.0 * time.delta_seconds()))
+                voxel.wave_movement = (voxel.wave_movement
+                    + (GRID_WAVE_SPEED * time.delta_seconds()))
                     % (2.0 * std::f32::consts::PI);
-                transform.translation.y = (voxel.wave_movement + 10.0 * (voxel.x + voxel.y)).sin() * 0.025;
+                transform.translation.y = GRID_WAVE_HEIGHT
+                    * (voxel.wave_movement + GRID_WAVE_TILING * (voxel.x + voxel.y)).sin();
             }
             GridVoxelMovementType::Wave => {
-                voxel.wave_movement = (voxel.wave_movement + (1.0 * time.delta_seconds()))
+                voxel.wave_movement = (voxel.wave_movement
+                    + (GRID_WAVE_SPEED * time.delta_seconds()))
                     % (2.0 * std::f32::consts::PI);
-                transform.translation.y = ((voxel.wave_movement + 10.0 * voxel.x).sin()
-                    + (voxel.wave_movement + 10.0 * voxel.y).sin())
-                    * 0.025;
+                transform.translation.y = GRID_WAVE_HEIGHT
+                    * ((voxel.wave_movement + GRID_WAVE_TILING * voxel.x).sin()
+                        + (voxel.wave_movement + GRID_WAVE_TILING * voxel.y).sin());
             }
             _ => {}
         }
