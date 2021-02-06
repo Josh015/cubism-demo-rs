@@ -271,8 +271,10 @@ fn setup(
         // Camera
         .spawn(Camera3dBundle {
             transform: Transform::from_matrix(Mat4::from_rotation_translation(
-                Quat::from_xyzw(-0.3, -0.5, -0.3, 0.5).normalize(),
-                Vec3::new(-2.0, 5.0, 0.0),
+                (Quat::from_axis_angle(Vec3::unit_y(), -45f32.to_radians())
+                    * Quat::from_axis_angle(Vec3::unit_x(), -45f32.to_radians()))
+                .normalize(),
+                Vec3::new(-2.0, 3.0, 2.0),
             )),
             // transform: Transform::from_matrix(Mat4::look_at_rh(
             //     Vec3::new(0.0, 0.0, -5.0),
@@ -283,8 +285,14 @@ fn setup(
         })
         // Light
         .spawn(LightBundle {
-            transform: Transform::from_translation(Vec3::new(4.0, 8.0, 4.0)),
+            transform: Transform::from_translation(Vec3::new(-4.0, 6.0, 4.0)),
             ..Default::default()
+        })
+        .with_children(|parent| {
+            parent.spawn(PbrBundle {
+                mesh: cube.clone(),
+                ..Default::default()
+            });
         });
 }
 
