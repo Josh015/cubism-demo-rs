@@ -1,4 +1,15 @@
-use bevy::prelude::*;
+use crate::EmissiveMaterial;
+use bevy::{
+    prelude::*,
+    reflect::TypeUuid,
+    render::{
+        mesh::shape,
+        pipeline::{PipelineDescriptor, RenderPipeline},
+        render_graph::{base, AssetRenderResourcesNode, RenderGraph},
+        renderer::RenderResources,
+        shader::{ShaderStage, ShaderStages},
+    },
+};
 use rand::distributions::{Distribution, Uniform};
 
 const RING_ROTATION_SPEED: f32 = 1.0;
@@ -10,7 +21,8 @@ struct LightRingVoxel;
 /// tube/ring shape and spins in place.
 pub fn spawn_voxel_light_ring(
     commands: &mut Commands,
-    materials: &mut ResMut<Assets<StandardMaterial>>,
+    emissive_materials: &mut ResMut<Assets<EmissiveMaterial>>,
+    pipeline_handle: &Handle<PipelineDescriptor>,
     cube: &Handle<Mesh>,
     lights_count: u32,
     height: f32,
@@ -46,25 +58,28 @@ pub fn spawn_voxel_light_ring(
                 translation.y = height_randomizer.sample(&mut rng);
 
                 parent
-                    .spawn(PbrBundle {
+                    .spawn(MeshBundle {
+                        mesh: cube.clone(),
+                        render_pipelines: RenderPipelines::from_pipelines(vec![
+                            RenderPipeline::new(pipeline_handle.clone()),
+                        ]),
                         transform: Transform::from_matrix(Mat4::from_scale_rotation_translation(
                             voxel_scale,
                             Quat::identity(),
                             translation,
                         )),
-                        material: materials
-                            .add(
-                                Color::from(Vec4::from(min_color).lerp(
-                                    Vec4::from(max_color),
-                                    color_randomizer.sample(&mut rng),
-                                ))
-                                .into(),
-                            )
-                            .clone(),
-                        // Material.EmissiveTint = LightColor;
-                        mesh: cube.clone(),
                         ..Default::default()
                     })
+                    .with(emissive_materials.add(EmissiveMaterial {
+                        color:
+                            Color::from(
+                                1.5
+                                    * Vec4::from(min_color).lerp(
+                                        Vec4::from(max_color),
+                                        color_randomizer.sample(&mut rng),
+                                    ),
+                            ),
+                    }))
                     .with(LightRingVoxel);
             }
         });
