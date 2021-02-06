@@ -1,7 +1,7 @@
 use std::{cmp, collections::HashMap};
-
 use bevy::prelude::*;
 use lazy_static::*;
+use crate::shared::SharedData;
 
 const GRID_WAVE_TILING: f32 = 10.0;
 const GRID_WAVE_HEIGHT: f32 = 0.03;
@@ -187,13 +187,9 @@ struct GridVoxel {
 
 fn spawn_voxel_grids(
     commands: &mut Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
+    shared_data: Res<SharedData>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    // Load cube mesh
-    let cube = meshes.add(Mesh::from(shape::Cube { size: 1.0 }));
-
-    // Spawn voxel grids
     for d in DESCRIPTIONS.iter() {
         // XPM headers take the form "20 20 2 1", "16 16 4 1", etc.
         let header: Vec<&str> = d.xpm_data[0].split(" ").collect();
@@ -257,7 +253,7 @@ fn spawn_voxel_grids(
                                             ),
                                         ),
                                     ),
-                                    mesh: cube.clone(),
+                                    mesh: shared_data.cube.clone(),
                                     material: material.clone(),
                                     ..Default::default()
                                 })

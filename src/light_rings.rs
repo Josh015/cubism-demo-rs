@@ -2,7 +2,6 @@ use bevy::{
     prelude::*,
     reflect::TypeUuid,
     render::{
-        mesh::shape,
         pipeline::{PipelineDescriptor, RenderPipeline},
         render_graph::{base, AssetRenderResourcesNode, RenderGraph},
         renderer::RenderResources,
@@ -11,6 +10,8 @@ use bevy::{
 };
 use lazy_static::*;
 use rand::distributions::{Distribution, Uniform};
+
+use crate::shared::SharedData;
 
 const RING_ROTATION_SPEED: f32 = 1.0;
 
@@ -88,15 +89,12 @@ pub struct LightRingMaterial {
 
 fn spawn_voxel_light_rings(
     commands: &mut Commands,
+    shared_data: Res<SharedData>,
     mut pipelines: ResMut<Assets<PipelineDescriptor>>,
     mut shaders: ResMut<Assets<Shader>>,
-    mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<LightRingMaterial>>,
     mut render_graph: ResMut<RenderGraph>,
 ) {
-    // Load cube mesh
-    let cube = meshes.add(Mesh::from(shape::Cube { size: 1.0 }));
-
     // Create a new shader pipeline
     let pipeline_handle = pipelines.add(PipelineDescriptor::default_config(ShaderStages {
         vertex: shaders.add(Shader::from_glsl(
@@ -149,7 +147,7 @@ fn spawn_voxel_light_rings(
 
                     parent
                         .spawn(MeshBundle {
-                            mesh: cube.clone(),
+                            mesh: shared_data.cube.clone(),
                             render_pipelines: RenderPipelines::from_pipelines(vec![
                                 RenderPipeline::new(pipeline_handle.clone()),
                             ]),

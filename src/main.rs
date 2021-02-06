@@ -6,6 +6,9 @@ use grids::*;
 mod light_rings;
 use light_rings::*;
 
+mod shared;
+use shared::*;
+
 use lazy_static::*;
 
 lazy_static! {
@@ -37,12 +40,9 @@ lazy_static! {
 
 fn setup(
     commands: &mut Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
+    shared_data: Res<SharedData>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    // Load cube mesh
-    let cube = meshes.add(Mesh::from(shape::Cube { size: 1.0 }));
-
     // ---- Pedestal & columns ----
     let material = materials.add(Color::rgb(0.7, 0.7, 0.7).into());
 
@@ -50,7 +50,7 @@ fn setup(
         commands.spawn(PbrBundle {
             transform: Transform::from_matrix(*d),
             material: material.clone(),
-            mesh: cube.clone(),
+            mesh: shared_data.cube.clone(),
             ..Default::default()
         });
     }
@@ -78,7 +78,7 @@ fn setup(
         })
         .with_children(|parent| {
             parent.spawn(PbrBundle {
-                mesh: cube.clone(),
+                mesh: shared_data.cube.clone(),
                 ..Default::default()
             });
         });
@@ -97,6 +97,7 @@ fn main() {
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)
+        .init_resource::<SharedData>()
         .add_plugin(GridsPlugin)
         .add_plugin(LightRingsPlugin)
         .add_startup_system(setup.system())
