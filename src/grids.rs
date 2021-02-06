@@ -3,7 +3,7 @@ use std::{cmp, collections::HashMap};
 use bevy::prelude::*;
 
 const GRID_WAVE_TILING: f32 = 10.0;
-const GRID_WAVE_HEIGHT: f32 = 0.025;
+const GRID_WAVE_HEIGHT: f32 = 0.03;
 const GRID_WAVE_SPEED: f32 = 2.0;
 
 #[derive(Clone, Copy)]
@@ -30,29 +30,31 @@ pub fn spawn_voxel_grid(
     movement_type: GridVoxelMovementType,
     transform: Transform,
 ) {
-    // Build palette as hashmap of chars to materials
-    let parts: Vec<&str> = xpm_data[0].split(" ").collect();
-    let width: usize = parts[0].parse().unwrap();
-    let height: usize = parts[1].parse().unwrap();
-    let palette_size: usize = parts[2].parse().unwrap();
+    // XPM headers take the form "20 20 2 1", "16 16 4 1", etc.
+    let header: Vec<&str> = xpm_data[0].split(" ").collect();
+    let width: usize = header[0].parse().unwrap();
+    let height: usize = header[1].parse().unwrap();
+    let palette_size: usize = header[2].parse().unwrap();
     let mut palette = HashMap::with_capacity(palette_size);
 
+    // Map palette indices to color materials.
     for i in 1..=palette_size {
-        let row = xpm_data[i];
-        let palette_index: char = row.chars().nth(0).unwrap();
-        let hex_color: &str = row.split(" ").last().unwrap();
+        // XPM palette entries take the form " \tc None", ".\tc #000000", etc.
+        let palette_row = xpm_data[i];
+        let palette_index: char = palette_row.chars().nth(0).unwrap();
+        let color_value: &str = palette_row.split(" ").last().unwrap();
 
-        let material = match hex_color {
-            "None" => None,
+        match color_value {
+            "None" => {}
             _ => {
-                let parts: Vec<&str> = hex_color.split("#").collect();
-                let color = Color::hex(parts[1]).unwrap();
-
-                Some(materials.add(color.into()))
+                // Strip '#' off "#RRGGBB" before converting it to a Color.
+                let hex_color: String = color_value.chars().skip(1).collect();
+                palette.insert(
+                    palette_index,
+                    materials.add(Color::hex(hex_color).unwrap().into()),
+                );
             }
         };
-
-        palette.insert(palette_index, material);
     }
 
     // Ensure that the largest dimension will be scaled into [0, 1].
@@ -76,7 +78,7 @@ pub fn spawn_voxel_grid(
                 for w in 0..width {
                     let palette_index = row.chars().nth(w).unwrap();
 
-                    if let Some(material) = &palette[&palette_index] {
+                    if let Some(material) = palette.get(&palette_index) {
                         parent
                             .spawn(PbrBundle {
                                 transform: Transform::from_matrix(
@@ -109,18 +111,15 @@ pub fn spawn_voxel_grid(
 /// Animate all grid voxel entities based on their movement type.
 fn animate_grid_voxels(time: Res<Time>, mut query: Query<(&mut Transform, &mut GridVoxel)>) {
     for (mut transform, mut voxel) in query.iter_mut() {
+        voxel.wave_movement = (voxel.wave_movement + (GRID_WAVE_SPEED * time.delta_seconds()))
+            % (2.0 * std::f32::consts::PI);
+
         match voxel.movement_type {
             GridVoxelMovementType::Ripple => {
-                voxel.wave_movement = (voxel.wave_movement
-                    + (GRID_WAVE_SPEED * time.delta_seconds()))
-                    % (2.0 * std::f32::consts::PI);
                 transform.translation.y = GRID_WAVE_HEIGHT
                     * (voxel.wave_movement + GRID_WAVE_TILING * (voxel.x + voxel.y)).sin();
             }
             GridVoxelMovementType::Wave => {
-                voxel.wave_movement = (voxel.wave_movement
-                    + (GRID_WAVE_SPEED * time.delta_seconds()))
-                    % (2.0 * std::f32::consts::PI);
                 transform.translation.y = GRID_WAVE_HEIGHT
                     * ((voxel.wave_movement + GRID_WAVE_TILING * voxel.x).sin()
                         + (voxel.wave_movement + GRID_WAVE_TILING * voxel.y).sin());
