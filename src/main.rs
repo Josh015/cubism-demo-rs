@@ -1,14 +1,4 @@
-use bevy::{
-    prelude::*,
-    reflect::TypeUuid,
-    render::{
-        mesh::shape,
-        pipeline::{PipelineDescriptor, RenderPipeline},
-        render_graph::{base, AssetRenderResourcesNode, RenderGraph},
-        renderer::RenderResources,
-        shader::{ShaderStage, ShaderStages},
-    },
-};
+use bevy::prelude::*;
 
 mod grids;
 use grids::*;
@@ -116,46 +106,13 @@ const BLUE_XPM: [&str; 23] = [
     "....................",
 ];
 
-#[derive(RenderResources, Default, TypeUuid)]
-#[uuid = "1e08866c-0b8a-437e-8bce-37733b25127e"]
-pub struct EmissiveMaterial {
-    pub color: Color,
-}
-
 fn setup(
     commands: &mut Commands,
-    mut pipelines: ResMut<Assets<PipelineDescriptor>>,
-    mut shaders: ResMut<Assets<Shader>>,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut emissive_materials: ResMut<Assets<EmissiveMaterial>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut render_graph: ResMut<RenderGraph>,
 ) {
     // Load cube mesh
     let cube = meshes.add(Mesh::from(shape::Cube { size: 1.0 }));
-
-    // Create a new shader pipeline
-    let pipeline_handle = pipelines.add(PipelineDescriptor::default_config(ShaderStages {
-        vertex: shaders.add(Shader::from_glsl(
-            ShaderStage::Vertex,
-            include_str!("./shaders/emissive_material.vert"),
-        )),
-        fragment: Some(shaders.add(Shader::from_glsl(
-            ShaderStage::Fragment,
-            include_str!("./shaders/emissive_material.frag"),
-        ))),
-    }));
-
-    // Add an AssetRenderResourcesNode to our Render Graph. This will bind EmissiveMaterial resources to our shader
-    render_graph.add_system_node(
-        "emissive_material",
-        AssetRenderResourcesNode::<EmissiveMaterial>::new(true),
-    );
-
-    // Add a Render Graph edge connecting our new "emissive_material" node to the main pass node. This ensures "emissive_material" runs before the main pass
-    render_graph
-        .add_node_edge("emissive_material", base::node::MAIN_PASS)
-        .unwrap();
 
     // ---- Voxel grids ----
     // Sprite
@@ -225,73 +182,6 @@ fn setup(
         ),
     );
 
-    // ---- Voxel light rings ----
-    // Green-yellow light ring
-    spawn_voxel_light_ring(
-        commands,
-        &mut emissive_materials,
-        &pipeline_handle,
-        &cube,
-        200,
-        0.5,
-        0.4,
-        0.7,
-        Color::rgb(0.3, 0.3, 0.05),
-        Color::rgb(0.6, 0.7, 0.1),
-        Mat4::from_translation(-0.55 * Vec3::unit_y()),
-    );
-
-    // Cyan light ring
-    spawn_voxel_light_ring(
-        commands,
-        &mut emissive_materials,
-        &pipeline_handle,
-        &cube,
-        100,
-        0.125,
-        0.4,
-        1.0,
-        Color::rgb(0.05, 0.4, 0.5),
-        Color::rgb(0.1, 0.5, 0.7),
-        Mat4::from_translation(-1.2 * Vec3::unit_y()),
-    );
-
-    // Orange light ring
-    spawn_voxel_light_ring(
-        commands,
-        &mut emissive_materials,
-        &pipeline_handle,
-        &cube,
-        100,
-        0.125,
-        0.25,
-        1.0,
-        Color::rgb(0.5, 0.4, 0.05),
-        Color::rgb(0.6, 0.5, 0.1),
-        Mat4::from_rotation_translation(
-            Quat::from_axis_angle(Vec3::unit_x(), 90f32.to_radians()),
-            -1.2 * Vec3::unit_z(),
-        ),
-    );
-
-    // Magenta light ring
-    spawn_voxel_light_ring(
-        commands,
-        &mut emissive_materials,
-        &pipeline_handle,
-        &cube,
-        100,
-        0.125,
-        0.25,
-        1.0,
-        Color::rgb(0.1, 0.1, 0.5),
-        Color::rgb(0.6, 0.2, 0.7),
-        Mat4::from_rotation_translation(
-            Quat::from_axis_angle(Vec3::unit_z(), -90f32.to_radians()),
-            1.2 * Vec3::unit_x(),
-        ),
-    );
-
     // ---- Pedestal & columns ----
     let material = materials.add(Color::rgb(0.7, 0.7, 0.7).into());
     let transforms: &[(Vec3, Vec3); 4] = &[
@@ -358,7 +248,6 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugin(GridsPlugin)
         .add_plugin(LightRingsPlugin)
-        .add_asset::<EmissiveMaterial>()
         .add_startup_system(setup.system())
         .run();
 }
