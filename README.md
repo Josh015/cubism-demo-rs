@@ -9,7 +9,7 @@ A Bevy Engine port of an old C++ OpenGL demo I made back in 2010.
 - [ ] Convert central sprite to Rust mascot Ferris.
 - [x] Add different animations via systems and enum component.
 - [x] Add spinning light animation.
-- [ ] Add different camera angles.
+- [x] Add different camera angles.
 - [ ] Add onscreen instructions UI that can be minimized.
 - [x] Switch to custom material for emissive objects.
 - [ ] Add Afterlights renderer.

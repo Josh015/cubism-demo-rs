@@ -1,7 +1,7 @@
-use std::{cmp, collections::HashMap};
+use crate::shared::SharedData;
 use bevy::prelude::*;
 use lazy_static::*;
-use crate::shared::SharedData;
+use std::{cmp, collections::HashMap};
 
 const GRID_WAVE_TILING: f32 = 10.0;
 const GRID_WAVE_HEIGHT: f32 = 0.03;
