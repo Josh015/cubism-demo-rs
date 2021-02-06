@@ -123,13 +123,13 @@ fn setup(
         1.0,
         &SPRITE_XPM,
         GridVoxelMovementType::Static,
-        Transform::from_matrix(Mat4::from_scale_rotation_translation(
+        Mat4::from_scale_rotation_translation(
             Vec3::splat(0.55),
             (Quat::from_axis_angle(Vec3::unit_x(), 90f32.to_radians())
                 * Quat::from_axis_angle(Vec3::unit_z(), 45f32.to_radians()))
             .normalize(),
             -0.125 * Vec3::unit_y(),
-        )),
+        ),
     );
 
     let voxel_scale = 0.87;
@@ -143,11 +143,11 @@ fn setup(
         voxel_scale,
         &MAGENTA_XPM,
         GridVoxelMovementType::Ripple,
-        Transform::from_matrix(Mat4::from_scale_rotation_translation(
+        Mat4::from_scale_rotation_translation(
             grid_scale,
             Quat::from_axis_angle(Vec3::unit_z(), -90f32.to_radians()),
             Vec3::unit_x(),
-        )),
+        ),
     );
 
     // Orange ripple
@@ -158,13 +158,13 @@ fn setup(
         voxel_scale,
         &ORANGE_XPM,
         GridVoxelMovementType::Ripple,
-        Transform::from_matrix(Mat4::from_scale_rotation_translation(
+        Mat4::from_scale_rotation_translation(
             grid_scale,
             (Quat::from_axis_angle(Vec3::unit_x(), 90f32.to_radians())
                 * Quat::from_axis_angle(Vec3::unit_z(), 180f32.to_radians()))
             .normalize(),
             -Vec3::unit_z(),
-        )),
+        ),
     );
 
     // Blue wave
@@ -175,11 +175,11 @@ fn setup(
         voxel_scale,
         &BLUE_XPM,
         GridVoxelMovementType::Wave,
-        Transform::from_matrix(Mat4::from_scale_rotation_translation(
+        Mat4::from_scale_rotation_translation(
             grid_scale,
             Quat::from_axis_angle(Vec3::unit_y(), -90f32.to_radians()),
             -Vec3::unit_y(),
-        )),
+        ),
     );
 
     // ---- Voxel light rings ----
@@ -194,7 +194,7 @@ fn setup(
         0.7,
         Color::rgb(0.3, 0.3, 0.05),
         Color::rgb(0.6, 0.7, 0.1),
-        Transform::from_translation(-0.55 * Vec3::unit_y()),
+        Mat4::from_translation(-0.55 * Vec3::unit_y()),
     );
 
     // Cyan light ring
@@ -208,7 +208,7 @@ fn setup(
         1.0,
         Color::rgb(0.05, 0.4, 0.5),
         Color::rgb(0.1, 0.5, 0.7),
-        Transform::from_translation(-1.2 * Vec3::unit_y()),
+        Mat4::from_translation(-1.2 * Vec3::unit_y()),
     );
 
     // Orange light ring
@@ -222,10 +222,10 @@ fn setup(
         1.0,
         Color::rgb(0.5, 0.4, 0.05),
         Color::rgb(0.6, 0.5, 0.1),
-        Transform::from_matrix(Mat4::from_rotation_translation(
+        Mat4::from_rotation_translation(
             Quat::from_axis_angle(Vec3::unit_x(), 90f32.to_radians()),
             -1.2 * Vec3::unit_z(),
-        )),
+        ),
     );
 
     // Magenta light ring
@@ -239,10 +239,10 @@ fn setup(
         1.0,
         Color::rgb(0.1, 0.1, 0.5),
         Color::rgb(0.6, 0.2, 0.7),
-        Transform::from_matrix(Mat4::from_rotation_translation(
+        Mat4::from_rotation_translation(
             Quat::from_axis_angle(Vec3::unit_z(), -90f32.to_radians()),
             1.2 * Vec3::unit_x(),
-        )),
+        ),
     );
 
     // ---- Pedestal & columns ----

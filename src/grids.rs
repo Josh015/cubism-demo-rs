@@ -28,7 +28,7 @@ pub fn spawn_voxel_grid(
     voxel_scale: f32,
     xpm_data: &[&str],
     movement_type: GridVoxelMovementType,
-    transform: Transform,
+    transform: Mat4,
 ) {
     // XPM headers take the form "20 20 2 1", "16 16 4 1", etc.
     let header: Vec<&str> = xpm_data[0].split(" ").collect();
@@ -67,7 +67,7 @@ pub fn spawn_voxel_grid(
 
     commands
         .spawn(PbrBundle {
-            transform,
+            transform: Transform::from_matrix(transform),
             // mesh: cube.clone(),
             ..Default::default()
         })

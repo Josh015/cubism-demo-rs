@@ -18,7 +18,7 @@ pub fn spawn_voxel_light_ring(
     outer_radius: f32,
     min_color: Color,
     max_color: Color,
-    transform: Transform,
+    transform: Mat4,
 ) {
     let voxel_scale = Vec3::splat(0.025);
     let mut rng = rand::thread_rng();
@@ -30,7 +30,7 @@ pub fn spawn_voxel_light_ring(
 
     commands
         .spawn(PbrBundle {
-            transform,
+            transform: Transform::from_matrix(transform),
             ..Default::default()
         })
         .with(LightRing)
