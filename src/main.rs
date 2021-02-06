@@ -128,7 +128,7 @@ fn setup(
             (Quat::from_axis_angle(Vec3::unit_x(), 90f32.to_radians())
                 * Quat::from_axis_angle(Vec3::unit_z(), 45f32.to_radians()))
             .normalize(),
-            Vec3::zero(),
+            -0.125 * Vec3::unit_y(),
         )),
     );
 
@@ -189,12 +189,12 @@ fn setup(
         &mut materials,
         &cube,
         200,
-        1.0,
+        0.5,
         0.4,
-        0.9,
+        0.7,
         Color::rgb(0.3, 0.3, 0.05),
         Color::rgb(0.6, 0.7, 0.1),
-        Transform::from_translation(-0.65 * Vec3::unit_y()),
+        Transform::from_translation(-0.55 * Vec3::unit_y()),
     );
 
     // Cyan light ring
@@ -272,9 +272,9 @@ fn setup(
         .spawn(Camera3dBundle {
             transform: Transform::from_matrix(Mat4::from_rotation_translation(
                 (Quat::from_axis_angle(Vec3::unit_y(), -45f32.to_radians())
-                    * Quat::from_axis_angle(Vec3::unit_x(), -45f32.to_radians()))
+                    * Quat::from_axis_angle(Vec3::unit_x(), -30f32.to_radians()))
                 .normalize(),
-                Vec3::new(-2.0, 3.0, 2.0),
+                Vec3::new(-3.0, 2.25, 3.0),
             )),
             // transform: Transform::from_matrix(Mat4::look_at_rh(
             //     Vec3::new(0.0, 0.0, -5.0),

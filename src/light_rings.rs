@@ -20,7 +20,7 @@ pub fn spawn_voxel_light_ring(
     max_color: Color,
     transform: Transform,
 ) {
-    let voxel_scale = Vec3::splat(0.05);
+    let voxel_scale = Vec3::splat(0.03);
     let mut rng = rand::thread_rng();
     let color_randomizer = Uniform::from(0f32..=1f32);
     let radius_randomizer = Uniform::from(inner_radius..=outer_radius);
