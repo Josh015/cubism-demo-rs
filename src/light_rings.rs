@@ -32,8 +32,6 @@ pub struct LightRingMaterial {
     pub color: Color,
 }
 
-/// Spawns a field of randomly colored and positioned lights that form a
-/// tube/ring shape and spins in place.
 fn spawn_voxel_light_rings(
     commands: &mut Commands,
     mut pipelines: ResMut<Assets<PipelineDescriptor>>,
@@ -68,7 +66,7 @@ fn spawn_voxel_light_rings(
         .add_node_edge("light_ring_material", base::node::MAIN_PASS)
         .unwrap();
 
-    // Spawn voxel light rings
+    // Voxel light ring descriptions
     let descriptions: [LightRingDesc; 4] = [
         // Green-yellow light ring
         LightRingDesc {
@@ -118,6 +116,7 @@ fn spawn_voxel_light_rings(
         },
     ];
 
+    // Spawn voxel light rings
     for lr in descriptions.iter() {
         let voxel_scale = Vec3::splat(0.025);
         let mut rng = rand::thread_rng();
@@ -173,7 +172,6 @@ fn spawn_voxel_light_rings(
     }
 }
 
-/// Animate all light ring voxel entities.
 fn animate_light_ring(time: Res<Time>, mut query: Query<(&mut Transform, &LightRing)>) {
     for (mut transform, _) in query.iter_mut() {
         transform.rotate(Quat::from_axis_angle(

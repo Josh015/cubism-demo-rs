@@ -184,20 +184,32 @@ fn setup(
 
     // ---- Pedestal & columns ----
     let material = materials.add(Color::rgb(0.7, 0.7, 0.7).into());
-    let transforms: &[(Vec3, Vec3); 4] = &[
-        (Vec3::new(0.0, -1.0, 0.0), Vec3::new(0.340, 1.200, 0.340)),
-        (Vec3::new(1.0, 0.05, -1.0), Vec3::new(0.125, 2.0, 0.125)),
-        (Vec3::new(1.0, -1.0, 0.05), Vec3::new(0.125, 0.125, 2.0)),
-        (Vec3::new(-0.05, -1.0, -1.0), Vec3::new(2.0, 0.125, 0.125)),
+    let transforms: [Mat4; 4] = [
+        Mat4::from_scale_rotation_translation(
+            Vec3::new(0.340, 1.200, 0.340),
+            Quat::identity(),
+            Vec3::new(0.0, -1.0, 0.0),
+        ),
+        Mat4::from_scale_rotation_translation(
+            Vec3::new(0.125, 2.0, 0.125),
+            Quat::identity(),
+            Vec3::new(1.0, 0.05, -1.0),
+        ),
+        Mat4::from_scale_rotation_translation(
+            Vec3::new(0.125, 0.125, 2.0),
+            Quat::identity(),
+            Vec3::new(1.0, -1.0, 0.05),
+        ),
+        Mat4::from_scale_rotation_translation(
+            Vec3::new(2.0, 0.125, 0.125),
+            Quat::identity(),
+            Vec3::new(-0.05, -1.0, -1.0),
+        ),
     ];
 
-    for t in transforms {
+    for t in transforms.iter() {
         commands.spawn(PbrBundle {
-            transform: Transform::from_matrix(Mat4::from_scale_rotation_translation(
-                t.1,
-                Quat::identity(),
-                t.0,
-            )),
+            transform: Transform::from_matrix(*t),
             material: material.clone(),
             mesh: cube.clone(),
             ..Default::default()
