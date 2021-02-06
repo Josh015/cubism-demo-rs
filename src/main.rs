@@ -6,6 +6,35 @@ use grids::*;
 mod light_rings;
 use light_rings::*;
 
+use lazy_static::*;
+
+lazy_static! {
+    static ref DESCRIPTIONS: [Mat4; 4] = {
+        [
+            Mat4::from_scale_rotation_translation(
+                Vec3::new(0.340, 1.200, 0.340),
+                Quat::identity(),
+                Vec3::new(0.0, -1.0, 0.0),
+            ),
+            Mat4::from_scale_rotation_translation(
+                Vec3::new(0.125, 2.0, 0.125),
+                Quat::identity(),
+                Vec3::new(1.0, 0.05, -1.0),
+            ),
+            Mat4::from_scale_rotation_translation(
+                Vec3::new(0.125, 0.125, 2.0),
+                Quat::identity(),
+                Vec3::new(1.0, -1.0, 0.05),
+            ),
+            Mat4::from_scale_rotation_translation(
+                Vec3::new(2.0, 0.125, 0.125),
+                Quat::identity(),
+                Vec3::new(-0.05, -1.0, -1.0),
+            ),
+        ]
+    };
+}
+
 fn setup(
     commands: &mut Commands,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -16,32 +45,10 @@ fn setup(
 
     // ---- Pedestal & columns ----
     let material = materials.add(Color::rgb(0.7, 0.7, 0.7).into());
-    let transforms: [Mat4; 4] = [
-        Mat4::from_scale_rotation_translation(
-            Vec3::new(0.340, 1.200, 0.340),
-            Quat::identity(),
-            Vec3::new(0.0, -1.0, 0.0),
-        ),
-        Mat4::from_scale_rotation_translation(
-            Vec3::new(0.125, 2.0, 0.125),
-            Quat::identity(),
-            Vec3::new(1.0, 0.05, -1.0),
-        ),
-        Mat4::from_scale_rotation_translation(
-            Vec3::new(0.125, 0.125, 2.0),
-            Quat::identity(),
-            Vec3::new(1.0, -1.0, 0.05),
-        ),
-        Mat4::from_scale_rotation_translation(
-            Vec3::new(2.0, 0.125, 0.125),
-            Quat::identity(),
-            Vec3::new(-0.05, -1.0, -1.0),
-        ),
-    ];
 
-    for t in transforms.iter() {
+    for d in DESCRIPTIONS.iter() {
         commands.spawn(PbrBundle {
-            transform: Transform::from_matrix(*t),
+            transform: Transform::from_matrix(*d),
             material: material.clone(),
             mesh: cube.clone(),
             ..Default::default()

@@ -1,10 +1,13 @@
 use std::{cmp, collections::HashMap};
 
 use bevy::prelude::*;
+use lazy_static::*;
 
 const GRID_WAVE_TILING: f32 = 10.0;
 const GRID_WAVE_HEIGHT: f32 = 0.03;
 const GRID_WAVE_SPEED: f32 = 2.0;
+const WALL_VOXEL_SCALE: f32 = 0.87;
+const WALL_GRID_SCALE: f32 = 1.8;
 
 const SPRITE_XPM: [&str; 21] = [
     "16 16 4 1",
@@ -106,6 +109,61 @@ const BLUE_XPM: [&str; 23] = [
     "....................",
 ];
 
+lazy_static! {
+    static ref DESCRIPTIONS: [GridVoxelDesc; 4] = {
+        [
+            // Sprite
+            GridVoxelDesc {
+                voxel_scale: 1.0,
+                xpm_data: &SPRITE_XPM,
+                movement_type: GridVoxelMovementType::Static,
+                transform: Mat4::from_scale_rotation_translation(
+                    Vec3::splat(0.55),
+                    (Quat::from_axis_angle(Vec3::unit_x(), 90f32.to_radians())
+                        * Quat::from_axis_angle(Vec3::unit_z(), 45f32.to_radians()))
+                    .normalize(),
+                    -0.125 * Vec3::unit_y(),
+                ),
+            },
+            // Magenta ripple
+            GridVoxelDesc {
+                voxel_scale: WALL_VOXEL_SCALE,
+                xpm_data: &MAGENTA_XPM,
+                movement_type: GridVoxelMovementType::Ripple,
+                transform: Mat4::from_scale_rotation_translation(
+                    Vec3::splat(WALL_GRID_SCALE),
+                    Quat::from_axis_angle(Vec3::unit_z(), -90f32.to_radians()),
+                    Vec3::unit_x(),
+                ),
+            },
+            // Orange ripple
+            GridVoxelDesc {
+                voxel_scale: WALL_VOXEL_SCALE,
+                xpm_data: &ORANGE_XPM,
+                movement_type: GridVoxelMovementType::Ripple,
+                transform: Mat4::from_scale_rotation_translation(
+                    Vec3::splat(WALL_GRID_SCALE),
+                    (Quat::from_axis_angle(Vec3::unit_x(), 90f32.to_radians())
+                        * Quat::from_axis_angle(Vec3::unit_z(), 180f32.to_radians()))
+                    .normalize(),
+                    -Vec3::unit_z(),
+                ),
+            },
+            // Blue wave
+            GridVoxelDesc {
+                voxel_scale: WALL_VOXEL_SCALE,
+                xpm_data: &BLUE_XPM,
+                movement_type: GridVoxelMovementType::Wave,
+                transform: Mat4::from_scale_rotation_translation(
+                    Vec3::splat(WALL_GRID_SCALE),
+                    Quat::from_axis_angle(Vec3::unit_y(), -90f32.to_radians()),
+                    -Vec3::unit_y(),
+                ),
+            },
+        ]
+    };
+}
+
 struct GridVoxelDesc {
     voxel_scale: f32,
     movement_type: GridVoxelMovementType,
@@ -134,65 +192,11 @@ fn spawn_voxel_grids(
 ) {
     // Load cube mesh
     let cube = meshes.add(Mesh::from(shape::Cube { size: 1.0 }));
-    let voxel_scale = 0.87;
-    let grid_scale = Vec3::splat(1.8);
-
-    // Voxel grid descriptions
-    let descriptions: [GridVoxelDesc; 4] = [
-        // Sprite
-        GridVoxelDesc {
-            voxel_scale: 1.0,
-            xpm_data: &SPRITE_XPM,
-            movement_type: GridVoxelMovementType::Static,
-            transform: Mat4::from_scale_rotation_translation(
-                Vec3::splat(0.55),
-                (Quat::from_axis_angle(Vec3::unit_x(), 90f32.to_radians())
-                    * Quat::from_axis_angle(Vec3::unit_z(), 45f32.to_radians()))
-                .normalize(),
-                -0.125 * Vec3::unit_y(),
-            ),
-        },
-        // Magenta ripple
-        GridVoxelDesc {
-            voxel_scale,
-            xpm_data: &MAGENTA_XPM,
-            movement_type: GridVoxelMovementType::Ripple,
-            transform: Mat4::from_scale_rotation_translation(
-                grid_scale,
-                Quat::from_axis_angle(Vec3::unit_z(), -90f32.to_radians()),
-                Vec3::unit_x(),
-            ),
-        },
-        // Orange ripple
-        GridVoxelDesc {
-            voxel_scale,
-            xpm_data: &ORANGE_XPM,
-            movement_type: GridVoxelMovementType::Ripple,
-            transform: Mat4::from_scale_rotation_translation(
-                grid_scale,
-                (Quat::from_axis_angle(Vec3::unit_x(), 90f32.to_radians())
-                    * Quat::from_axis_angle(Vec3::unit_z(), 180f32.to_radians()))
-                .normalize(),
-                -Vec3::unit_z(),
-            ),
-        },
-        // Blue wave
-        GridVoxelDesc {
-            voxel_scale,
-            xpm_data: &BLUE_XPM,
-            movement_type: GridVoxelMovementType::Wave,
-            transform: Mat4::from_scale_rotation_translation(
-                grid_scale,
-                Quat::from_axis_angle(Vec3::unit_y(), -90f32.to_radians()),
-                -Vec3::unit_y(),
-            ),
-        },
-    ];
 
     // Spawn voxel grids
-    for g in descriptions.iter() {
+    for d in DESCRIPTIONS.iter() {
         // XPM headers take the form "20 20 2 1", "16 16 4 1", etc.
-        let header: Vec<&str> = g.xpm_data[0].split(" ").collect();
+        let header: Vec<&str> = d.xpm_data[0].split(" ").collect();
         let width: usize = header[0].parse().unwrap();
         let height: usize = header[1].parse().unwrap();
         let palette_size: usize = header[2].parse().unwrap();
@@ -201,7 +205,7 @@ fn spawn_voxel_grids(
         // Map palette indices to color materials.
         for i in 1..=palette_size {
             // XPM palette entries take the form " \tc None", ".\tc #000000", etc.
-            let palette_row = g.xpm_data[i];
+            let palette_row = d.xpm_data[i];
             let palette_index: char = palette_row.chars().nth(0).unwrap();
             let color_value: &str = palette_row.split(" ").last().unwrap();
 
@@ -220,7 +224,7 @@ fn spawn_voxel_grids(
 
         // Ensure that the largest dimension will be scaled into [0, 1].
         let scale_factor = cmp::max(width, height) as f32;
-        let voxel_scale = Vec3::splat(g.voxel_scale / scale_factor);
+        let voxel_scale = Vec3::splat(d.voxel_scale / scale_factor);
         let half_width = width as f32 * 0.5;
         let width_offset = half_width - 0.5;
         let half_height = height as f32 * 0.5;
@@ -228,13 +232,13 @@ fn spawn_voxel_grids(
 
         commands
             .spawn(PbrBundle {
-                transform: Transform::from_matrix(g.transform),
+                transform: Transform::from_matrix(d.transform),
                 // mesh: cube.clone(),
                 ..Default::default()
             })
             .with_children(|parent| {
                 for h in 0..height {
-                    let row = g.xpm_data[h + palette_size + 1];
+                    let row = d.xpm_data[h + palette_size + 1];
 
                     for w in 0..width {
                         let palette_index = row.chars().nth(w).unwrap();
@@ -258,7 +262,7 @@ fn spawn_voxel_grids(
                                     ..Default::default()
                                 })
                                 .with(GridVoxel {
-                                    movement_type: g.movement_type,
+                                    movement_type: d.movement_type,
                                     wave_movement: 0.0,
                                     x: w as f32 / (width - 1) as f32,
                                     y: h as f32 / (height - 1) as f32,

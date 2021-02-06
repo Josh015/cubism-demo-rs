@@ -9,9 +9,63 @@ use bevy::{
         shader::{ShaderStage, ShaderStages},
     },
 };
+use lazy_static::*;
 use rand::distributions::{Distribution, Uniform};
 
 const RING_ROTATION_SPEED: f32 = 1.0;
+
+lazy_static! {
+    static ref DESCRIPTIONS: [LightRingDesc; 4] = {
+        [
+            // Green-yellow light ring
+            LightRingDesc {
+                lights_count: 200,
+                height: 0.5,
+                inner_radius: 0.4,
+                outer_radius: 0.7,
+                min_color: Color::rgb(0.3, 0.3, 0.05),
+                max_color: Color::rgb(0.6, 0.7, 0.1),
+                transform: Mat4::from_translation(-0.55 * Vec3::unit_y()),
+            },
+            // Cyan light ring
+            LightRingDesc {
+                lights_count: 100,
+                height: 0.125,
+                inner_radius: 0.4,
+                outer_radius: 1.0,
+                min_color: Color::rgb(0.05, 0.4, 0.5),
+                max_color: Color::rgb(0.1, 0.5, 0.7),
+                transform: Mat4::from_translation(-1.2 * Vec3::unit_y()),
+            },
+            // Orange light ring
+            LightRingDesc {
+                lights_count: 100,
+                height: 0.125,
+                inner_radius: 0.25,
+                outer_radius: 1.0,
+                min_color: Color::rgb(0.5, 0.4, 0.05),
+                max_color: Color::rgb(0.6, 0.5, 0.1),
+                transform: Mat4::from_rotation_translation(
+                    Quat::from_axis_angle(Vec3::unit_x(), 90f32.to_radians()),
+                    -1.2 * Vec3::unit_z(),
+                ),
+            },
+            // Magenta light ring
+            LightRingDesc {
+                lights_count: 100,
+                height: 0.125,
+                inner_radius: 0.25,
+                outer_radius: 1.0,
+                min_color: Color::rgb(0.1, 0.1, 0.5),
+                max_color: Color::rgb(0.6, 0.2, 0.7),
+                transform: Mat4::from_rotation_translation(
+                    Quat::from_axis_angle(Vec3::unit_z(), -90f32.to_radians()),
+                    1.2 * Vec3::unit_x(),
+                ),
+            },
+        ]
+    };
+}
 
 struct LightRingDesc {
     lights_count: u32,
@@ -66,74 +120,24 @@ fn spawn_voxel_light_rings(
         .add_node_edge("light_ring_material", base::node::MAIN_PASS)
         .unwrap();
 
-    // Voxel light ring descriptions
-    let descriptions: [LightRingDesc; 4] = [
-        // Green-yellow light ring
-        LightRingDesc {
-            lights_count: 200,
-            height: 0.5,
-            inner_radius: 0.4,
-            outer_radius: 0.7,
-            min_color: Color::rgb(0.3, 0.3, 0.05),
-            max_color: Color::rgb(0.6, 0.7, 0.1),
-            transform: Mat4::from_translation(-0.55 * Vec3::unit_y()),
-        },
-        // Cyan light ring
-        LightRingDesc {
-            lights_count: 100,
-            height: 0.125,
-            inner_radius: 0.4,
-            outer_radius: 1.0,
-            min_color: Color::rgb(0.05, 0.4, 0.5),
-            max_color: Color::rgb(0.1, 0.5, 0.7),
-            transform: Mat4::from_translation(-1.2 * Vec3::unit_y()),
-        },
-        // Orange light ring
-        LightRingDesc {
-            lights_count: 100,
-            height: 0.125,
-            inner_radius: 0.25,
-            outer_radius: 1.0,
-            min_color: Color::rgb(0.5, 0.4, 0.05),
-            max_color: Color::rgb(0.6, 0.5, 0.1),
-            transform: Mat4::from_rotation_translation(
-                Quat::from_axis_angle(Vec3::unit_x(), 90f32.to_radians()),
-                -1.2 * Vec3::unit_z(),
-            ),
-        },
-        // Magenta light ring
-        LightRingDesc {
-            lights_count: 100,
-            height: 0.125,
-            inner_radius: 0.25,
-            outer_radius: 1.0,
-            min_color: Color::rgb(0.1, 0.1, 0.5),
-            max_color: Color::rgb(0.6, 0.2, 0.7),
-            transform: Mat4::from_rotation_translation(
-                Quat::from_axis_angle(Vec3::unit_z(), -90f32.to_radians()),
-                1.2 * Vec3::unit_x(),
-            ),
-        },
-    ];
-
     // Spawn voxel light rings
-    for lr in descriptions.iter() {
+    for d in DESCRIPTIONS.iter() {
         let voxel_scale = Vec3::splat(0.025);
         let mut rng = rand::thread_rng();
         let color_randomizer = Uniform::from(0f32..=1f32);
-        let radius_randomizer = Uniform::from(lr.inner_radius..=lr.outer_radius);
-        let height_randomizer = Uniform::from((-0.5 * lr.height)..=(0.5 * lr.height));
+        let radius_randomizer = Uniform::from(d.inner_radius..=d.outer_radius);
+        let height_randomizer = Uniform::from((-0.5 * d.height)..=(0.5 * d.height));
         let x_randomizer = Uniform::from(-1f32..=1f32);
         let z_randomizer = Uniform::from(-1f32..=1f32);
 
         commands
             .spawn(PbrBundle {
-                transform: Transform::from_matrix(lr.transform),
+                transform: Transform::from_matrix(d.transform),
                 ..Default::default()
             })
             .with(LightRing)
             .with_children(|parent| {
-                for _i in 0..lr.lights_count {
+                for _i in 0..d.lights_count {
                     let mut translation = Vec3::new(
                         x_randomizer.sample(&mut rng),
                         0.0,
@@ -160,8 +164,8 @@ fn spawn_voxel_light_rings(
                         })
                         .with(materials.add(LightRingMaterial {
                             color: Color::from(
-                                1.5 * Vec4::from(lr.min_color).lerp(
-                                    Vec4::from(lr.max_color),
+                                1.5 * Vec4::from(d.min_color).lerp(
+                                    Vec4::from(d.max_color),
                                     color_randomizer.sample(&mut rng),
                                 ),
                             ),
