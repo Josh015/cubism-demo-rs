@@ -177,7 +177,7 @@ fn setup(
         GridVoxelMovementType::Wave,
         Transform::from_matrix(Mat4::from_scale_rotation_translation(
             grid_scale,
-            Quat::identity(),
+            Quat::from_axis_angle(Vec3::unit_y(), -90f32.to_radians()),
             -Vec3::unit_y(),
         )),
     );
