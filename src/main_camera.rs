@@ -40,19 +40,19 @@ fn keyboard_input(
             transform.rotation = DEFAULT_CAMERA_TRANSORMS.1;
         }
 
-        // +Z
+        // Right
         if keyboard_input.just_released(KeyCode::Key2) {
             transform.translation = Vec3::new(0.0, 0.0, 4.0);
             transform.rotation = Quat::identity();
         }
 
-        // -X
+        // Left
         if keyboard_input.just_released(KeyCode::Key3) {
             transform.translation = Vec3::new(-4.0, 0.0, 0.0);
             transform.rotation = Quat::from_axis_angle(Vec3::unit_y(), -90f32.to_radians());
         }
 
-        // +Y
+        // Above
         if keyboard_input.just_released(KeyCode::Key4) {
             transform.translation = Vec3::new(0.0, 4.0, 0.0);
             transform.rotation = Quat::from_axis_angle(Vec3::unit_x(), -90f32.to_radians());
