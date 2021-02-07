@@ -184,6 +184,7 @@ fn animate_light_ring(time: Res<Time>, mut query: Query<(&mut Transform, &LightR
 }
 
 fn animate_light_ring_voxels(time: Res<Time>, mut query: Query<(&mut Transform, &LightRingVoxel)>) {
+    // Rotate the cubes opposite the ring so that they always face the same way.
     for (mut transform, _) in query.iter_mut() {
         transform.rotate(Quat::from_axis_angle(
             Vec3::unit_y(),

@@ -11,7 +11,6 @@ A Bevy Engine port of an old C++ OpenGL demo I made back in 2010.
 - [x] Switch to custom material for emissive objects.
 - [x] Add onscreen instructions UI that can be minimized.
 - [ ] Auto-hide UI?
-- [ ] Convert central sprite to Rust mascot Ferris.
 - [ ] Add in lights and see how default renderer performs.
 - [ ] Add Afterlights renderer?
 - [ ] Add SSAO.
