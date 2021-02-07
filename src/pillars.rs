@@ -44,7 +44,7 @@ fn spawn_pillars(
         commands.spawn(PbrBundle {
             transform: Transform::from_matrix(*d),
             material: material.clone(),
-            mesh: shared_data.cube.clone(),
+            mesh: shared_data.unit_cube.clone(),
             ..Default::default()
         });
     }

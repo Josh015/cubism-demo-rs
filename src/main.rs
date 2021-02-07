@@ -19,9 +19,7 @@ use shared::*;
 #[bevy_main]
 fn main() {
     App::build()
-        // Set antialiasing to use 4 samples
         .add_resource(Msaa { samples: 4 })
-        // Set WindowDescriptor Resource to change title and size
         .add_resource(WindowDescriptor {
             title: "Cubism".to_string(),
             width: 1280.,

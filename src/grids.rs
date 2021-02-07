@@ -253,7 +253,7 @@ fn spawn_voxel_grids(
                                             ),
                                         ),
                                     ),
-                                    mesh: shared_data.cube.clone(),
+                                    mesh: shared_data.unit_cube.clone(),
                                     material: material.clone(),
                                     ..Default::default()
                                 })

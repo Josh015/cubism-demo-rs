@@ -147,7 +147,7 @@ fn spawn_voxel_light_rings(
 
                     parent
                         .spawn(MeshBundle {
-                            mesh: shared_data.cube.clone(),
+                            mesh: shared_data.unit_cube.clone(),
                             render_pipelines: RenderPipelines::from_pipelines(vec![
                                 RenderPipeline::new(pipeline_handle.clone()),
                             ]),

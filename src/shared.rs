@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 pub struct SharedData {
-    pub cube: Handle<Mesh>,
+    pub unit_cube: Handle<Mesh>,
 }
 
 impl FromResources for SharedData {
@@ -9,7 +9,7 @@ impl FromResources for SharedData {
         let mut meshes = resources.get_mut::<Assets<Mesh>>().unwrap();
 
         SharedData {
-            cube: meshes.add(Mesh::from(shape::Cube { size: 1.0 })),
+            unit_cube: meshes.add(Mesh::from(shape::Cube { size: 1.0 })),
         }
     }
 }
