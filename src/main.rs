@@ -13,9 +13,6 @@ use light_rings::*;
 mod shared;
 use shared::*;
 
-mod ui;
-use ui::*;
-
 use lazy_static::*;
 
 lazy_static! {
@@ -87,7 +84,6 @@ fn main() {
         .add_plugin(GridsPlugin)
         .add_plugin(MainCameraPlugin)
         .add_plugin(LightRingsPlugin)
-        .add_plugin(UiPlugin)
         .add_startup_system(setup.system())
         .run();
 }

@@ -1,6 +1,16 @@
 use bevy::{prelude::*, render::camera::Camera};
 use lazy_static::*;
 
+const INSTRUCTIONS: &str = r#"
+---- Keys ----
+1: Default view
+2: Right view
+3: Left view
+4: Top view
+"#;
+// TAB: Debug view
+// "#;
+
 lazy_static! {
     static ref DEFAULT_CAMERA_TRANSORMS: (Vec3, Quat) = {
         (
@@ -12,7 +22,14 @@ lazy_static! {
     };
 }
 
-fn setup(commands: &mut Commands) {
+fn setup(
+    commands: &mut Commands,
+    asset_server: ResMut<AssetServer>,
+    mut color_materials: ResMut<Assets<ColorMaterial>>,
+) {
+    let font = asset_server.load("fonts/FiraSans-Bold.ttf");
+    let material = color_materials.add(Color::NONE.into());
+
     commands
         // Camera
         .spawn(Camera3dBundle {
@@ -21,6 +38,35 @@ fn setup(commands: &mut Commands) {
                 DEFAULT_CAMERA_TRANSORMS.0,
             )),
             ..Default::default()
+        })
+        .spawn(CameraUiBundle::default())
+        // root node
+        .spawn(NodeBundle {
+            style: Style {
+                position_type: PositionType::Absolute,
+                position: Rect {
+                    left: Val::Px(10.0),
+                    top: Val::Px(10.0),
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+            material,
+            ..Default::default()
+        })
+        .with_children(|parent| {
+            parent.spawn(TextBundle {
+                text: Text {
+                    value: INSTRUCTIONS.to_string(),
+                    font,
+                    style: TextStyle {
+                        font_size: 40.0,
+                        color: Color::rgb(0.8, 0.8, 0.8),
+                        ..Default::default()
+                    },
+                },
+                ..Default::default()
+            });
         })
         // Light
         .spawn(LightBundle {
@@ -52,7 +98,7 @@ fn keyboard_input(
             transform.rotation = Quat::from_axis_angle(Vec3::unit_y(), -90f32.to_radians());
         }
 
-        // Above
+        // Top
         if keyboard_input.just_released(KeyCode::Key4) {
             transform.translation = Vec3::new(0.0, 4.0, 0.0);
             transform.rotation = Quat::from_axis_angle(Vec3::unit_x(), -90f32.to_radians());
