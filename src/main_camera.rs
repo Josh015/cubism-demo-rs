@@ -2,12 +2,13 @@ use bevy::{prelude::*, render::camera::Camera};
 use lazy_static::*;
 
 const INSTRUCTIONS: &str = r#"
----- Keys ----
-1: Default view
-2: Right view
-3: Left view
-4: Top view
+---- Views ----
+1: Default
+2: Right
+3: Left
+4: Top
 "#;
+// ---- Modes ----
 // TAB: Debug view
 // "#;
 
