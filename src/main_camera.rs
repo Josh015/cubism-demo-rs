@@ -3,7 +3,7 @@ use lazy_static::*;
 
 const INSTRUCTIONS: &str = r#"
 ---- Views ----
-1: Default
+1: Front
 2: Right
 3: Left
 4: Top
@@ -81,7 +81,7 @@ fn keyboard_input(
     mut query: Query<(&mut Transform, &Camera)>,
 ) {
     for (mut transform, _) in query.iter_mut() {
-        // Default
+        // Front
         if keyboard_input.just_pressed(KeyCode::Key1) {
             transform.translation = DEFAULT_CAMERA_TRANSORMS.0;
             transform.rotation = DEFAULT_CAMERA_TRANSORMS.1;
@@ -101,8 +101,9 @@ fn keyboard_input(
 
         // Top
         if keyboard_input.just_released(KeyCode::Key4) {
-            transform.translation = Vec3::new(0.0, 4.0, 0.0);
-            transform.rotation = Quat::from_axis_angle(Vec3::unit_x(), -90f32.to_radians());
+            transform.translation = Vec3::new(0.3, 4.0, -0.3);
+            transform.rotation = (Quat::from_axis_angle(Vec3::unit_x(), -90f32.to_radians())
+                * Quat::from_axis_angle(Vec3::unit_z(), -45f32.to_radians())).normalize();
         }
     }
 }
