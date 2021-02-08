@@ -103,7 +103,8 @@ fn keyboard_input(
         if keyboard_input.just_released(KeyCode::Key4) {
             transform.translation = Vec3::new(0.3, 4.0, -0.3);
             transform.rotation = (Quat::from_axis_angle(Vec3::unit_x(), -90f32.to_radians())
-                * Quat::from_axis_angle(Vec3::unit_z(), -45f32.to_radians())).normalize();
+                * Quat::from_axis_angle(Vec3::unit_z(), -45f32.to_radians()))
+            .normalize();
         }
     }
 }

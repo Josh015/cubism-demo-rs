@@ -136,6 +136,10 @@ fn spawn_voxel_light_rings(
             .with(LightRing)
             .with_children(|parent| {
                 for _i in 0..d.lights_count {
+                    let light_color = Color::from(
+                        1.5 * Vec4::from(d.min_color)
+                            .lerp(Vec4::from(d.max_color), color_randomizer.sample(&mut rng)),
+                    );
                     let mut translation = Vec3::new(
                         x_randomizer.sample(&mut rng),
                         0.0,
@@ -160,14 +164,11 @@ fn spawn_voxel_light_rings(
                             ),
                             ..Default::default()
                         })
-                        .with(materials.add(LightRingMaterial {
-                            color: Color::from(
-                                1.5 * Vec4::from(d.min_color).lerp(
-                                    Vec4::from(d.max_color),
-                                    color_randomizer.sample(&mut rng),
-                                ),
-                            ),
-                        }))
+                        // .with(Light {
+                        //     color: light_color,
+                        //     ..Default::default()
+                        // })
+                        .with(materials.add(LightRingMaterial { color: light_color }))
                         .with(LightRingVoxel);
                 }
             });

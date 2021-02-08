@@ -1,6 +1,14 @@
 # Cubism Demo
 A Bevy Engine port of an old C++ OpenGL demo I made back in 2010.
 
+## Run the sample
+
+To compile and run, use [cargo](https://www.rust-lang.org/learn/get-started):
+
+```
+cargo run --release
+```
+
 ## TODO
 - [x] Get basic layout of all objects and camera.
 - [x] Add material caching using xpm palettes?
