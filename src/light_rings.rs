@@ -1,13 +1,4 @@
-use bevy::{
-    prelude::*,
-    reflect::TypeUuid,
-    render::{
-        pipeline::{PipelineDescriptor, RenderPipeline},
-        render_graph::{base, AssetRenderResourcesNode, RenderGraph},
-        renderer::RenderResources,
-        shader::{ShaderStage, ShaderStages},
-    },
-};
+use bevy::prelude::*;
 use lazy_static::*;
 use rand::distributions::{Distribution, Uniform};
 
@@ -81,43 +72,11 @@ struct LightRingDesc {
 struct LightRing;
 struct LightRingVoxel;
 
-#[derive(RenderResources, Default, TypeUuid)]
-#[uuid = "1e08866c-0b8a-437e-8bce-37733b25127e"]
-pub struct LightRingMaterial {
-    pub color: Color,
-}
-
 fn spawn_voxel_light_rings(
     commands: &mut Commands,
     shared_data: Res<SharedData>,
-    mut pipelines: ResMut<Assets<PipelineDescriptor>>,
-    mut shaders: ResMut<Assets<Shader>>,
-    mut materials: ResMut<Assets<LightRingMaterial>>,
-    mut render_graph: ResMut<RenderGraph>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    // Create a new shader pipeline
-    let pipeline_handle = pipelines.add(PipelineDescriptor::default_config(ShaderStages {
-        vertex: shaders.add(Shader::from_glsl(
-            ShaderStage::Vertex,
-            include_str!("./shaders/light_ring_material.vert"),
-        )),
-        fragment: Some(shaders.add(Shader::from_glsl(
-            ShaderStage::Fragment,
-            include_str!("./shaders/light_ring_material.frag"),
-        ))),
-    }));
-
-    // Add an AssetRenderResourcesNode to our Render Graph. This will bind LightRingMaterial resources to our shader
-    render_graph.add_system_node(
-        "light_ring_material",
-        AssetRenderResourcesNode::<LightRingMaterial>::new(true),
-    );
-
-    // Add a Render Graph edge connecting our new "light_ring_material" node to the main pass node. This ensures "light_ring_material" runs before the main pass
-    render_graph
-        .add_node_edge("light_ring_material", base::node::MAIN_PASS)
-        .unwrap();
-
     // Spawn voxel light rings
     for d in DESCRIPTIONS.iter() {
         let voxel_scale = Vec3::splat(0.025);
@@ -150,11 +109,13 @@ fn spawn_voxel_light_rings(
                     translation.y = height_randomizer.sample(&mut rng);
 
                     parent
-                        .spawn(MeshBundle {
+                        .spawn(PbrBundle {
                             mesh: shared_data.unit_cube.clone(),
-                            render_pipelines: RenderPipelines::from_pipelines(vec![
-                                RenderPipeline::new(pipeline_handle.clone()),
-                            ]),
+                            material: materials.add(StandardMaterial {
+                                albedo: light_color,
+                                shaded: false,
+                                ..Default::default()
+                            }),
                             transform: Transform::from_matrix(
                                 Mat4::from_scale_rotation_translation(
                                     voxel_scale,
@@ -168,7 +129,6 @@ fn spawn_voxel_light_rings(
                         //     color: light_color,
                         //     ..Default::default()
                         // })
-                        .with(materials.add(LightRingMaterial { color: light_color }))
                         .with(LightRingVoxel);
                 }
             });
@@ -197,8 +157,7 @@ fn animate_light_ring_voxels(time: Res<Time>, mut query: Query<(&mut Transform, 
 pub struct LightRingsPlugin;
 impl Plugin for LightRingsPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_asset::<LightRingMaterial>()
-            .add_startup_system(spawn_voxel_light_rings.system())
+        app.add_startup_system(spawn_voxel_light_rings.system())
             .add_system(animate_light_ring.system())
             .add_system(animate_light_ring_voxels.system());
     }
