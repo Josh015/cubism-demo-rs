@@ -226,8 +226,10 @@ fn spawn_voxel_grids(
         // Ensure that the largest dimension will be scaled into [0, 1].
         let scale_factor = cmp::max(width, height) as f32;
         let voxel_scale = Vec3::splat(d.voxel_scale / scale_factor);
-        let width_offset = width as f32 * 0.5 - 0.5;
-        let height_offset = height as f32 * 0.5 - 0.5;
+        let width_minus_one = (width - 1) as f32;
+        let width_offset = width_minus_one * 0.5;
+        let height_minus_one = (height - 1) as f32;
+        let height_offset = height_minus_one * 0.5;
 
         commands
             .spawn(PbrBundle {
@@ -264,8 +266,8 @@ fn spawn_voxel_grids(
                                     movement_type: d.movement_type,
                                     wave_height: d.wave_height,
                                     wave_movement: 0.0,
-                                    grid_x: w as f32 / (width - 1) as f32,
-                                    grid_y: h as f32 / (height - 1) as f32,
+                                    grid_x: w as f32 / width_minus_one,
+                                    grid_y: h as f32 / height_minus_one,
                                 });
                         }
                     }
