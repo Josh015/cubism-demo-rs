@@ -19,11 +19,10 @@ cargo run --release
 - [x] Switch to custom material for emissive objects.
 - [x] Add onscreen instructions UI that can be minimized.
 - [ ] Auto-hide UI?
-- [ ] Add in lights and see how default renderer performs.
-- [ ] Add Afterlights renderer?
+- [ ] Add Afterlights renderer as sub-crate.
 - [ ] Add SSAO.
-- [ ] Add FXAA?
-- [ ] Add debug view of G-Buffer?
+- [ ] Add FXAA.
+- [ ] Add debug view of G-Buffer.
 
 ## Old Video
 [![Watch the video](https://i.vimeocdn.com/video/93015207_472x266.jpg)](https://vimeo.com/15442169)

@@ -4,7 +4,6 @@ use lazy_static::*;
 use std::{cmp, collections::HashMap};
 
 const GRID_WAVE_TILING: f32 = 10.0;
-const GRID_WAVE_HEIGHT: f32 = 0.03;
 const GRID_WAVE_SPEED: f32 = 2.0;
 const WALL_VOXEL_SCALE: f32 = 0.87;
 const WALL_GRID_SCALE: f32 = 1.8;
@@ -116,6 +115,7 @@ lazy_static! {
             GridVoxelDesc {
                 voxel_scale: 1.0,
                 xpm_data: &SPRITE_XPM,
+                wave_height: 0.0,
                 movement_type: GridVoxelMovementType::Static,
                 transform: Mat4::from_scale_rotation_translation(
                     Vec3::splat(0.55),
@@ -129,6 +129,7 @@ lazy_static! {
             GridVoxelDesc {
                 voxel_scale: WALL_VOXEL_SCALE,
                 xpm_data: &MAGENTA_XPM,
+                wave_height: 0.06,
                 movement_type: GridVoxelMovementType::Ripple,
                 transform: Mat4::from_scale_rotation_translation(
                     Vec3::splat(WALL_GRID_SCALE),
@@ -140,6 +141,7 @@ lazy_static! {
             GridVoxelDesc {
                 voxel_scale: WALL_VOXEL_SCALE,
                 xpm_data: &ORANGE_XPM,
+                wave_height: 0.06,
                 movement_type: GridVoxelMovementType::Ripple,
                 transform: Mat4::from_scale_rotation_translation(
                     Vec3::splat(WALL_GRID_SCALE),
@@ -153,6 +155,7 @@ lazy_static! {
             GridVoxelDesc {
                 voxel_scale: WALL_VOXEL_SCALE,
                 xpm_data: &BLUE_XPM,
+                wave_height: 0.12,
                 movement_type: GridVoxelMovementType::Wave,
                 transform: Mat4::from_scale_rotation_translation(
                     Vec3::splat(WALL_GRID_SCALE),
@@ -166,6 +169,7 @@ lazy_static! {
 
 struct GridVoxelDesc {
     voxel_scale: f32,
+    wave_height: f32,
     movement_type: GridVoxelMovementType,
     transform: Mat4,
     xpm_data: &'static [&'static str],
@@ -180,9 +184,10 @@ enum GridVoxelMovementType {
 
 struct GridVoxel {
     movement_type: GridVoxelMovementType,
+    wave_height: f32,
     wave_movement: f32,
-    x: f32,
-    y: f32,
+    grid_x: f32,
+    grid_y: f32,
 }
 
 fn spawn_voxel_grids(
@@ -221,10 +226,8 @@ fn spawn_voxel_grids(
         // Ensure that the largest dimension will be scaled into [0, 1].
         let scale_factor = cmp::max(width, height) as f32;
         let voxel_scale = Vec3::splat(d.voxel_scale / scale_factor);
-        let half_width = width as f32 * 0.5;
-        let width_offset = half_width - 0.5;
-        let half_height = height as f32 * 0.5;
-        let height_offset = half_height - 0.5;
+        let width_offset = width as f32 * 0.5 - 0.5;
+        let height_offset = height as f32 * 0.5 - 0.5;
 
         commands
             .spawn(PbrBundle {
@@ -259,9 +262,10 @@ fn spawn_voxel_grids(
                                 })
                                 .with(GridVoxel {
                                     movement_type: d.movement_type,
+                                    wave_height: d.wave_height,
                                     wave_movement: 0.0,
-                                    x: w as f32 / (width - 1) as f32,
-                                    y: h as f32 / (height - 1) as f32,
+                                    grid_x: w as f32 / (width - 1) as f32,
+                                    grid_y: h as f32 / (height - 1) as f32,
                                 });
                         }
                     }
@@ -277,13 +281,17 @@ fn animate_grid_voxels(time: Res<Time>, mut query: Query<(&mut Transform, &mut G
 
         match voxel.movement_type {
             GridVoxelMovementType::Ripple => {
-                transform.translation.y = GRID_WAVE_HEIGHT
-                    * (voxel.wave_movement + GRID_WAVE_TILING * (voxel.x + voxel.y)).sin();
+                transform.translation.y = 0.5
+                    * voxel.wave_height
+                    * (voxel.wave_movement + GRID_WAVE_TILING * (voxel.grid_x + voxel.grid_y))
+                        .sin();
             }
             GridVoxelMovementType::Wave => {
-                transform.translation.y = GRID_WAVE_HEIGHT
-                    * ((voxel.wave_movement + GRID_WAVE_TILING * voxel.x).sin()
-                        + (voxel.wave_movement + GRID_WAVE_TILING * voxel.y).sin());
+                transform.translation.y = 0.5
+                    * voxel.wave_height
+                    * (0.5
+                        * ((voxel.wave_movement + GRID_WAVE_TILING * voxel.grid_x).sin()
+                            + (voxel.wave_movement + GRID_WAVE_TILING * voxel.grid_y).sin()));
             }
             _ => {}
         }
