@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use lazy_static::*;
 use rand::distributions::{Distribution, Uniform};
 
-use crate::shared::SharedData;
+use super::shared::SharedData;
 
 const RING_ROTATION_SPEED: f32 = 1.0;
 
@@ -69,10 +69,10 @@ struct LightRingDesc {
     transform: Mat4,
 }
 
-struct LightRing;
-struct LightRingVoxel;
+pub struct LightRing;
+pub struct LightRingVoxel;
 
-fn spawn_voxel_light_rings(
+pub fn spawn_voxel_light_rings(
     commands: &mut Commands,
     shared_data: Res<SharedData>,
     mut materials: ResMut<Assets<StandardMaterial>>,
@@ -135,7 +135,7 @@ fn spawn_voxel_light_rings(
     }
 }
 
-fn animate_light_ring(time: Res<Time>, mut query: Query<(&mut Transform, &LightRing)>) {
+pub fn animate_light_ring(time: Res<Time>, mut query: Query<(&mut Transform, &LightRing)>) {
     for (mut transform, _) in query.iter_mut() {
         transform.rotate(Quat::from_axis_angle(
             Vec3::unit_y(),
@@ -144,21 +144,15 @@ fn animate_light_ring(time: Res<Time>, mut query: Query<(&mut Transform, &LightR
     }
 }
 
-fn animate_light_ring_voxels(time: Res<Time>, mut query: Query<(&mut Transform, &LightRingVoxel)>) {
+pub fn animate_light_ring_voxels(
+    time: Res<Time>,
+    mut query: Query<(&mut Transform, &LightRingVoxel)>,
+) {
     // Rotate the cubes opposite the ring so that they always face the same way.
     for (mut transform, _) in query.iter_mut() {
         transform.rotate(Quat::from_axis_angle(
             Vec3::unit_y(),
             RING_ROTATION_SPEED * -time.delta_seconds(),
         ));
-    }
-}
-
-pub struct LightRingsPlugin;
-impl Plugin for LightRingsPlugin {
-    fn build(&self, app: &mut AppBuilder) {
-        app.add_startup_system(spawn_voxel_light_rings.system())
-            .add_system(animate_light_ring.system())
-            .add_system(animate_light_ring_voxels.system());
     }
 }

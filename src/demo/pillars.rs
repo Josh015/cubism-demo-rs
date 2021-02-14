@@ -1,4 +1,4 @@
-use crate::shared::SharedData;
+use super::shared::SharedData;
 use bevy::prelude::*;
 use lazy_static::*;
 
@@ -33,7 +33,7 @@ lazy_static! {
     };
 }
 
-fn spawn_pillars(
+pub fn spawn_pillars(
     commands: &mut Commands,
     shared_data: Res<SharedData>,
     mut materials: ResMut<Assets<StandardMaterial>>,
@@ -47,12 +47,5 @@ fn spawn_pillars(
             mesh: shared_data.unit_cube.clone(),
             ..Default::default()
         });
-    }
-}
-
-pub struct PillarsPlugin;
-impl Plugin for PillarsPlugin {
-    fn build(&self, app: &mut AppBuilder) {
-        app.add_startup_system(spawn_pillars.system());
     }
 }

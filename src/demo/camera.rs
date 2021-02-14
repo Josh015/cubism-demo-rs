@@ -23,7 +23,7 @@ lazy_static! {
     };
 }
 
-fn setup(
+pub fn camera_setup(
     commands: &mut Commands,
     asset_server: ResMut<AssetServer>,
     mut color_materials: ResMut<Assets<ColorMaterial>>,
@@ -76,7 +76,7 @@ fn setup(
         });
 }
 
-fn keyboard_input(
+pub fn keyboard_input(
     keyboard_input: Res<Input<KeyCode>>,
     mut query: Query<(&mut Transform, &Camera)>,
 ) {
@@ -106,13 +106,5 @@ fn keyboard_input(
                 * Quat::from_axis_angle(Vec3::unit_z(), -45f32.to_radians()))
             .normalize();
         }
-    }
-}
-
-pub struct MainCameraPlugin;
-impl Plugin for MainCameraPlugin {
-    fn build(&self, app: &mut AppBuilder) {
-        app.add_startup_system(setup.system())
-            .add_system(keyboard_input.system());
     }
 }

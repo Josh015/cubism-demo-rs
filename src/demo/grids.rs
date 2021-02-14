@@ -1,7 +1,8 @@
-use crate::shared::SharedData;
 use bevy::prelude::*;
 use lazy_static::*;
 use std::{cmp, collections::HashMap};
+
+use super::SharedData;
 
 const GRID_WAVE_TILING: f32 = 10.0;
 const GRID_WAVE_SPEED: f32 = 2.0;
@@ -176,13 +177,13 @@ struct GridVoxelDesc {
 }
 
 #[derive(Clone, Copy)]
-enum GridVoxelMovementType {
+pub enum GridVoxelMovementType {
     Static,
     Ripple,
     Wave,
 }
 
-struct GridVoxel {
+pub struct GridVoxel {
     movement_type: GridVoxelMovementType,
     wave_height: f32,
     wave_movement: f32,
@@ -190,7 +191,7 @@ struct GridVoxel {
     grid_y: f32,
 }
 
-fn spawn_voxel_grids(
+pub fn spawn_voxel_grids(
     commands: &mut Commands,
     shared_data: Res<SharedData>,
     mut materials: ResMut<Assets<StandardMaterial>>,
@@ -276,7 +277,7 @@ fn spawn_voxel_grids(
     }
 }
 
-fn animate_grid_voxels(time: Res<Time>, mut query: Query<(&mut Transform, &mut GridVoxel)>) {
+pub fn animate_grid_voxels(time: Res<Time>, mut query: Query<(&mut Transform, &mut GridVoxel)>) {
     for (mut transform, mut voxel) in query.iter_mut() {
         voxel.wave_movement = (voxel.wave_movement + (GRID_WAVE_SPEED * time.delta_seconds()))
             % (2.0 * std::f32::consts::PI);
@@ -297,13 +298,5 @@ fn animate_grid_voxels(time: Res<Time>, mut query: Query<(&mut Transform, &mut G
             }
             _ => {}
         }
-    }
-}
-
-pub struct GridsPlugin;
-impl Plugin for GridsPlugin {
-    fn build(&self, app: &mut AppBuilder) {
-        app.add_startup_system(spawn_voxel_grids.system())
-            .add_system(animate_grid_voxels.system());
     }
 }

@@ -1,20 +1,8 @@
 use bevy::prelude::*;
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, PrintDiagnosticsPlugin};
 
-mod grids;
-use grids::*;
-
-mod main_camera;
-use main_camera::*;
-
-mod light_rings;
-use light_rings::*;
-
-mod pillars;
-use pillars::*;
-
-mod shared;
-use shared::*;
+mod demo;
+use demo::*;
 
 #[bevy_main]
 fn main() {
@@ -30,10 +18,6 @@ fn main() {
         // .add_plugin(PrintDiagnosticsPlugin::default())
         // .add_plugin(FrameTimeDiagnosticsPlugin::default())
         // .add_system(PrintDiagnosticsPlugin::print_diagnostics_system.system())
-        .init_resource::<SharedData>()
-        .add_plugin(GridsPlugin)
-        .add_plugin(MainCameraPlugin)
-        .add_plugin(PillarsPlugin)
-        .add_plugin(LightRingsPlugin)
+        .add_plugin(DemoPlugin)
         .run();
 }

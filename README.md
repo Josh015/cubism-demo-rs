@@ -18,11 +18,14 @@ cargo run --release
 - [x] Add different camera angles.
 - [x] Switch to custom material for emissive objects.
 - [x] Add onscreen instructions UI that can be minimized.
-- [ ] Auto-hide UI?
+- [x] Consolidate scene code into `demo` module with a single `DemoPlugin`.
+- [ ] First pass of custom pipeline with improved forward lighting.
 - [ ] Add Afterlights renderer as sub-crate.
 - [ ] Add SSAO.
+- [ ] Add simple tonemapping.
 - [ ] Add FXAA.
 - [ ] Add debug view of G-Buffer.
+- [ ] Auto-hide UI?
 
 ## Old Video
 [![Watch the video](https://i.vimeocdn.com/video/93015207_472x266.jpg)](https://vimeo.com/15442169)
