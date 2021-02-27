@@ -19,8 +19,9 @@ cargo run --release
 - [x] Switch to custom material for emissive objects.
 - [x] Add onscreen instructions UI that can be minimized.
 - [x] Consolidate scene code into `demo` module with a single `DemoPlugin`.
+- [x] Add custom material with support for 256 lights.
+- [x] Add simple tonemapping.
 - [ ] Add simple clustered forward renderer.
-- [ ] Add simple tonemapping.
 - [ ] Nicer UI?
 
 ## Old Video

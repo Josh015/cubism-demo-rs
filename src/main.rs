@@ -1,8 +1,14 @@
-use bevy::{prelude::*, render::camera::Camera};
+use bevy::{
+    prelude::*,
+    render::{camera::Camera, mesh::shape},
+};
 use lazy_static::*;
 use rand::distributions::{Distribution, Uniform};
 use std::{cmp, collections::HashMap};
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, PrintDiagnosticsPlugin};
+
+mod lighting;
+use lighting::*;
 
 const INSTRUCTIONS: &str = r#"
 ---- Views ----
@@ -310,7 +316,7 @@ fn setup(
     commands: &mut Commands,
     asset_server: ResMut<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut materials: ResMut<Assets<CustomMaterial>>,
     mut color_materials: ResMut<Assets<ColorMaterial>>,
 ) {
     let unit_cube = meshes.add(Mesh::from(shape::Cube { size: 1.0 }));
@@ -329,9 +335,13 @@ fn setup(
             ..Default::default()
         })
         // Light
-        .spawn(LightBundle {
+        .spawn(MeshBundle {
             transform: Transform::from_translation(Vec3::new(-4.0, 6.0, 4.0)),
             ..Default::default()
+        })
+        .with(CustomPointLight {
+            radius: 20.0,
+            ..CustomPointLight::default()
         })
         .spawn(CameraUiBundle::default())
         // root node
@@ -367,7 +377,7 @@ fn setup(
     let material = materials.add(Color::rgb(0.7, 0.7, 0.7).into());
 
     for d in PILLAR_DESCRIPTIONS.iter() {
-        commands.spawn(PbrBundle {
+        commands.spawn(CustomBundle {
             transform: Transform::from_matrix(*d),
             material: material.clone(),
             mesh: unit_cube.clone(),
@@ -386,7 +396,7 @@ fn setup(
         let z_randomizer = Uniform::from(-1f32..=1f32);
 
         commands
-            .spawn(PbrBundle {
+            .spawn(CustomBundle {
                 transform: Transform::from_matrix(d.transform),
                 ..Default::default()
             })
@@ -407,11 +417,11 @@ fn setup(
                     translation.y = height_randomizer.sample(&mut rng);
 
                     parent
-                        .spawn(PbrBundle {
+                        .spawn(CustomBundle {
                             mesh: unit_cube.clone(),
-                            material: materials.add(StandardMaterial {
+                            material: materials.add(CustomMaterial {
                                 albedo: light_color,
-                                shaded: false,
+                                unlit: true,
                                 ..Default::default()
                             }),
                             transform: Transform::from_matrix(
@@ -423,10 +433,11 @@ fn setup(
                             ),
                             ..Default::default()
                         })
-                        // .with(Light {
-                        //     color: light_color,
-                        //     ..Default::default()
-                        // })
+                        .with(CustomPointLight {
+                            color: light_color,
+                            radius: 0.5,
+                            ..Default::default()
+                        })
                         .with(LightRingVoxel);
                 }
             });
@@ -470,7 +481,7 @@ fn setup(
         let height_offset = height_minus_one * 0.5;
 
         commands
-            .spawn(PbrBundle {
+            .spawn(MeshBundle {
                 transform: Transform::from_matrix(d.transform),
                 // mesh: cube.clone(),
                 ..Default::default()
@@ -484,7 +495,7 @@ fn setup(
 
                         if let Some(material) = palette.get(&palette_index) {
                             parent
-                                .spawn(PbrBundle {
+                                .spawn(CustomBundle {
                                     transform: Transform::from_matrix(
                                         Mat4::from_scale_rotation_translation(
                                             voxel_scale,
@@ -604,6 +615,7 @@ fn main() {
         // .add_plugin(PrintDiagnosticsPlugin::default())
         // .add_plugin(FrameTimeDiagnosticsPlugin::default())
         // .add_system(PrintDiagnosticsPlugin::print_diagnostics_system.system())
+        .add_plugin(LightingPlugin)
         .add_startup_system(setup.system())
         .add_system(keyboard_input.system())
         .add_system(animate_light_ring.system())
@@ -611,16 +623,3 @@ fn main() {
         .add_system(animate_grid_voxels.system())
         .run();
 }
-
-/*
-Needed components:
-- Custom material? Can I reuse the PBR data in a custom shader?
-- Custom pipeline because I need custom shaders.
-  - Use existing ambient light uniform so we don't need pipeline for it.
-  - Tonemapping in custom shaders.
-- Custom node for detecting custom lights and binding them to shaders.
-  - Custom point light struct, since defaults don't have range.
-  - 256 max.
-- Custom PBR bundle since I need a custom pipeline?
-- Custom light bundles?
-*/
