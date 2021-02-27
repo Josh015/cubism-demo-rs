@@ -328,6 +328,11 @@ fn setup(
             )),
             ..Default::default()
         })
+        // Light
+        .spawn(LightBundle {
+            transform: Transform::from_translation(Vec3::new(-4.0, 6.0, 4.0)),
+            ..Default::default()
+        })
         .spawn(CameraUiBundle::default())
         // root node
         .spawn(NodeBundle {
@@ -356,11 +361,6 @@ fn setup(
                 },
                 ..Default::default()
             });
-        })
-        // Light
-        .spawn(LightBundle {
-            transform: Transform::from_translation(Vec3::new(-4.0, 6.0, 4.0)),
-            ..Default::default()
         });
 
     // ---- Pillars ----
@@ -611,3 +611,16 @@ fn main() {
         .add_system(animate_grid_voxels.system())
         .run();
 }
+
+/*
+Needed components:
+- Custom material? Can I reuse the PBR data in a custom shader?
+- Custom pipeline because I need custom shaders.
+  - Use existing ambient light uniform so we don't need pipeline for it.
+  - Tonemapping in custom shaders.
+- Custom node for detecting custom lights and binding them to shaders.
+  - Custom point light struct, since defaults don't have range.
+  - 256 max.
+- Custom PBR bundle since I need a custom pipeline?
+- Custom light bundles?
+*/
