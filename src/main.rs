@@ -1,7 +1,7 @@
-use std::{cmp, collections::HashMap};
+use bevy::{prelude::*, render::camera::Camera};
 use lazy_static::*;
 use rand::distributions::{Distribution, Uniform};
-use bevy::{prelude::*, render::camera::Camera};
+use std::{cmp, collections::HashMap};
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, PrintDiagnosticsPlugin};
 
 const INSTRUCTIONS: &str = r#"
@@ -556,10 +556,7 @@ fn animate_light_ring(time: Res<Time>, mut query: Query<(&mut Transform, &LightR
     }
 }
 
-fn animate_light_ring_voxels(
-    time: Res<Time>,
-    mut query: Query<(&mut Transform, &LightRingVoxel)>,
-) {
+fn animate_light_ring_voxels(time: Res<Time>, mut query: Query<(&mut Transform, &LightRingVoxel)>) {
     // Rotate the cubes opposite the ring so that they always face the same way.
     for (mut transform, _) in query.iter_mut() {
         transform.rotate(Quat::from_axis_angle(
