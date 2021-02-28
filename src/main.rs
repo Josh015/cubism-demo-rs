@@ -172,10 +172,10 @@ lazy_static! {
             // Cyan light ring
             LightRingDesc {
                 lights_count: 85,
-                height: 0.5,
+                height: 0.25,
                 inner_radius: 0.25,
                 outer_radius: 0.7,
-                min_color: Color::rgb(0.05, 0.4, 0.5),
+                min_color: Color::rgb(0.05, 0.2, 0.3),
                 max_color: Color::rgb(0.1, 0.5, 0.7),
                 transform: Mat4::from_translation(-0.55 * Vec3::unit_y()),
             },
@@ -185,7 +185,7 @@ lazy_static! {
                 height: 0.125,
                 inner_radius: 0.25,
                 outer_radius: 0.7,
-                min_color: Color::rgb(0.5, 0.4, 0.05),
+                min_color: Color::rgb(0.4, 0.3, 0.05),
                 max_color: Color::rgb(0.6, 0.5, 0.1),
                 transform: Mat4::from_rotation_translation(
                     Quat::from_axis_angle(Vec3::unit_x(), 90f32.to_radians()),
