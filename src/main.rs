@@ -169,26 +169,16 @@ lazy_static! {
 
     static ref LIGHT_RING_DESCRIPTIONS: [LightRingDesc; 3] = {
         [
-            // Green-yellow light ring
+            // Cyan light ring
             LightRingDesc {
                 lights_count: 85,
                 height: 0.5,
                 inner_radius: 0.25,
                 outer_radius: 0.7,
-                min_color: Color::rgb(0.3, 0.3, 0.05),
-                max_color: Color::rgb(0.6, 0.7, 0.1),
+                min_color: Color::rgb(0.05, 0.4, 0.5),
+                max_color: Color::rgb(0.1, 0.5, 0.7),
                 transform: Mat4::from_translation(-0.55 * Vec3::unit_y()),
             },
-            // // Cyan light ring
-            // LightRingDesc {
-            //     lights_count: 85,
-            //     height: 0.125,
-            //     inner_radius: 0.25,
-            //     outer_radius: 0.7,
-            //     min_color: Color::rgb(0.05, 0.4, 0.5),
-            //     max_color: Color::rgb(0.1, 0.5, 0.7),
-            //     transform: Mat4::from_translation(-0.7 * Vec3::unit_y()),
-            // },
             // Orange light ring
             LightRingDesc {
                 lights_count: 85,
@@ -322,9 +312,6 @@ fn setup(
     let unit_cube = meshes.add(Mesh::from(shape::Cube { size: 1.0 }));
 
     // ---- Camera ----
-    let font = asset_server.load("fonts/FiraSans-Bold.ttf");
-    let material = color_materials.add(Color::NONE.into());
-
     commands
         // Camera
         .spawn(Camera3dBundle {
@@ -355,14 +342,14 @@ fn setup(
                 },
                 ..Default::default()
             },
-            material,
+            material: color_materials.add(Color::NONE.into()),
             ..Default::default()
         })
         .with_children(|parent| {
             parent.spawn(TextBundle {
                 text: Text {
                     value: INSTRUCTIONS.to_string(),
-                    font,
+                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                     style: TextStyle {
                         font_size: 40.0,
                         color: Color::rgb(0.8, 0.8, 0.8),
@@ -404,7 +391,7 @@ fn setup(
             .with_children(|parent| {
                 for _i in 0..d.lights_count {
                     let light_color = Color::from(
-                        1.5 * Vec4::from(d.min_color)
+                        1.0 * Vec4::from(d.min_color)
                             .lerp(Vec4::from(d.max_color), color_randomizer.sample(&mut rng)),
                     );
                     let mut translation = Vec3::new(
@@ -420,7 +407,7 @@ fn setup(
                         .spawn(CustomBundle {
                             mesh: unit_cube.clone(),
                             material: materials.add(CustomMaterial {
-                                albedo: light_color,
+                                albedo: light_color * 1.5,
                                 unlit: true,
                                 ..Default::default()
                             }),

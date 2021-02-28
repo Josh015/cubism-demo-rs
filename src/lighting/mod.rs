@@ -2,7 +2,7 @@ use bevy::{
     prelude::*,
     render::{
         pipeline::PipelineDescriptor,
-        render_graph::{base, AssetRenderResourcesNode, RenderGraph, RenderResourcesNode},
+        render_graph::{base, AssetRenderResourcesNode, RenderGraph},
         shader,
     },
 };
