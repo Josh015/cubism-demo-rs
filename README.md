@@ -21,6 +21,8 @@ cargo run --release
 - [x] Consolidate scene code into `demo` module with a single `DemoPlugin`.
 - [x] Add custom material with support for 256 lights.
 - [x] Add simple tonemapping.
+- [ ] Add PBR spherical area lights.
+- [ ] Add RSRM support.
 - [ ] Add simple clustered forward renderer.
 - [ ] Nicer UI?
 

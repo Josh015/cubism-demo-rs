@@ -36,7 +36,7 @@ void main() {
     vec4 output_color = Albedo;
 # ifdef CUSTOMMATERIAL_ALBEDO_TEXTURE
     output_color *= texture(
-        sampler2D(StandardMaterial_albedo_texture, StandardMaterial_albedo_texture_sampler),
+        sampler2D(CustomMaterial_albedo_texture, CustomMaterial_albedo_texture_sampler),
         v_Uv);
 # endif
 
@@ -60,7 +60,7 @@ void main() {
         // Add light contribution
         color += diffuse * light.color.xyz * attenuation;
     }
-    
+
     output_color.xyz *= color;
 # endif
 
