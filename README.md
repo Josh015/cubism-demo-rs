@@ -9,7 +9,7 @@ To compile and run, use [cargo](https://www.rust-lang.org/learn/get-started):
 cargo run --release
 ```
 
-## Screenshots
+## Screenshot
 
 ![Cubism Demo](./screenshot.png)
 
@@ -27,7 +27,7 @@ cargo run --release
   - [ ] Add PBR spherical area lights.
   - [ ] Replace ambient light with RSRM light.
   - [ ] Make pillars smooth & metallic.
-  - [ ] Make grids smoth & translucent, and then put light rings behind them.
+  - [ ] Make grids smooth & translucent, and then put light rings behind them.
   - [ ] Make sprite extremely rough.
   - [ ] Restore green light ring around sprite.
 - [ ] Add simple clustered forward renderer.
