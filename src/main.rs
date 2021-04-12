@@ -7,9 +7,6 @@ use rand::distributions::{Distribution, Uniform};
 use std::{cmp, collections::HashMap};
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, PrintDiagnosticsPlugin};
 
-mod lighting;
-use lighting::*;
-
 const INSTRUCTIONS: &str = r#"
 ---- Views ----
 1: Front
@@ -132,8 +129,8 @@ lazy_static! {
     static ref DEFAULT_CAMERA_TRANSORMS: (Vec3, Quat) = {
         (
             Vec3::new(-3.0, 2.25, 3.0),
-            (Quat::from_axis_angle(Vec3::unit_y(), -45f32.to_radians())
-                * Quat::from_axis_angle(Vec3::unit_x(), -30f32.to_radians()))
+            (Quat::from_axis_angle(Vec3::Y, -45f32.to_radians())
+                * Quat::from_axis_angle(Vec3::X, -30f32.to_radians()))
             .normalize(),
         )
     };
@@ -143,25 +140,25 @@ lazy_static! {
             // Pedestal
             Mat4::from_scale_rotation_translation(
                 Vec3::new(0.34, 0.7, 0.34),
-                Quat::identity(),
+                Quat::IDENTITY,
                 Vec3::new(0.0, -0.75, 0.0),
             ),
             // X pillar
             Mat4::from_scale_rotation_translation(
                 Vec3::new(2.0, 0.125, 0.125),
-                Quat::identity(),
+                Quat::IDENTITY,
                 Vec3::new(-0.05, -1.0, -1.0),
             ),
             // Y pillar
             Mat4::from_scale_rotation_translation(
                 Vec3::new(0.125, 2.0, 0.125),
-                Quat::identity(),
+                Quat::IDENTITY,
                 Vec3::new(1.0, 0.05, -1.0),
             ),
             // Z pillar
             Mat4::from_scale_rotation_translation(
                 Vec3::new(0.125, 0.125, 2.0),
-                Quat::identity(),
+                Quat::IDENTITY,
                 Vec3::new(1.0, -1.0, 0.05),
             ),
         ]
@@ -177,7 +174,7 @@ lazy_static! {
                 outer_radius: 0.7,
                 min_color: Color::rgb(0.05, 0.2, 0.3),
                 max_color: Color::rgb(0.1, 0.5, 0.7),
-                transform: Mat4::from_translation(-0.55 * Vec3::unit_y()),
+                transform: Mat4::from_translation(-0.55 * Vec3::Y),
             },
             // Orange light ring
             LightRingDesc {
@@ -188,8 +185,8 @@ lazy_static! {
                 min_color: Color::rgb(0.4, 0.3, 0.05),
                 max_color: Color::rgb(0.6, 0.5, 0.1),
                 transform: Mat4::from_rotation_translation(
-                    Quat::from_axis_angle(Vec3::unit_x(), 90f32.to_radians()),
-                    -0.7 * Vec3::unit_z(),
+                    Quat::from_axis_angle(Vec3::X, 90f32.to_radians()),
+                    -0.7 * Vec3::Z,
                 ),
             },
             // Magenta light ring
@@ -201,8 +198,8 @@ lazy_static! {
                 min_color: Color::rgb(0.1, 0.1, 0.5),
                 max_color: Color::rgb(0.6, 0.2, 0.7),
                 transform: Mat4::from_rotation_translation(
-                    Quat::from_axis_angle(Vec3::unit_z(), -90f32.to_radians()),
-                    0.7 * Vec3::unit_x(),
+                    Quat::from_axis_angle(Vec3::Z, -90f32.to_radians()),
+                    0.7 * Vec3::X,
                 ),
             },
         ]
@@ -218,10 +215,10 @@ lazy_static! {
                 movement_type: GridVoxelMovementType::Static,
                 transform: Mat4::from_scale_rotation_translation(
                     Vec3::splat(0.55),
-                    (Quat::from_axis_angle(Vec3::unit_x(), 90f32.to_radians())
-                        * Quat::from_axis_angle(Vec3::unit_z(), 45f32.to_radians()))
+                    (Quat::from_axis_angle(Vec3::X, 90f32.to_radians())
+                        * Quat::from_axis_angle(Vec3::Z, 45f32.to_radians()))
                     .normalize(),
-                    -0.125 * Vec3::unit_y(),
+                    -0.125 * Vec3::Y,
                 ),
             },
             // Magenta ripple
@@ -232,8 +229,8 @@ lazy_static! {
                 movement_type: GridVoxelMovementType::Ripple,
                 transform: Mat4::from_scale_rotation_translation(
                     Vec3::splat(WALL_GRID_SCALE),
-                    Quat::from_axis_angle(Vec3::unit_z(), -90f32.to_radians()),
-                    Vec3::unit_x(),
+                    Quat::from_axis_angle(Vec3::Z, -90f32.to_radians()),
+                    Vec3::X,
                 ),
             },
             // Orange ripple
@@ -244,10 +241,10 @@ lazy_static! {
                 movement_type: GridVoxelMovementType::Ripple,
                 transform: Mat4::from_scale_rotation_translation(
                     Vec3::splat(WALL_GRID_SCALE),
-                    (Quat::from_axis_angle(Vec3::unit_x(), 90f32.to_radians())
-                        * Quat::from_axis_angle(Vec3::unit_z(), 180f32.to_radians()))
+                    (Quat::from_axis_angle(Vec3::X, 90f32.to_radians())
+                        * Quat::from_axis_angle(Vec3::Z, 180f32.to_radians()))
                     .normalize(),
-                    -Vec3::unit_z(),
+                    -Vec3::Z,
                 ),
             },
             // Blue wave
@@ -258,8 +255,8 @@ lazy_static! {
                 movement_type: GridVoxelMovementType::Wave,
                 transform: Mat4::from_scale_rotation_translation(
                     Vec3::splat(WALL_GRID_SCALE),
-                    Quat::from_axis_angle(Vec3::unit_y(), -90f32.to_radians()),
-                    -Vec3::unit_y(),
+                    Quat::from_axis_angle(Vec3::Y, -90f32.to_radians()),
+                    -Vec3::Y,
                 ),
             },
         ]
@@ -303,10 +300,10 @@ struct GridVoxel {
 }
 
 fn setup(
-    commands: &mut Commands,
+    mut commands: Commands,
     asset_server: ResMut<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<CustomMaterial>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
     mut color_materials: ResMut<Assets<ColorMaterial>>,
 ) {
     let unit_cube = meshes.add(Mesh::from(shape::Cube { size: 1.0 }));
@@ -314,25 +311,29 @@ fn setup(
     // ---- Camera ----
     commands
         // Camera
-        .spawn(Camera3dBundle {
+        .spawn_bundle(PerspectiveCameraBundle {
             transform: Transform::from_matrix(Mat4::from_rotation_translation(
                 DEFAULT_CAMERA_TRANSORMS.1,
                 DEFAULT_CAMERA_TRANSORMS.0,
             )),
             ..Default::default()
-        })
+        });
+
+    commands
         // Light
-        .spawn(MeshBundle {
+        .spawn_bundle(MeshBundle {
             transform: Transform::from_translation(Vec3::new(-4.0, 6.0, 4.0)),
             ..Default::default()
         })
-        .with(CustomPointLight {
-            radius: 20.0,
-            ..CustomPointLight::default()
-        })
-        .spawn(CameraUiBundle::default())
+        .insert(Light {
+            range: 20.0,
+            ..Light::default()
+        });
+    
+    commands
+        .spawn_bundle(UiCameraBundle::default())
         // root node
-        .spawn(NodeBundle {
+        .insert_bundle(NodeBundle {
             style: Style {
                 position_type: PositionType::Absolute,
                 position: Rect {
@@ -346,16 +347,19 @@ fn setup(
             ..Default::default()
         })
         .with_children(|parent| {
-            parent.spawn(TextBundle {
-                text: Text {
-                    value: INSTRUCTIONS.to_string(),
-                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                    style: TextStyle {
+            parent.spawn_bundle(TextBundle {
+                text: Text::with_section(
+                    INSTRUCTIONS.to_string(),
+                    TextStyle {
+                        font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                         font_size: 40.0,
                         color: Color::rgb(0.8, 0.8, 0.8),
-                        ..Default::default()
                     },
-                },
+                    TextAlignment {
+                        vertical: VerticalAlign::Top,
+                        horizontal: HorizontalAlign::Right,
+                    },
+                ),
                 ..Default::default()
             });
         });
@@ -364,7 +368,7 @@ fn setup(
     let material = materials.add(Color::rgb(0.7, 0.7, 0.7).into());
 
     for d in PILLAR_DESCRIPTIONS.iter() {
-        commands.spawn(CustomBundle {
+        commands.spawn_bundle(PbrBundle {
             transform: Transform::from_matrix(*d),
             material: material.clone(),
             mesh: unit_cube.clone(),
@@ -383,11 +387,11 @@ fn setup(
         let z_randomizer = Uniform::from(-1f32..=1f32);
 
         commands
-            .spawn(CustomBundle {
+            .spawn_bundle(PbrBundle {
                 transform: Transform::from_matrix(d.transform),
                 ..Default::default()
             })
-            .with(LightRing)
+            .insert(LightRing)
             .with_children(|parent| {
                 for _i in 0..d.lights_count {
                     let light_color = Color::from(
@@ -404,28 +408,28 @@ fn setup(
                     translation.y = height_randomizer.sample(&mut rng);
 
                     parent
-                        .spawn(CustomBundle {
+                        .spawn_bundle(PbrBundle {
                             mesh: unit_cube.clone(),
-                            material: materials.add(CustomMaterial {
-                                albedo: light_color * 1.5,
+                            material: materials.add(StandardMaterial {
+                                base_color: light_color * 1.5,
                                 unlit: true,
                                 ..Default::default()
                             }),
                             transform: Transform::from_matrix(
                                 Mat4::from_scale_rotation_translation(
                                     voxel_scale,
-                                    Quat::identity(),
+                                    Quat::IDENTITY,
                                     translation,
                                 ),
                             ),
                             ..Default::default()
                         })
-                        .with(CustomPointLight {
-                            color: light_color,
-                            radius: 0.5,
-                            ..Default::default()
-                        })
-                        .with(LightRingVoxel);
+                        // .insert(Light {
+                        //     color: light_color,
+                        //     range: 0.5,
+                        //     ..Default::default()
+                        // })
+                        .insert(LightRingVoxel);
                 }
             });
     }
@@ -468,7 +472,7 @@ fn setup(
         let height_offset = height_minus_one * 0.5;
 
         commands
-            .spawn(MeshBundle {
+            .spawn_bundle(MeshBundle {
                 transform: Transform::from_matrix(d.transform),
                 // mesh: cube.clone(),
                 ..Default::default()
@@ -482,11 +486,11 @@ fn setup(
 
                         if let Some(material) = palette.get(&palette_index) {
                             parent
-                                .spawn(CustomBundle {
+                                .spawn_bundle(PbrBundle {
                                     transform: Transform::from_matrix(
                                         Mat4::from_scale_rotation_translation(
                                             voxel_scale,
-                                            Quat::identity(),
+                                            Quat::IDENTITY,
                                             Vec3::new(
                                                 (w as f32 - width_offset) / (width as f32),
                                                 0.0,
@@ -498,7 +502,7 @@ fn setup(
                                     material: material.clone(),
                                     ..Default::default()
                                 })
-                                .with(GridVoxel {
+                                .insert(GridVoxel {
                                     movement_type: d.movement_type,
                                     wave_height: d.wave_height,
                                     wave_movement: 0.0,
@@ -526,20 +530,20 @@ fn keyboard_input(
         // Right
         if keyboard_input.just_released(KeyCode::Key2) {
             transform.translation = Vec3::new(0.0, 0.0, 4.0);
-            transform.rotation = Quat::identity();
+            transform.rotation = Quat::IDENTITY;
         }
 
         // Left
         if keyboard_input.just_released(KeyCode::Key3) {
             transform.translation = Vec3::new(-4.0, 0.0, 0.0);
-            transform.rotation = Quat::from_axis_angle(Vec3::unit_y(), -90f32.to_radians());
+            transform.rotation = Quat::from_axis_angle(Vec3::Y, -90f32.to_radians());
         }
 
         // Top
         if keyboard_input.just_released(KeyCode::Key4) {
             transform.translation = Vec3::new(0.3, 4.0, -0.3);
-            transform.rotation = (Quat::from_axis_angle(Vec3::unit_x(), -90f32.to_radians())
-                * Quat::from_axis_angle(Vec3::unit_z(), -45f32.to_radians()))
+            transform.rotation = (Quat::from_axis_angle(Vec3::X, -90f32.to_radians())
+                * Quat::from_axis_angle(Vec3::Z, -45f32.to_radians()))
             .normalize();
         }
     }
@@ -548,7 +552,7 @@ fn keyboard_input(
 fn animate_light_ring(time: Res<Time>, mut query: Query<(&mut Transform, &LightRing)>) {
     for (mut transform, _) in query.iter_mut() {
         transform.rotate(Quat::from_axis_angle(
-            Vec3::unit_y(),
+            Vec3::Y,
             RING_ROTATION_SPEED * time.delta_seconds(),
         ));
     }
@@ -558,7 +562,7 @@ fn animate_light_ring_voxels(time: Res<Time>, mut query: Query<(&mut Transform, 
     // Rotate the cubes opposite the ring so that they always face the same way.
     for (mut transform, _) in query.iter_mut() {
         transform.rotate(Quat::from_axis_angle(
-            Vec3::unit_y(),
+            Vec3::Y,
             RING_ROTATION_SPEED * -time.delta_seconds(),
         ));
     }
@@ -591,8 +595,8 @@ fn animate_grid_voxels(time: Res<Time>, mut query: Query<(&mut Transform, &mut G
 #[bevy_main]
 fn main() {
     App::build()
-        .add_resource(Msaa { samples: 4 })
-        .add_resource(WindowDescriptor {
+        .insert_resource(Msaa { samples: 4 })
+        .insert_resource(WindowDescriptor {
             title: "Cubism".to_string(),
             width: 1280.,
             height: 720.,
@@ -602,7 +606,6 @@ fn main() {
         // .add_plugin(PrintDiagnosticsPlugin::default())
         // .add_plugin(FrameTimeDiagnosticsPlugin::default())
         // .add_system(PrintDiagnosticsPlugin::print_diagnostics_system.system())
-        .add_plugin(LightingPlugin)
         .add_startup_system(setup.system())
         .add_system(keyboard_input.system())
         .add_system(animate_light_ring.system())
