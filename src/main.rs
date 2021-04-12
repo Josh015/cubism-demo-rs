@@ -336,6 +336,7 @@ fn setup(
         })
         .insert(Light {
             range: 20.0,
+            intensity: 200.0,
             ..Light::default()
         });
     
@@ -420,11 +421,13 @@ fn setup(
                     translation = translation.normalize() * radius_randomizer.sample(&mut rng);
                     translation.y = height_randomizer.sample(&mut rng);
 
+                    let light_intensity = 1.5;
+
                     parent
                         .spawn_bundle(PbrBundle {
                             mesh: unit_cube.clone(),
                             material: materials.add(StandardMaterial {
-                                base_color: light_color * 1.5,
+                                base_color: light_color * light_intensity,
                                 unlit: true,
                                 ..Default::default()
                             }),
@@ -438,7 +441,8 @@ fn setup(
                             ..Default::default()
                         })
                         .insert(Light {
-                            color: light_color * 0.0075,
+                            color: light_color,
+                            intensity: light_intensity,
                             range: 0.5,
                             ..Default::default()
                         })
