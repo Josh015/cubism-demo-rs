@@ -1,7 +1,4 @@
-use bevy::{
-    prelude::*,
-    render::{camera::Camera, mesh::shape},
-};
+use bevy::{prelude::*, render::{camera::Camera, mesh::shape}};
 use lazy_static::*;
 use rand::distributions::{Distribution, Uniform};
 use std::{cmp, collections::HashMap};
@@ -168,7 +165,9 @@ lazy_static! {
         [
             // Cyan light ring
             LightRingDesc {
-                lights_count: 85,
+                // lights_count: 85,
+                lights_count: 3,
+                light_size: 0.125,
                 height: 0.25,
                 inner_radius: 0.25,
                 outer_radius: 0.7,
@@ -178,7 +177,9 @@ lazy_static! {
             },
             // Orange light ring
             LightRingDesc {
-                lights_count: 85,
+                // lights_count: 85,
+                lights_count: 3,
+                light_size: 0.125,
                 height: 0.125,
                 inner_radius: 0.25,
                 outer_radius: 0.7,
@@ -191,7 +192,9 @@ lazy_static! {
             },
             // Magenta light ring
             LightRingDesc {
-                lights_count: 85,
+                // lights_count: 85,
+                lights_count: 3,
+                light_size: 0.125,
                 height: 0.125,
                 inner_radius: 0.25,
                 outer_radius: 0.7,
@@ -213,6 +216,7 @@ lazy_static! {
                 xpm_data: &SPRITE_XPM,
                 wave_height: 0.0,
                 movement_type: GridVoxelMovementType::Static,
+                roughness: 0.25,
                 transform: Mat4::from_scale_rotation_translation(
                     Vec3::splat(0.55),
                     (Quat::from_axis_angle(Vec3::X, 90f32.to_radians())
@@ -227,6 +231,7 @@ lazy_static! {
                 xpm_data: &MAGENTA_XPM,
                 wave_height: 0.06,
                 movement_type: GridVoxelMovementType::Ripple,
+                roughness: 0.0,
                 transform: Mat4::from_scale_rotation_translation(
                     Vec3::splat(WALL_GRID_SCALE),
                     Quat::from_axis_angle(Vec3::Z, -90f32.to_radians()),
@@ -239,6 +244,7 @@ lazy_static! {
                 xpm_data: &ORANGE_XPM,
                 wave_height: 0.06,
                 movement_type: GridVoxelMovementType::Ripple,
+                roughness: 0.0,
                 transform: Mat4::from_scale_rotation_translation(
                     Vec3::splat(WALL_GRID_SCALE),
                     (Quat::from_axis_angle(Vec3::X, 90f32.to_radians())
@@ -253,6 +259,7 @@ lazy_static! {
                 xpm_data: &BLUE_XPM,
                 wave_height: 0.12,
                 movement_type: GridVoxelMovementType::Wave,
+                roughness: 0.0,
                 transform: Mat4::from_scale_rotation_translation(
                     Vec3::splat(WALL_GRID_SCALE),
                     Quat::from_axis_angle(Vec3::Y, -90f32.to_radians()),
@@ -270,6 +277,7 @@ struct LightRingDesc {
     outer_radius: f32,
     min_color: Color,
     max_color: Color,
+    light_size: f32,
     transform: Mat4,
 }
 
@@ -281,6 +289,7 @@ struct GridVoxelDesc {
     wave_height: f32,
     movement_type: GridVoxelMovementType,
     transform: Mat4,
+    roughness: f32,
     xpm_data: &'static [&'static str],
 }
 
@@ -365,7 +374,11 @@ fn setup(
         });
 
     // ---- Pillars ----
-    let material = materials.add(Color::rgb(0.7, 0.7, 0.7).into());
+    let material = materials.add(StandardMaterial {
+        base_color: Color::rgb(0.7, 0.7, 0.7),
+        roughness: 1.0,
+        ..Default::default()
+    });
 
     for d in PILLAR_DESCRIPTIONS.iter() {
         commands.spawn_bundle(PbrBundle {
@@ -378,7 +391,7 @@ fn setup(
 
     // ---- Light Rings ----
     for d in LIGHT_RING_DESCRIPTIONS.iter() {
-        let voxel_scale = Vec3::splat(0.025);
+        let voxel_scale = Vec3::splat(d.light_size);
         let mut rng = rand::thread_rng();
         let color_randomizer = Uniform::from(0f32..=1f32);
         let radius_randomizer = Uniform::from(d.inner_radius..=d.outer_radius);
@@ -424,11 +437,11 @@ fn setup(
                             ),
                             ..Default::default()
                         })
-                        // .insert(Light {
-                        //     color: light_color,
-                        //     range: 0.5,
-                        //     ..Default::default()
-                        // })
+                        .insert(Light {
+                            color: light_color * 0.0075,
+                            range: 0.5,
+                            ..Default::default()
+                        })
                         .insert(LightRingVoxel);
                 }
             });
@@ -457,7 +470,11 @@ fn setup(
                     let hex_color: String = color_value.chars().skip(1).collect();
                     palette.insert(
                         palette_index,
-                        materials.add(Color::hex(hex_color).unwrap().into()),
+                        materials.add(StandardMaterial {
+                            base_color: Color::hex(hex_color).unwrap(),
+                            roughness: d.roughness,
+                            ..Default::default()
+                        }),
                     );
                 }
             };
