@@ -378,6 +378,7 @@ fn setup(
     let material = materials.add(StandardMaterial {
         base_color: Color::rgb(0.7, 0.7, 0.7),
         roughness: 1.0,
+        // metallic: 1.0,
         ..Default::default()
     });
 
@@ -444,6 +445,7 @@ fn setup(
                             color: light_color,
                             intensity: light_intensity,
                             range: 0.5,
+                            radius: 0.5 * d.light_size,
                             ..Default::default()
                         })
                         .insert(LightRingVoxel);
@@ -477,6 +479,7 @@ fn setup(
                         materials.add(StandardMaterial {
                             base_color: Color::hex(hex_color).unwrap(),
                             roughness: d.roughness,
+                            // metallic: 1.0,
                             ..Default::default()
                         }),
                     );
