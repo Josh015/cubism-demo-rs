@@ -340,7 +340,7 @@ fn setup(
         .insert(Light {
             range: 20.0,
             intensity: 200.0,
-            ..Light::default()
+            ..Default::default()
         });
 
     commands
@@ -447,7 +447,7 @@ fn setup(
                             intensity: light_intensity,
                             // range: 0.5,
                             range: 1.0,
-                            radius: 0.5 * d.light_size,
+                            // radius: 0.5 * d.light_size,
                             ..Default::default()
                         })
                         .insert(LightRingVoxel);
