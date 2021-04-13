@@ -445,7 +445,8 @@ fn setup(
                         .insert(Light {
                             color: light_color,
                             intensity: light_intensity,
-                            range: 0.5,
+                            // range: 0.5,
+                            range: 1.0,
                             radius: 0.5 * d.light_size,
                             ..Default::default()
                         })
