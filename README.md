@@ -23,13 +23,9 @@ cargo run --release
 - [x] Add onscreen instructions UI.
 - [x] Add custom material with support for 256 lights.
 - [x] Add simple tonemapping.
-- [ ] Switch to enhanced lighting equation.
-  - [ ] Add PBR spherical area lights.
-  - [ ] Replace ambient light with RSRM light.
-  - [ ] Make pillars smooth & metallic.
-  - [ ] Make grids smooth & translucent, and then put light rings behind them.
-  - [ ] Make sprite extremely rough.
-  - [ ] Restore green light ring around sprite.
+- [x] Switch to enhanced lighting equation.
+- [x] Add PBR spherical area lights.
+- [ ] Fix the UI instructions.
 - [ ] Add simple clustered forward renderer.
 - [ ] Nicer UI?
 
