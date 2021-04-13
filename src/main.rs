@@ -1,4 +1,7 @@
-use bevy::{prelude::*, render::{camera::Camera, mesh::shape}};
+use bevy::{
+    prelude::*,
+    render::{camera::Camera, mesh::shape},
+};
 use lazy_static::*;
 use rand::distributions::{Distribution, Uniform};
 use std::{cmp, collections::HashMap};
@@ -339,11 +342,12 @@ fn setup(
             intensity: 200.0,
             ..Light::default()
         });
-    
+
     commands
         .spawn_bundle(UiCameraBundle::default())
         // root node
-        .insert_bundle(NodeBundle {
+        .commands()
+        .spawn_bundle(NodeBundle {
             style: Style {
                 position_type: PositionType::Absolute,
                 position: Rect {
@@ -365,10 +369,7 @@ fn setup(
                         font_size: 40.0,
                         color: Color::rgb(0.8, 0.8, 0.8),
                     },
-                    TextAlignment {
-                        vertical: VerticalAlign::Top,
-                        horizontal: HorizontalAlign::Right,
-                    },
+                    Default::default(),
                 ),
                 ..Default::default()
             });

@@ -25,7 +25,7 @@ cargo run --release
 - [x] Add simple tonemapping.
 - [x] Switch to enhanced lighting equation.
 - [x] Add PBR spherical area lights.
-- [ ] Fix the UI instructions.
+- [x] Fix the UI instructions.
 - [ ] Add simple clustered forward renderer.
 - [ ] Nicer UI?
 
