@@ -423,13 +423,13 @@ fn setup(
                     translation = translation.normalize() * radius_randomizer.sample(&mut rng);
                     translation.y = height_randomizer.sample(&mut rng);
 
-                    let light_intensity = 1.5;
+                    let light_intensity = std::f32::consts::PI;
 
                     parent
                         .spawn_bundle(PbrBundle {
                             mesh: unit_cube.clone(),
                             material: materials.add(StandardMaterial {
-                                base_color: light_color * light_intensity * 2.0,
+                                base_color: light_color * light_intensity,
                                 unlit: true,
                                 ..Default::default()
                             }),
@@ -444,7 +444,7 @@ fn setup(
                         })
                         .insert(PointLight {
                             color: light_color,
-                            intensity: light_intensity,
+                            intensity: light_intensity * 0.5,
                             // range: 0.5,
                             range: 1.0,
                             radius: 0.5 * d.light_size,
