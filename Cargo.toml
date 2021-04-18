@@ -8,6 +8,8 @@ edition = "2018"
 
 [dependencies]
 # bevy = { path = '../bevy' }
-bevy = "0.5.0"
+bevy = { git = 'https://github.com/Josh015/bevy.git' }
+# bevy = { git = 'https://github.com/bevyengine/bevy.git' }
+# bevy = "0.5.0"
 lazy_static = "1.4.0"
 rand = "0.7.3"

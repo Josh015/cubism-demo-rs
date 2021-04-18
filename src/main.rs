@@ -337,7 +337,7 @@ fn setup(
             transform: Transform::from_translation(Vec3::new(-4.0, 6.0, 4.0)),
             ..Default::default()
         })
-        .insert(Light {
+        .insert(PointLight {
             range: 20.0,
             intensity: 200.0,
             ..Default::default()
@@ -429,7 +429,7 @@ fn setup(
                         .spawn_bundle(PbrBundle {
                             mesh: unit_cube.clone(),
                             material: materials.add(StandardMaterial {
-                                base_color: light_color * light_intensity,
+                                base_color: light_color * light_intensity * 2.0,
                                 unlit: true,
                                 ..Default::default()
                             }),
@@ -442,12 +442,12 @@ fn setup(
                             ),
                             ..Default::default()
                         })
-                        .insert(Light {
+                        .insert(PointLight {
                             color: light_color,
                             intensity: light_intensity,
                             // range: 0.5,
                             range: 1.0,
-                            // radius: 0.5 * d.light_size,
+                            radius: 0.5 * d.light_size,
                             ..Default::default()
                         })
                         .insert(LightRingVoxel);
