@@ -1,4 +1,5 @@
 # Cubism Demo
+
 A Bevy Engine port and refresh of an old C++ OpenGL lighting and shading demo I made back in 2010.
 
 ## To Run
@@ -11,9 +12,10 @@ cargo run --release
 
 ## Screenshot
 
-![Cubism Demo](./screenshot.png)
+![Cubism Demo](screenshots/screenshot.png)
 
 ## TODO
+
 - [x] Get basic layout of all objects and camera.
 - [x] Add grid material caching using xpm palettes?
 - [x] Ensure that cube groups are parented? How to animate?
@@ -30,5 +32,7 @@ cargo run --release
 - [ ] Nicer UI?
 
 ## Original Video
+
 [![Watch the video](https://i.vimeocdn.com/video/93015207_472x266.jpg)](https://vimeo.com/15442169)
+
 <p><a href="https://vimeo.com/15442169">Cubism Demo (ver. 2)</a> from <a href="https://vimeo.com/user2176585">Josh 015</a> on <a href="https://vimeo.com">Vimeo</a>.</p>
