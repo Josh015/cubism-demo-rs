@@ -23,12 +23,9 @@ cargo run --release
 - [x] Add spinning light animation.
 - [x] Add different camera angles.
 - [x] Add onscreen instructions UI.
-- [x] Add custom material with support for 256 lights.
-- [x] Add simple tonemapping.
-- [x] Switch to enhanced lighting equation.
 - [x] Add PBR spherical area lights.
 - [x] Fix the UI instructions.
-- [ ] Add simple clustered forward renderer.
+- [ ] Restore 256 light setup once Bevy supports it.
 - [ ] Nicer UI?
 
 ## Original Video
