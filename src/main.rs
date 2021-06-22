@@ -126,7 +126,7 @@ const BLUE_XPM: [&str; 23] = [
 ];
 
 lazy_static! {
-    static ref DEFAULT_CAMERA_TRANSORMS: (Vec3, Quat) = {
+    static ref DEFAULT_CAMERA_TRANSFORMS: (Vec3, Quat) = {
         (
             Vec3::new(-3.0, 2.25, 3.0),
             (Quat::from_axis_angle(Vec3::Y, -45f32.to_radians())
@@ -325,8 +325,8 @@ fn setup(
         // Camera
         .spawn_bundle(PerspectiveCameraBundle {
             transform: Transform::from_matrix(Mat4::from_rotation_translation(
-                DEFAULT_CAMERA_TRANSORMS.1,
-                DEFAULT_CAMERA_TRANSORMS.0,
+                DEFAULT_CAMERA_TRANSFORMS.1,
+                DEFAULT_CAMERA_TRANSFORMS.0,
             )),
             ..Default::default()
         });
@@ -549,8 +549,8 @@ fn keyboard_input(
     for (mut transform, _) in query.iter_mut() {
         // Front
         if keyboard_input.just_pressed(KeyCode::Key1) {
-            transform.translation = DEFAULT_CAMERA_TRANSORMS.0;
-            transform.rotation = DEFAULT_CAMERA_TRANSORMS.1;
+            transform.translation = DEFAULT_CAMERA_TRANSFORMS.0;
+            transform.rotation = DEFAULT_CAMERA_TRANSFORMS.1;
         }
 
         // Right
