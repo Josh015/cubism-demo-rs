@@ -8,5 +8,7 @@
     "rrggbb",
     "voxel",
     "voxels"
-  ]
+  ],
+  "editor.defaultFormatter": "matklad.rust-analyzer",
+  "editor.formatOnSave": true
 }

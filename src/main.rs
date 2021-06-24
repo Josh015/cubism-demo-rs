@@ -398,7 +398,8 @@ fn setup(
         let mut rng = rand::thread_rng();
         let color_randomizer = Uniform::from(0f32..=1f32);
         let radius_randomizer = Uniform::from(d.inner_radius..=d.outer_radius);
-        let height_randomizer = Uniform::from((-0.5 * d.height)..=(0.5 * d.height));
+        let height_randomizer =
+            Uniform::from((-0.5 * d.height)..=(0.5 * d.height));
         let x_randomizer = Uniform::from(-1f32..=1f32);
         let z_randomizer = Uniform::from(-1f32..=1f32);
 
@@ -411,8 +412,10 @@ fn setup(
             .with_children(|parent| {
                 for _i in 0..d.lights_count {
                     let light_color = Color::from(
-                        1.0 * Vec4::from(d.min_color)
-                            .lerp(Vec4::from(d.max_color), color_randomizer.sample(&mut rng)),
+                        1.0 * Vec4::from(d.min_color).lerp(
+                            Vec4::from(d.max_color),
+                            color_randomizer.sample(&mut rng),
+                        ),
                     );
                     let mut translation = Vec3::new(
                         x_randomizer.sample(&mut rng),
@@ -420,7 +423,8 @@ fn setup(
                         z_randomizer.sample(&mut rng),
                     );
 
-                    translation = translation.normalize() * radius_randomizer.sample(&mut rng);
+                    translation = translation.normalize()
+                        * radius_randomizer.sample(&mut rng);
                     translation.y = height_randomizer.sample(&mut rng);
 
                     let light_intensity = std::f32::consts::PI;
@@ -475,7 +479,8 @@ fn setup(
                 "None" => {}
                 _ => {
                     // Strip '#' off "#RRGGBB" before converting it to a Color.
-                    let hex_color: String = color_value.chars().skip(1).collect();
+                    let hex_color: String =
+                        color_value.chars().skip(1).collect();
                     palette.insert(
                         palette_index,
                         materials.add(StandardMaterial {
@@ -518,9 +523,11 @@ fn setup(
                                             voxel_scale,
                                             Quat::IDENTITY,
                                             Vec3::new(
-                                                (w as f32 - width_offset) / (width as f32),
+                                                (w as f32 - width_offset)
+                                                    / (width as f32),
                                                 0.0,
-                                                (h as f32 - height_offset) / (height as f32),
+                                                (h as f32 - height_offset)
+                                                    / (height as f32),
                                             ),
                                         ),
                                     ),
@@ -562,20 +569,25 @@ fn keyboard_input(
         // Left
         if keyboard_input.just_released(KeyCode::Key3) {
             transform.translation = Vec3::new(-4.0, 0.0, 0.0);
-            transform.rotation = Quat::from_axis_angle(Vec3::Y, -90f32.to_radians());
+            transform.rotation =
+                Quat::from_axis_angle(Vec3::Y, -90f32.to_radians());
         }
 
         // Top
         if keyboard_input.just_released(KeyCode::Key4) {
             transform.translation = Vec3::new(0.3, 4.0, -0.3);
-            transform.rotation = (Quat::from_axis_angle(Vec3::X, -90f32.to_radians())
-                * Quat::from_axis_angle(Vec3::Z, -45f32.to_radians()))
-            .normalize();
+            transform.rotation =
+                (Quat::from_axis_angle(Vec3::X, -90f32.to_radians())
+                    * Quat::from_axis_angle(Vec3::Z, -45f32.to_radians()))
+                .normalize();
         }
     }
 }
 
-fn animate_light_ring(time: Res<Time>, mut query: Query<(&mut Transform, &LightRing)>) {
+fn animate_light_ring(
+    time: Res<Time>,
+    mut query: Query<(&mut Transform, &LightRing)>,
+) {
     for (mut transform, _) in query.iter_mut() {
         transform.rotate(Quat::from_axis_angle(
             Vec3::Y,
@@ -584,7 +596,10 @@ fn animate_light_ring(time: Res<Time>, mut query: Query<(&mut Transform, &LightR
     }
 }
 
-fn animate_light_ring_voxels(time: Res<Time>, mut query: Query<(&mut Transform, &LightRingVoxel)>) {
+fn animate_light_ring_voxels(
+    time: Res<Time>,
+    mut query: Query<(&mut Transform, &LightRingVoxel)>,
+) {
     // Rotate the cubes opposite the ring so that they always face the same way.
     for (mut transform, _) in query.iter_mut() {
         transform.rotate(Quat::from_axis_angle(
@@ -594,24 +609,33 @@ fn animate_light_ring_voxels(time: Res<Time>, mut query: Query<(&mut Transform, 
     }
 }
 
-fn animate_grid_voxels(time: Res<Time>, mut query: Query<(&mut Transform, &mut GridVoxel)>) {
+fn animate_grid_voxels(
+    time: Res<Time>,
+    mut query: Query<(&mut Transform, &mut GridVoxel)>,
+) {
     for (mut transform, mut voxel) in query.iter_mut() {
-        voxel.wave_movement = (voxel.wave_movement + (GRID_WAVE_SPEED * time.delta_seconds()))
+        voxel.wave_movement = (voxel.wave_movement
+            + (GRID_WAVE_SPEED * time.delta_seconds()))
             % (2.0 * std::f32::consts::PI);
 
         match voxel.movement_type {
             GridVoxelMovementType::Ripple => {
                 transform.translation.y = 0.5
                     * voxel.wave_height
-                    * (voxel.wave_movement + GRID_WAVE_TILING * (voxel.grid_x + voxel.grid_y))
+                    * (voxel.wave_movement
+                        + GRID_WAVE_TILING * (voxel.grid_x + voxel.grid_y))
                         .sin();
             }
             GridVoxelMovementType::Wave => {
                 transform.translation.y = 0.5
                     * voxel.wave_height
                     * (0.5
-                        * ((voxel.wave_movement + GRID_WAVE_TILING * voxel.grid_x).sin()
-                            + (voxel.wave_movement + GRID_WAVE_TILING * voxel.grid_y).sin()));
+                        * ((voxel.wave_movement
+                            + GRID_WAVE_TILING * voxel.grid_x)
+                            .sin()
+                            + (voxel.wave_movement
+                                + GRID_WAVE_TILING * voxel.grid_y)
+                                .sin()));
             }
             _ => {}
         }
