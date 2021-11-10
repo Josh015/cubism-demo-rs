@@ -1,4 +1,8 @@
 {
+  "editor.defaultFormatter": "matklad.rust-analyzer",
+  "editor.formatOnSave": true,
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": true,
   "cSpell.words": [
     "consts",
     "fira",
@@ -8,7 +12,5 @@
     "rrggbb",
     "voxel",
     "voxels"
-  ],
-  "editor.defaultFormatter": "matklad.rust-analyzer",
-  "editor.formatOnSave": true
+  ]
 }
