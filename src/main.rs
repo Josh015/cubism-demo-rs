@@ -588,28 +588,26 @@ fn keyboard_input(
     }
 }
 
-fn animate_light_ring(
+fn rotate_light_rings(
     time: Res<Time>,
-    mut query: Query<(&mut Transform, &LightRing)>,
+    mut query: Query<(
+        &mut Transform,
+        Option<&LightRing>,
+        Option<&LightRingVoxel>,
+    )>,
 ) {
-    for (mut transform, _) in query.iter_mut() {
-        transform.rotate(Quat::from_axis_angle(
-            Vec3::Y,
-            RING_ROTATION_SPEED * time.delta_seconds(),
-        ));
-    }
-}
+    let axis = Vec3::Y;
+    let angle = RING_ROTATION_SPEED * time.delta_seconds();
 
-fn animate_light_ring_voxels(
-    time: Res<Time>,
-    mut query: Query<(&mut Transform, &LightRingVoxel)>,
-) {
-    // Rotate the cubes opposite the ring so that they always face the same way.
-    for (mut transform, _) in query.iter_mut() {
-        transform.rotate(Quat::from_axis_angle(
-            Vec3::Y,
-            RING_ROTATION_SPEED * -time.delta_seconds(),
-        ));
+    for (mut transform, light_ring, light_ring_voxel) in query.iter_mut() {
+        if light_ring.is_some() {
+            // Rotate the light rings.
+            transform.rotate(Quat::from_axis_angle(axis, angle));
+        } else if light_ring_voxel.is_some() {
+            // Rotate the individual light ring voxels by the opposite angle so
+            // that they don't spin.
+            transform.rotate(Quat::from_axis_angle(axis, -angle));
+        }
     }
 }
 
@@ -662,8 +660,7 @@ fn main() {
         // .add_system(PrintDiagnosticsPlugin::print_diagnostics_system.system())
         .add_startup_system(setup.system())
         .add_system(keyboard_input.system())
-        .add_system(animate_light_ring.system())
-        .add_system(animate_light_ring_voxels.system())
+        .add_system(rotate_light_rings.system())
         .add_system(animate_grid_voxels.system())
         .run();
 }
