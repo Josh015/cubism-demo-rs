@@ -284,7 +284,10 @@ struct LightRingDesc {
     transform: Mat4,
 }
 
+#[derive(Component)]
 struct LightRing;
+
+#[derive(Component)]
 struct LightRingVoxel;
 
 struct GridVoxelDesc {
@@ -303,6 +306,7 @@ enum GridVoxelMovementType {
     Wave,
 }
 
+#[derive(Component)]
 struct GridVoxel {
     movement_type: GridVoxelMovementType,
     wave_height: f32,
@@ -644,7 +648,7 @@ fn animate_grid_voxels(
 
 #[bevy_main]
 fn main() {
-    App::build()
+    App::new()
         .insert_resource(Msaa { samples: 4 })
         .insert_resource(WindowDescriptor {
             title: "Cubism".to_string(),

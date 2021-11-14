@@ -7,9 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-# bevy = { path = '../bevy' }
-bevy = { git = 'https://github.com/Josh015/bevy.git' }
-# bevy = { git = 'https://github.com/bevyengine/bevy.git' }
+bevy = { git = 'https://github.com/bevyengine/bevy.git' }
 # bevy = "0.5.0"
 lazy_static = "1.4.0"
 rand = "0.8.3"
