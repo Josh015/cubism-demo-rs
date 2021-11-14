@@ -456,7 +456,6 @@ fn setup(
                             // range: 0.5,
                             range: 1.0,
                             radius: 0.5 * d.light_size,
-                            ..Default::default()
                         })
                         .insert(LightRingVoxel);
                 }
@@ -466,7 +465,7 @@ fn setup(
     // ---- Grids ----
     for d in GRID_DESCRIPTIONS.iter() {
         // XPM headers take the form "20 20 2 1", "16 16 4 1", etc.
-        let header: Vec<&str> = d.xpm_data[0].split(" ").collect();
+        let header: Vec<&str> = d.xpm_data[0].split(' ').collect();
         let width: usize = header[0].parse().unwrap();
         let height: usize = header[1].parse().unwrap();
         let palette_size: usize = header[2].parse().unwrap();
@@ -476,8 +475,8 @@ fn setup(
         for i in 1..=palette_size {
             // XPM palette entries take the form " \tc None", ".\tc #000000", etc.
             let palette_row = d.xpm_data[i];
-            let palette_index: char = palette_row.chars().nth(0).unwrap();
-            let color_value: &str = palette_row.split(" ").last().unwrap();
+            let palette_index: char = palette_row.chars().next().unwrap();
+            let color_value: &str = palette_row.split(' ').last().unwrap();
 
             match color_value {
                 "None" => {}
