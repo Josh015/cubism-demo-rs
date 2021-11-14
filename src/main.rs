@@ -595,17 +595,17 @@ fn rotate_light_rings(
         Option<&LightRingVoxel>,
     )>,
 ) {
-    let axis = Vec3::Y;
-    let angle = RING_ROTATION_SPEED * time.delta_seconds();
+    // Rotate the light rings while rotating their voxels the opposite way.
+    let rotation = Quat::from_axis_angle(
+        Vec3::Y,
+        RING_ROTATION_SPEED * time.delta_seconds(),
+    );
 
     for (mut transform, light_ring, light_ring_voxel) in query.iter_mut() {
         if light_ring.is_some() {
-            // Rotate the light rings.
-            transform.rotate(Quat::from_axis_angle(axis, angle));
+            transform.rotate(rotation);
         } else if light_ring_voxel.is_some() {
-            // Rotate the individual light ring voxels by the opposite angle so
-            // that they don't spin.
-            transform.rotate(Quat::from_axis_angle(axis, -angle));
+            transform.rotate(rotation.inverse());
         }
     }
 }
