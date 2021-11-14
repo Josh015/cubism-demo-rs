@@ -600,12 +600,13 @@ fn rotate_light_rings(
         Vec3::Y,
         RING_ROTATION_SPEED * time.delta_seconds(),
     );
+    let inverse_rotation = rotation.inverse();
 
     for (mut transform, light_ring, light_ring_voxel) in query.iter_mut() {
         if light_ring.is_some() {
             transform.rotate(rotation);
         } else if light_ring_voxel.is_some() {
-            transform.rotate(rotation.inverse());
+            transform.rotate(inverse_rotation);
         }
     }
 }
