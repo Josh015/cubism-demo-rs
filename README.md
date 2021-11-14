@@ -1,5 +1,5 @@
 # NOTE:
-I'm currently waiting on a lighting engine update from bevy to support large numbers of lights again. For now this demo mostly just serves as a demo for spherical area lights.
+I'm currently waiting on a lighting engine update from bevy to support large numbers of lights again. For now this program mostly just serves as a demo for spherical area lights.
 
 # Cubism Demo
 
