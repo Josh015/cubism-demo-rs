@@ -1,3 +1,6 @@
+# NOTE:
+I'm currently waiting on a lighting engine update from bevy to support large numbers of lights again. For now this program mostly just serves as a demo for spherical area lights.
+
 # Cubism Demo
 
 A Bevy Engine port and refresh of an old C++ OpenGL lighting and shading demo I made back in 2010.
