@@ -22,6 +22,8 @@ const RING_ROTATION_SPEED: f32 = 1.0;
 
 const GRID_WAVE_TILING: f32 = 10.0;
 const GRID_WAVE_SPEED: f32 = 2.0;
+const GRID_WAVE_HEIGHT: f32 = 0.12;
+const GRID_RIPPLE_HEIGHT: f32 = 0.06;
 const WALL_VOXEL_SCALE: f32 = 0.87;
 const WALL_GRID_SCALE: f32 = 1.8;
 
@@ -213,7 +215,6 @@ lazy_static! {
             GridVoxelDesc {
                 voxel_scale: 1.0,
                 xpm_data: &SPRITE_XPM,
-                wave_height: 0.0,
                 movement_type: GridVoxelMovementType::Static,
                 roughness: 0.25,
                 transform: Mat4::from_scale_rotation_translation(
@@ -228,7 +229,6 @@ lazy_static! {
             GridVoxelDesc {
                 voxel_scale: WALL_VOXEL_SCALE,
                 xpm_data: &MAGENTA_XPM,
-                wave_height: 0.06,
                 movement_type: GridVoxelMovementType::Ripple,
                 roughness: 0.0,
                 transform: Mat4::from_scale_rotation_translation(
@@ -241,7 +241,6 @@ lazy_static! {
             GridVoxelDesc {
                 voxel_scale: WALL_VOXEL_SCALE,
                 xpm_data: &ORANGE_XPM,
-                wave_height: 0.06,
                 movement_type: GridVoxelMovementType::Ripple,
                 roughness: 0.0,
                 transform: Mat4::from_scale_rotation_translation(
@@ -256,7 +255,6 @@ lazy_static! {
             GridVoxelDesc {
                 voxel_scale: WALL_VOXEL_SCALE,
                 xpm_data: &BLUE_XPM,
-                wave_height: 0.12,
                 movement_type: GridVoxelMovementType::Wave,
                 roughness: 0.0,
                 transform: Mat4::from_scale_rotation_translation(
@@ -292,7 +290,6 @@ struct WaveSimulation(f32);
 
 struct GridVoxelDesc {
     voxel_scale: f32,
-    wave_height: f32,
     movement_type: GridVoxelMovementType,
     transform: Mat4,
     roughness: f32,
@@ -309,9 +306,8 @@ enum GridVoxelMovementType {
 #[derive(Component)]
 struct GridVoxel {
     movement_type: GridVoxelMovementType,
-    wave_height: f32,
-    grid_x: f32,
-    grid_y: f32,
+    x: f32,
+    y: f32,
 }
 
 fn setup(
@@ -539,9 +535,8 @@ fn setup(
                                 })
                                 .insert(GridVoxel {
                                     movement_type: d.movement_type,
-                                    wave_height: d.wave_height,
-                                    grid_x: w as f32 / width_minus_one,
-                                    grid_y: h as f32 / height_minus_one,
+                                    x: w as f32 / width_minus_one,
+                                    y: h as f32 / height_minus_one,
                                 });
                         }
                     }
@@ -616,24 +611,24 @@ fn animate_grid_voxels(
     wave_simulation.0 += GRID_WAVE_SPEED * time.delta_seconds();
     wave_simulation.0 %= std::f32::consts::TAU;
 
-    for (mut transform, voxel) in query.iter_mut() {
-        match voxel.movement_type {
+    for (mut transform, grid_voxel) in query.iter_mut() {
+        match grid_voxel.movement_type {
             GridVoxelMovementType::Ripple => {
                 transform.translation.y = 0.5
-                    * voxel.wave_height
+                    * GRID_RIPPLE_HEIGHT
                     * (wave_simulation.0
-                        + GRID_WAVE_TILING * (voxel.grid_x + voxel.grid_y))
+                        + GRID_WAVE_TILING * (grid_voxel.x + grid_voxel.y))
                         .sin();
             }
             GridVoxelMovementType::Wave => {
                 transform.translation.y = 0.5
-                    * voxel.wave_height
+                    * GRID_WAVE_HEIGHT
                     * (0.5
                         * ((wave_simulation.0
-                            + GRID_WAVE_TILING * voxel.grid_x)
+                            + GRID_WAVE_TILING * grid_voxel.x)
                             .sin()
                             + (wave_simulation.0
-                                + GRID_WAVE_TILING * voxel.grid_y)
+                                + GRID_WAVE_TILING * grid_voxel.y)
                                 .sin()));
             }
             _ => {}
