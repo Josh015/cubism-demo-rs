@@ -165,48 +165,44 @@ lazy_static! {
     };
 
     static ref LIGHT_RING_DESCRIPTIONS: [LightRingDesc; 3] = {
+        let light_ring_template = LightRingDesc {
+            // lights_count: 85,
+            // light_size: 0.025,
+            lights_count: 3,
+            light_size: 0.125,
+            height: 0.25,
+            inner_radius: 0.25,
+            outer_radius: 0.7,
+            ..Default::default()
+        };
+
         [
-            // Cyan light ring
             LightRingDesc {
-                // lights_count: 85,
-                lights_count: 3,
-                light_size: 0.125,
-                height: 0.25,
-                inner_radius: 0.25,
-                outer_radius: 0.7,
+                // Cyan light ring
                 min_color: Color::rgb(0.05, 0.2, 0.3),
                 max_color: Color::rgb(0.1, 0.5, 0.7),
                 transform: Mat4::from_translation(-0.55 * Vec3::Y),
+                ..light_ring_template
             },
-            // Orange light ring
             LightRingDesc {
-                // lights_count: 85,
-                lights_count: 3,
-                light_size: 0.125,
-                height: 0.125,
-                inner_radius: 0.25,
-                outer_radius: 0.7,
+                // Orange light ring
                 min_color: Color::rgb(0.4, 0.3, 0.05),
                 max_color: Color::rgb(0.6, 0.5, 0.1),
                 transform: Mat4::from_rotation_translation(
                     Quat::from_axis_angle(Vec3::X, 90f32.to_radians()),
                     -0.7 * Vec3::Z,
                 ),
+                ..light_ring_template
             },
-            // Magenta light ring
             LightRingDesc {
-                // lights_count: 85,
-                lights_count: 3,
-                light_size: 0.125,
-                height: 0.125,
-                inner_radius: 0.25,
-                outer_radius: 0.7,
+                // Magenta light ring
                 min_color: Color::rgb(0.1, 0.1, 0.5),
                 max_color: Color::rgb(0.6, 0.2, 0.7),
                 transform: Mat4::from_rotation_translation(
                     Quat::from_axis_angle(Vec3::Z, -90f32.to_radians()),
                     0.7 * Vec3::X,
                 ),
+                ..light_ring_template
             },
         ]
     };
@@ -273,6 +269,7 @@ lazy_static! {
     };
 }
 
+#[derive(Default)]
 struct LightRingDesc {
     lights_count: u32,
     height: f32,
