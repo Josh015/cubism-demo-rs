@@ -128,13 +128,30 @@ const BLUE_XPM: [&str; 23] = [
 ];
 
 lazy_static! {
-    static ref DEFAULT_CAMERA_TRANSFORMS: (Vec3, Quat) = {
-        (
-            Vec3::new(-3.0, 2.25, 3.0),
-            (Quat::from_axis_angle(Vec3::Y, -45f32.to_radians())
-                * Quat::from_axis_angle(Vec3::X, -30f32.to_radians()))
-            .normalize(),
-        )
+    static ref CAMERA_TRANSFORMS: [Mat4; 4] = {
+        [
+            // Front
+            Mat4::from_rotation_translation((
+                Quat::from_axis_angle(Vec3::Y, -45f32.to_radians())
+                    * Quat::from_axis_angle(Vec3::X, -30f32.to_radians()))
+                .normalize(),
+                Vec3::new(-3.0, 2.25, 3.0)
+            ),
+            // Right
+            Mat4::from_translation(Vec3::new(0.0, 0.0, 4.0)),
+            // Left
+            Mat4::from_rotation_translation(
+                Quat::from_axis_angle(Vec3::Y, -90f32.to_radians()),
+                Vec3::new(-4.0, 0.0, 0.0)
+            ),
+            // Top
+            Mat4::from_rotation_translation(
+                (Quat::from_axis_angle(Vec3::X, -90f32.to_radians())
+                    * Quat::from_axis_angle(Vec3::Z, -45f32.to_radians()))
+                .normalize(),
+                Vec3::new(0.3, 4.0, -0.3)
+            )
+        ]
     };
 
     static ref PILLAR_DESCRIPTIONS: [Mat4; 4] = {
@@ -279,15 +296,6 @@ struct LightRingDesc {
     transform: Mat4,
 }
 
-#[derive(Component)]
-struct LightRing;
-
-#[derive(Component)]
-struct LightRingVoxel;
-
-#[derive(Default)]
-struct WaveSimulation(f32);
-
 struct GridVoxelDesc {
     voxel_scale: f32,
     movement_type: GridVoxelMovementType,
@@ -302,6 +310,15 @@ enum GridVoxelMovementType {
     Ripple,
     Wave,
 }
+
+#[derive(Component)]
+struct LightRing;
+
+#[derive(Component)]
+struct LightRingVoxel;
+
+#[derive(Default)]
+struct WaveSimulation(f32);
 
 #[derive(Component)]
 struct GridVoxel {
@@ -323,10 +340,7 @@ fn setup(
     commands
         // Camera
         .spawn_bundle(PerspectiveCameraBundle {
-            transform: Transform::from_matrix(Mat4::from_rotation_translation(
-                DEFAULT_CAMERA_TRANSFORMS.1,
-                DEFAULT_CAMERA_TRANSFORMS.0,
-            )),
+            transform: Transform::from_matrix(CAMERA_TRANSFORMS[0]),
             ..Default::default()
         });
 
@@ -552,30 +566,22 @@ fn keyboard_input(
     for (mut transform, _) in query.iter_mut() {
         // Front
         if keyboard_input.just_pressed(KeyCode::Key1) {
-            transform.translation = DEFAULT_CAMERA_TRANSFORMS.0;
-            transform.rotation = DEFAULT_CAMERA_TRANSFORMS.1;
+            *transform = Transform::from_matrix(CAMERA_TRANSFORMS[0]);
         }
 
         // Right
         if keyboard_input.just_released(KeyCode::Key2) {
-            transform.translation = Vec3::new(0.0, 0.0, 4.0);
-            transform.rotation = Quat::IDENTITY;
+            *transform = Transform::from_matrix(CAMERA_TRANSFORMS[1]);
         }
 
         // Left
         if keyboard_input.just_released(KeyCode::Key3) {
-            transform.translation = Vec3::new(-4.0, 0.0, 0.0);
-            transform.rotation =
-                Quat::from_axis_angle(Vec3::Y, -90f32.to_radians());
+            *transform = Transform::from_matrix(CAMERA_TRANSFORMS[2]);
         }
 
         // Top
         if keyboard_input.just_released(KeyCode::Key4) {
-            transform.translation = Vec3::new(0.3, 4.0, -0.3);
-            transform.rotation =
-                (Quat::from_axis_angle(Vec3::X, -90f32.to_radians())
-                    * Quat::from_axis_angle(Vec3::Z, -45f32.to_radians()))
-                .normalize();
+            *transform = Transform::from_matrix(CAMERA_TRANSFORMS[3]);
         }
     }
 }
