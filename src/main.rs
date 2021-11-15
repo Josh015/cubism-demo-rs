@@ -586,11 +586,10 @@ fn keyboard_input(
 
 fn rotate_light_rings(
     time: Res<Time>,
-    mut query: Query<(
-        &mut Transform,
-        Option<&LightRing>,
-        Option<&LightRingVoxel>,
-    )>,
+    mut query: Query<
+        (&mut Transform, Option<&LightRing>, Option<&LightRingVoxel>),
+        Or<(With<LightRing>, With<LightRingVoxel>)>,
+    >,
 ) {
     // Rotate the light rings while rotating their voxels the opposite way.
     let rotation = Quat::from_axis_angle(
