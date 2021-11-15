@@ -287,6 +287,9 @@ struct LightRing;
 #[derive(Component)]
 struct LightRingVoxel;
 
+#[derive(Default)]
+struct WaveSimulation(f32);
+
 struct GridVoxelDesc {
     voxel_scale: f32,
     wave_height: f32,
@@ -307,7 +310,6 @@ enum GridVoxelMovementType {
 struct GridVoxel {
     movement_type: GridVoxelMovementType,
     wave_height: f32,
-    wave_movement: f32,
     grid_x: f32,
     grid_y: f32,
 }
@@ -538,7 +540,6 @@ fn setup(
                                 .insert(GridVoxel {
                                     movement_type: d.movement_type,
                                     wave_height: d.wave_height,
-                                    wave_movement: 0.0,
                                     grid_x: w as f32 / width_minus_one,
                                     grid_y: h as f32 / height_minus_one,
                                 });
@@ -609,18 +610,19 @@ fn rotate_light_rings(
 
 fn animate_grid_voxels(
     time: Res<Time>,
-    mut query: Query<(&mut Transform, &mut GridVoxel)>,
+    mut wave_simulation: ResMut<WaveSimulation>,
+    mut query: Query<(&mut Transform, &GridVoxel)>,
 ) {
-    for (mut transform, mut voxel) in query.iter_mut() {
-        voxel.wave_movement = (voxel.wave_movement
-            + (GRID_WAVE_SPEED * time.delta_seconds()))
-            % (2.0 * std::f32::consts::PI);
+    wave_simulation.0 = (wave_simulation.0
+        + (GRID_WAVE_SPEED * time.delta_seconds()))
+        % (2.0 * std::f32::consts::PI);
 
+    for (mut transform, voxel) in query.iter_mut() {
         match voxel.movement_type {
             GridVoxelMovementType::Ripple => {
                 transform.translation.y = 0.5
                     * voxel.wave_height
-                    * (voxel.wave_movement
+                    * (wave_simulation.0
                         + GRID_WAVE_TILING * (voxel.grid_x + voxel.grid_y))
                         .sin();
             }
@@ -628,10 +630,10 @@ fn animate_grid_voxels(
                 transform.translation.y = 0.5
                     * voxel.wave_height
                     * (0.5
-                        * ((voxel.wave_movement
+                        * ((wave_simulation.0
                             + GRID_WAVE_TILING * voxel.grid_x)
                             .sin()
-                            + (voxel.wave_movement
+                            + (wave_simulation.0
                                 + GRID_WAVE_TILING * voxel.grid_y)
                                 .sin()));
             }
@@ -654,6 +656,7 @@ fn main() {
         // .add_plugin(PrintDiagnosticsPlugin::default())
         // .add_plugin(FrameTimeDiagnosticsPlugin::default())
         // .add_system(PrintDiagnosticsPlugin::print_diagnostics_system.system())
+        .init_resource::<WaveSimulation>()
         .add_startup_system(setup.system())
         .add_system(keyboard_input.system())
         .add_system(rotate_light_rings.system())
