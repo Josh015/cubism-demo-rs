@@ -613,9 +613,8 @@ fn animate_grid_voxels(
     mut wave_simulation: ResMut<WaveSimulation>,
     mut query: Query<(&mut Transform, &GridVoxel)>,
 ) {
-    wave_simulation.0 = (wave_simulation.0
-        + (GRID_WAVE_SPEED * time.delta_seconds()))
-        % std::f32::consts::TAU;
+    wave_simulation.0 += GRID_WAVE_SPEED * time.delta_seconds();
+    wave_simulation.0 %= std::f32::consts::TAU;
 
     for (mut transform, voxel) in query.iter_mut() {
         match voxel.movement_type {
