@@ -187,8 +187,10 @@ lazy_static! {
         let light_ring_template = LightRingDesc {
             // lights_count: 85,
             // light_size: 0.025,
+            // light_range: 0.5,
             lights_count: 3,
             light_size: 0.125,
+            light_range: 1.0,
             height: 0.25,
             inner_radius: 0.25,
             outer_radius: 0.7,
@@ -293,6 +295,7 @@ struct LightRingDesc {
     min_color: Color,
     max_color: Color,
     light_size: f32,
+    light_range: f32,
     transform: Mat4,
 }
 
@@ -462,8 +465,7 @@ fn setup(
                         .insert(PointLight {
                             color: light_color,
                             intensity: light_intensity * 0.5,
-                            // range: 0.5,
-                            range: 1.0,
+                            range: d.light_range,
                             radius: 0.5 * d.light_size,
                         })
                         .insert(LightRingVoxel);
