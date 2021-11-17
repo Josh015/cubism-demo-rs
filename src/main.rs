@@ -476,7 +476,8 @@ fn setup(
     // ---- Grids ----
     for d in GRID_DESCRIPTIONS.iter() {
         // XPM headers take the form "20 20 2 1", "16 16 4 1", etc.
-        let header: Vec<&str> = d.xpm_data[0].split(' ').collect();
+        let header: Vec<&str> =
+            d.xpm_data[0].split_ascii_whitespace().collect();
         let width: usize = header[0].parse().unwrap();
         let height: usize = header[1].parse().unwrap();
         let palette_size: usize = header[2].parse().unwrap();
@@ -487,14 +488,14 @@ fn setup(
             // XPM palette entries take the form " \tc None", ".\tc #000000", etc.
             let palette_row = d.xpm_data[i];
             let palette_index: char = palette_row.chars().next().unwrap();
-            let color_value: &str = palette_row.split(' ').last().unwrap();
+            let color_value: &str =
+                palette_row.split_ascii_whitespace().last().unwrap();
 
             match color_value {
-                "None" => {}
+                "None" | "none" => {}
                 _ => {
                     // Strip '#' off "#RRGGBB" before converting it to a Color.
-                    let hex_color: String =
-                        color_value.chars().skip(1).collect();
+                    let hex_color = color_value.strip_prefix('#').unwrap();
                     palette.insert(
                         palette_index,
                         materials.add(StandardMaterial {
