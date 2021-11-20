@@ -1,0 +1,223 @@
+(
+  instructions: "
+---- Views ----
+1: Front
+2: Right
+3: Left
+4: Top
+  ",
+// ---- Modes ----
+// TAB: Debug view
+// "#;
+
+  cameras: [
+    // Front (default)
+    Srt(
+      scale: (1.0, 1.0, 1.0),
+      rotations: [
+        (0.0, 1.0, 0.0, -45),
+        (1.0, 0.0, 0.0, -30),
+      ],
+      translation: (-3.0, 2.25, 3.0),
+    ),
+
+    // Right
+    Srt(
+      scale: (1.0, 1.0, 1.0),
+      rotations: [],
+      translation: (0.0, 0.0, 4.0),
+    ),
+
+    // Left
+    Srt(
+      scale: (1.0, 1.0, 1.0),
+      rotations: [
+        (0.0, 1.0, 0.0, -90),
+      ],
+      translation: (-4.0, 0.0, 0.0),
+    ),
+
+    // Top
+    Srt(
+      scale: (1.0, 1.0, 1.0),
+      rotations: [
+        (1.0, 0.0, 0.0, -90),
+        (0.0, 0.0, 1.0, -45),
+      ],
+      translation: (0.3, 4.0, -0.3),
+    ),
+  ],
+
+  pillars: [
+    // Pedestal
+    (
+      color: Rgba(red: 0.7, green: 0.7, blue: 0.7, alpha: 1.0),
+      transforms: Srt(
+        scale: (0.34, 0.7, 0.34),
+        rotations: [],
+        translation: (0.0, -0.75, 0.0),
+      )
+    ),
+
+    // X pillar
+    (
+      color: Rgba(red: 0.7, green: 0.7, blue: 0.7, alpha: 1.0),
+      transforms: Srt(
+        scale: (2.0, 0.125, 0.125),
+        rotations: [],
+        translation: (-0.05, -1.0, -1.0),
+      )
+    ),
+
+    // Y pillar
+    (
+      color: Rgba(red: 0.7, green: 0.7, blue: 0.7, alpha: 1.0),
+      transforms: Srt(
+        scale: (0.125, 2.0, 0.125),
+        rotations: [],
+        translation: (1.0, 0.05, -1.0),
+      )
+    ),
+
+    // Z pillar
+    (
+      color: Rgba(red: 0.7, green: 0.7, blue: 0.7, alpha: 1.0),
+      transforms: Srt(
+        scale: (0.125, 0.125, 2.0),
+        rotations: [],
+        translation: (1.0, -1.0, 0.05),
+      )
+    ),
+  ],
+
+  ring_rotation_speed: 1.0,
+  light_rings: [
+    // Cyan light ring
+    (
+      // lights_count: 85,
+      // light_size: 0.025,
+      // light_range: 0.5,
+      lights_count: 3,
+      light_size: 0.125,
+      light_range: 1.0,
+      height: 0.25,
+      inner_radius: 0.25,
+      outer_radius: 0.7,
+      min_color: Rgba(red: 0.05, green: 0.2, blue: 0.3, alpha: 1.0),
+      max_color: Rgba(red: 0.1, green: 0.5, blue: 0.7, alpha: 1.0),
+      transforms: Srt(
+        scale: (1.0, 1.0, 1.0),
+        rotations: [],
+        translation: (0.0, -0.55, 0.0),
+      )
+    ),
+
+    // Orange light ring
+    (
+      // lights_count: 85,
+      // light_size: 0.025,
+      // light_range: 0.5,
+      lights_count: 3,
+      light_size: 0.125,
+      light_range: 1.0,
+      height: 0.25,
+      inner_radius: 0.25,
+      outer_radius: 0.7,
+      min_color: Rgba(red: 0.4, green: 0.3, blue: 0.05, alpha: 1.0),
+      max_color: Rgba(red: 0.6, green: 0.5, blue: 0.1, alpha: 1.0),
+      transforms: Srt(
+        scale: (1.0, 1.0, 1.0),
+        rotations: [(1.0, 0.0, 0.0, 90.0)],
+        translation: (0.0, 0.0, -0.7),
+      )
+    ),
+
+    // Magenta light ring
+    (
+      // lights_count: 85,
+      // light_size: 0.025,
+      // light_range: 0.5,
+      lights_count: 3,
+      light_size: 0.125,
+      light_range: 1.0,
+      height: 0.25,
+      inner_radius: 0.25,
+      outer_radius: 0.7,
+      min_color: Rgba(red: 0.1, green: 0.1, blue: 0.5, alpha: 1.0),
+      max_color: Rgba(red: 0.6, green: 0.2, blue: 0.7, alpha: 1.0),
+      transforms: Srt(
+        scale: (1.0, 1.0, 1.0),
+        rotations: [(0.0, 0.0, 1.0, -90.0)],
+        translation: (0.7, 0.0, 0.0),
+      )
+    ),
+  ],
+
+  grid_wave_tiling: 10.0,
+  grid_wave_speed: 2.0,
+  grid_wave_height: 0.12,
+  grid_ripple_height: 0.06,
+  grids: [
+    // Sprite
+    (
+      voxel_scale: 1.0,
+      pixmap_path: "/assets/images/sprite.xpm",
+      movement_type: Static,
+      roughness: 0.25,
+      transforms: Srt(
+          scale: (0.55, 0.55, 0.55),
+          rotations: [
+              (1.0, 0.0, 0.0, 90.0),
+              (0.0, 0.0, 1.0, 45.0),
+          ],
+          translation: (0.0, -0.125, 0.0)
+      ),
+    ),
+
+    // Magenta ripple
+    (
+        voxel_scale: 0.87,
+        pixmap_path: "/assets/images/magenta.xpm",
+        movement_type: Ripple,
+        roughness: 0.0,
+        transforms: Srt(
+            scale: (1.8, 1.8, 1.8),
+            rotations: [
+                (0.0, 0.0, 1.0, -90.0),
+            ],
+            translation: (1.0, 0.0, 0.0)
+        ),
+    ),
+
+    // Orange ripple
+    (
+        voxel_scale: 0.87,
+        pixmap_path: "/assets/images/orange.xpm",
+        movement_type: Ripple,
+        roughness: 0.0,
+        transforms: Srt(
+            scale: (1.8, 1.8, 1.8),
+            rotations: [
+                (1.0, 0.0, 0.0, 90.0),
+                (0.0, 0.0, 1.0, 180.0),
+            ],
+            translation: (0.0, 0.0, -1.0)
+        ),
+    ),
+
+    // Blue wave
+    (
+        voxel_scale: 0.87,
+        pixmap_path: "/assets/images/blue.xpm",
+        movement_type: Wave,
+        roughness: 0.0,
+        transforms: Srt(
+            scale: (1.8, 1.8, 1.8),
+            rotations: [
+                (0.0, 1.0, 0.0, -90.0),
+            ],
+            translation: (0.0, -1.0, 0.0)
+        ),
+    ),
+  ]
+)

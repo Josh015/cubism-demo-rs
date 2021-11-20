@@ -2,192 +2,34 @@ use bevy::{
     prelude::*,
     render::{camera::Camera, mesh::shape},
 };
-use lazy_static::*;
 use rand::distributions::{Distribution, Uniform};
-use std::{cmp, collections::HashMap};
+use ron::de::from_reader;
+use serde::Deserialize;
+use std::{cmp, collections::HashMap, fs::File, io::Read};
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, PrintDiagnosticsPlugin};
 
-const INSTRUCTIONS: &str = r#"
----- Views ----
-1: Front
-2: Right
-3: Left
-4: Top
-"#;
-// ---- Modes ----
-// TAB: Debug view
-// "#;
-
-const RING_ROTATION_SPEED: f32 = 1.0;
-
-const GRID_WAVE_TILING: f32 = 10.0;
-const GRID_WAVE_SPEED: f32 = 2.0;
-const GRID_WAVE_HEIGHT: f32 = 0.12;
-const GRID_RIPPLE_HEIGHT: f32 = 0.06;
-const WALL_VOXEL_SCALE: f32 = 0.87;
-const WALL_GRID_SCALE: f32 = 1.8;
-
-lazy_static! {
-    static ref CAMERA_TRANSFORMS: [Mat4; 4] = {
-        [
-            // Front
-            Mat4::from_rotation_translation((
-                Quat::from_axis_angle(Vec3::Y, -45f32.to_radians())
-                    * Quat::from_axis_angle(Vec3::X, -30f32.to_radians()))
-                .normalize(),
-                Vec3::new(-3.0, 2.25, 3.0)
-            ),
-            // Right
-            Mat4::from_translation(Vec3::new(0.0, 0.0, 4.0)),
-            // Left
-            Mat4::from_rotation_translation(
-                Quat::from_axis_angle(Vec3::Y, -90f32.to_radians()),
-                Vec3::new(-4.0, 0.0, 0.0)
-            ),
-            // Top
-            Mat4::from_rotation_translation(
-                (Quat::from_axis_angle(Vec3::X, -90f32.to_radians())
-                    * Quat::from_axis_angle(Vec3::Z, -45f32.to_radians()))
-                .normalize(),
-                Vec3::new(0.3, 4.0, -0.3)
-            )
-        ]
-    };
-
-    static ref PILLAR_DESCRIPTIONS: [Mat4; 4] = {
-        [
-            // Pedestal
-            Mat4::from_scale_rotation_translation(
-                Vec3::new(0.34, 0.7, 0.34),
-                Quat::IDENTITY,
-                Vec3::new(0.0, -0.75, 0.0),
-            ),
-            // X pillar
-            Mat4::from_scale_rotation_translation(
-                Vec3::new(2.0, 0.125, 0.125),
-                Quat::IDENTITY,
-                Vec3::new(-0.05, -1.0, -1.0),
-            ),
-            // Y pillar
-            Mat4::from_scale_rotation_translation(
-                Vec3::new(0.125, 2.0, 0.125),
-                Quat::IDENTITY,
-                Vec3::new(1.0, 0.05, -1.0),
-            ),
-            // Z pillar
-            Mat4::from_scale_rotation_translation(
-                Vec3::new(0.125, 0.125, 2.0),
-                Quat::IDENTITY,
-                Vec3::new(1.0, -1.0, 0.05),
-            ),
-        ]
-    };
-
-    static ref LIGHT_RING_DESCRIPTIONS: [LightRingDesc; 3] = {
-        let light_ring_template = LightRingDesc {
-            // lights_count: 85,
-            // light_size: 0.025,
-            // light_range: 0.5,
-            lights_count: 3,
-            light_size: 0.125,
-            light_range: 1.0,
-            height: 0.25,
-            inner_radius: 0.25,
-            outer_radius: 0.7,
-            ..Default::default()
-        };
-
-        [
-            LightRingDesc {
-                // Cyan light ring
-                min_color: Color::rgb(0.05, 0.2, 0.3),
-                max_color: Color::rgb(0.1, 0.5, 0.7),
-                transform: Mat4::from_translation(-0.55 * Vec3::Y),
-                ..light_ring_template
-            },
-            LightRingDesc {
-                // Orange light ring
-                min_color: Color::rgb(0.4, 0.3, 0.05),
-                max_color: Color::rgb(0.6, 0.5, 0.1),
-                transform: Mat4::from_rotation_translation(
-                    Quat::from_axis_angle(Vec3::X, 90f32.to_radians()),
-                    -0.7 * Vec3::Z,
-                ),
-                ..light_ring_template
-            },
-            LightRingDesc {
-                // Magenta light ring
-                min_color: Color::rgb(0.1, 0.1, 0.5),
-                max_color: Color::rgb(0.6, 0.2, 0.7),
-                transform: Mat4::from_rotation_translation(
-                    Quat::from_axis_angle(Vec3::Z, -90f32.to_radians()),
-                    0.7 * Vec3::X,
-                ),
-                ..light_ring_template
-            },
-        ]
-    };
-
-    static ref GRID_DESCRIPTIONS: [GridVoxelDesc; 4] = {
-        [
-            // Sprite
-            GridVoxelDesc {
-                voxel_scale: 1.0,
-                pixmap: include_str!("../assets/images/sprite.xpm"),
-                movement_type: GridVoxelMovementType::Static,
-                roughness: 0.25,
-                transform: Mat4::from_scale_rotation_translation(
-                    Vec3::splat(0.55),
-                    (Quat::from_axis_angle(Vec3::X, 90f32.to_radians())
-                        * Quat::from_axis_angle(Vec3::Z, 45f32.to_radians()))
-                    .normalize(),
-                    -0.125 * Vec3::Y,
-                ),
-            },
-            // Magenta ripple
-            GridVoxelDesc {
-                voxel_scale: WALL_VOXEL_SCALE,
-                pixmap: include_str!("../assets/images/magenta.xpm"),
-                movement_type: GridVoxelMovementType::Ripple,
-                roughness: 0.0,
-                transform: Mat4::from_scale_rotation_translation(
-                    Vec3::splat(WALL_GRID_SCALE),
-                    Quat::from_axis_angle(Vec3::Z, -90f32.to_radians()),
-                    Vec3::X,
-                ),
-            },
-            // Orange ripple
-            GridVoxelDesc {
-                voxel_scale: WALL_VOXEL_SCALE,
-                pixmap: include_str!("../assets/images/orange.xpm"),
-                movement_type: GridVoxelMovementType::Ripple,
-                roughness: 0.0,
-                transform: Mat4::from_scale_rotation_translation(
-                    Vec3::splat(WALL_GRID_SCALE),
-                    (Quat::from_axis_angle(Vec3::X, 90f32.to_radians())
-                        * Quat::from_axis_angle(Vec3::Z, 180f32.to_radians()))
-                    .normalize(),
-                    -Vec3::Z,
-                ),
-            },
-            // Blue wave
-            GridVoxelDesc {
-                voxel_scale: WALL_VOXEL_SCALE,
-                pixmap: include_str!("../assets/images/blue.xpm"),
-                movement_type: GridVoxelMovementType::Wave,
-                roughness: 0.0,
-                transform: Mat4::from_scale_rotation_translation(
-                    Vec3::splat(WALL_GRID_SCALE),
-                    Quat::from_axis_angle(Vec3::Y, -90f32.to_radians()),
-                    -Vec3::Y,
-                ),
-            },
-        ]
-    };
+#[derive(Debug, Deserialize)]
+struct Config {
+    instructions: String,
+    ring_rotation_speed: f32,
+    grid_wave_tiling: f32,
+    grid_wave_speed: f32,
+    grid_wave_height: f32,
+    grid_ripple_height: f32,
+    cameras: Vec<Srt>,
+    pillars: Vec<PillarConfig>,
+    light_rings: Vec<LightRingConfig>,
+    grids: Vec<GridVoxelConfig>,
 }
 
-#[derive(Default)]
-struct LightRingDesc {
+#[derive(Debug, Deserialize)]
+struct PillarConfig {
+    color: Color,
+    transforms: Srt,
+}
+
+#[derive(Debug, Deserialize)]
+struct LightRingConfig {
     lights_count: u32,
     height: f32,
     inner_radius: f32,
@@ -196,18 +38,49 @@ struct LightRingDesc {
     max_color: Color,
     light_size: f32,
     light_range: f32,
-    transform: Mat4,
+    transforms: Srt,
 }
 
-struct GridVoxelDesc {
+#[derive(Debug, Deserialize)]
+struct GridVoxelConfig {
     voxel_scale: f32,
     movement_type: GridVoxelMovementType,
-    transform: Mat4,
     roughness: f32,
-    pixmap: &'static str,
+    pixmap_path: String,
+    transforms: Srt,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Deserialize)]
+struct Srt {
+    scale: (f32, f32, f32),
+    rotations: Vec<(f32, f32, f32, f32)>,
+    translation: (f32, f32, f32),
+}
+
+impl Srt {
+    fn to_transform(&self) -> Transform {
+        Transform::from_matrix(Mat4::from_scale_rotation_translation(
+            Vec3::new(self.scale.0, self.scale.1, self.scale.2),
+            self.rotations
+                .iter()
+                .map(|b| {
+                    Quat::from_axis_angle(
+                        Vec3::new(b.0, b.1, b.2),
+                        b.3.to_radians(),
+                    )
+                })
+                .fold(Quat::IDENTITY, |a, b| a * b)
+                .normalize(),
+            Vec3::new(
+                self.translation.0,
+                self.translation.1,
+                self.translation.2,
+            ),
+        ))
+    }
+}
+
+#[derive(Clone, Copy, Debug, Deserialize)]
 enum GridVoxelMovementType {
     Static,
     Ripple,
@@ -231,6 +104,7 @@ struct GridVoxel {
 }
 
 fn setup(
+    config: Res<Config>,
     mut commands: Commands,
     asset_server: ResMut<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -243,7 +117,7 @@ fn setup(
     commands
         // Camera
         .spawn_bundle(PerspectiveCameraBundle {
-            transform: Transform::from_matrix(CAMERA_TRANSFORMS[0]),
+            transform: config.cameras[0].to_transform(),
             ..Default::default()
         });
 
@@ -279,7 +153,7 @@ fn setup(
         .with_children(|parent| {
             parent.spawn_bundle(TextBundle {
                 text: Text::with_section(
-                    INSTRUCTIONS.to_string(),
+                    config.instructions.to_string(),
                     TextStyle {
                         font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                         font_size: 40.0,
@@ -292,24 +166,24 @@ fn setup(
         });
 
     // ---- Pillars ----
-    let material = materials.add(StandardMaterial {
-        base_color: Color::rgb(0.7, 0.7, 0.7),
-        roughness: 1.0,
-        // metallic: 1.0,
-        ..Default::default()
-    });
+    for d in config.pillars.iter() {
+        let material = materials.add(StandardMaterial {
+            base_color: d.color,
+            roughness: 1.0,
+            // metallic: 1.0,
+            ..Default::default()
+        });
 
-    for d in PILLAR_DESCRIPTIONS.iter() {
         commands.spawn_bundle(PbrBundle {
-            transform: Transform::from_matrix(*d),
-            material: material.clone(),
+            transform: d.transforms.to_transform(),
+            material: material,
             mesh: unit_cube.clone(),
             ..Default::default()
         });
     }
 
     // ---- Light Rings ----
-    for d in LIGHT_RING_DESCRIPTIONS.iter() {
+    for d in config.light_rings.iter() {
         let voxel_scale = Vec3::splat(d.light_size);
         let mut rng = rand::thread_rng();
         let color_randomizer = Uniform::from(0f32..=1f32);
@@ -321,7 +195,7 @@ fn setup(
 
         commands
             .spawn_bundle(PbrBundle {
-                transform: Transform::from_matrix(d.transform),
+                transform: d.transforms.to_transform(),
                 ..Default::default()
             })
             .insert(LightRing)
@@ -374,12 +248,21 @@ fn setup(
     }
 
     // ---- Grids ----
-    for d in GRID_DESCRIPTIONS.iter() {
+    for d in config.grids.iter() {
         // XPM headers take the form "20 20 2 1", "16 16 4 1", etc.
         const XPM_TYPE_HEADER_OFFSET: usize = 1;
         const XPM_INFO_HEADER_OFFSET: usize = 1 + XPM_TYPE_HEADER_OFFSET;
+
+        let input_path =
+            format!("{}{}", env!("CARGO_MANIFEST_DIR"), d.pixmap_path);
+        let mut f = File::open(&input_path).expect("Failed opening file");
+        let mut file_contents = String::new();
+
+        f.read_to_string(&mut file_contents)
+            .expect("Failed to read file");
+
         let normalized_line_endings = &str::replace(
-            &str::replace(d.pixmap, "\r\n", "\n")[..],
+            &str::replace(&file_contents[..], "\r\n", "\n")[..],
             "\r",
             "\n",
         )[..];
@@ -427,7 +310,7 @@ fn setup(
 
         commands
             .spawn_bundle(MeshBundle {
-                transform: Transform::from_matrix(d.transform),
+                transform: d.transforms.to_transform(),
                 // mesh: cube.clone(),
                 ..Default::default()
             })
@@ -472,33 +355,35 @@ fn setup(
 }
 
 fn keyboard_input(
+    config: Res<Config>,
     keyboard_input: Res<Input<KeyCode>>,
     mut query: Query<(&mut Transform, &Camera)>,
 ) {
     for (mut transform, _) in query.iter_mut() {
         // Front
         if keyboard_input.just_pressed(KeyCode::Key1) {
-            *transform = Transform::from_matrix(CAMERA_TRANSFORMS[0]);
+            *transform = config.cameras[0].to_transform();
         }
 
         // Right
         if keyboard_input.just_released(KeyCode::Key2) {
-            *transform = Transform::from_matrix(CAMERA_TRANSFORMS[1]);
+            *transform = config.cameras[1].to_transform();
         }
 
         // Left
         if keyboard_input.just_released(KeyCode::Key3) {
-            *transform = Transform::from_matrix(CAMERA_TRANSFORMS[2]);
+            *transform = config.cameras[2].to_transform();
         }
 
         // Top
         if keyboard_input.just_released(KeyCode::Key4) {
-            *transform = Transform::from_matrix(CAMERA_TRANSFORMS[3]);
+            *transform = config.cameras[3].to_transform();
         }
     }
 }
 
 fn rotate_light_rings(
+    config: Res<Config>,
     time: Res<Time>,
     mut query: Query<
         (&mut Transform, Option<&LightRing>, Option<&LightRingVoxel>),
@@ -508,7 +393,7 @@ fn rotate_light_rings(
     // Rotate the light rings while rotating their voxels the opposite way.
     let rotation = Quat::from_axis_angle(
         Vec3::Y,
-        RING_ROTATION_SPEED * time.delta_seconds(),
+        config.ring_rotation_speed * time.delta_seconds(),
     );
     let inverse_rotation = rotation.inverse();
 
@@ -522,31 +407,33 @@ fn rotate_light_rings(
 }
 
 fn animate_grid_voxels(
+    config: Res<Config>,
     time: Res<Time>,
     mut wave_simulation: ResMut<WaveSimulation>,
     mut query: Query<(&mut Transform, &GridVoxel)>,
 ) {
-    wave_simulation.0 += GRID_WAVE_SPEED * time.delta_seconds();
+    wave_simulation.0 += config.grid_wave_speed * time.delta_seconds();
     wave_simulation.0 %= std::f32::consts::TAU;
 
     for (mut transform, grid_voxel) in query.iter_mut() {
         match grid_voxel.movement_type {
             GridVoxelMovementType::Ripple => {
                 transform.translation.y = 0.5
-                    * GRID_RIPPLE_HEIGHT
+                    * config.grid_ripple_height
                     * (wave_simulation.0
-                        + GRID_WAVE_TILING * (grid_voxel.x + grid_voxel.y))
+                        + config.grid_wave_tiling
+                            * (grid_voxel.x + grid_voxel.y))
                         .sin();
             }
             GridVoxelMovementType::Wave => {
                 transform.translation.y = 0.5
-                    * GRID_WAVE_HEIGHT
+                    * config.grid_wave_height
                     * (0.5
                         * ((wave_simulation.0
-                            + GRID_WAVE_TILING * grid_voxel.x)
+                            + config.grid_wave_tiling * grid_voxel.x)
                             .sin()
                             + (wave_simulation.0
-                                + GRID_WAVE_TILING * grid_voxel.y)
+                                + config.grid_wave_tiling * grid_voxel.y)
                                 .sin()));
             }
             _ => {}
@@ -556,6 +443,19 @@ fn animate_grid_voxels(
 
 #[bevy_main]
 fn main() {
+    let input_path =
+        format!("{}/assets/config.ron", env!("CARGO_MANIFEST_DIR"));
+    let f = File::open(&input_path).expect("Failed opening file");
+
+    let config: Config = match from_reader(f) {
+        Ok(x) => x,
+        Err(e) => {
+            println!("Failed to load config: {}", e);
+
+            std::process::exit(1);
+        }
+    };
+
     App::new()
         .insert_resource(Msaa { samples: 4 })
         .insert_resource(WindowDescriptor {
@@ -569,6 +469,7 @@ fn main() {
         // .add_plugin(FrameTimeDiagnosticsPlugin::default())
         // .add_system(PrintDiagnosticsPlugin::print_diagnostics_system.system())
         .init_resource::<WaveSimulation>()
+        .insert_resource(config)
         .add_startup_system(setup.system())
         .add_system(keyboard_input.system())
         .add_system(rotate_light_rings.system())
