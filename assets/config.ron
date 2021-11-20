@@ -162,7 +162,7 @@
     (
       voxel_scale: 1.0,
       pixmap_path: "/assets/images/sprite.xpm",
-      movement_type: Static,
+      animation_type: None,
       roughness: 0.25,
       transforms: Srt(
           scale: (0.55, 0.55, 0.55),
@@ -178,7 +178,7 @@
     (
         voxel_scale: 0.87,
         pixmap_path: "/assets/images/magenta.xpm",
-        movement_type: Ripple,
+        animation_type: Some(Ripple),
         roughness: 0.0,
         transforms: Srt(
             scale: (1.8, 1.8, 1.8),
@@ -193,7 +193,7 @@
     (
         voxel_scale: 0.87,
         pixmap_path: "/assets/images/orange.xpm",
-        movement_type: Ripple,
+        animation_type: Some(Ripple),
         roughness: 0.0,
         transforms: Srt(
             scale: (1.8, 1.8, 1.8),
@@ -209,7 +209,7 @@
     (
         voxel_scale: 0.87,
         pixmap_path: "/assets/images/blue.xpm",
-        movement_type: Wave,
+        animation_type: Some(Wave),
         roughness: 0.0,
         transforms: Srt(
             scale: (1.8, 1.8, 1.8),

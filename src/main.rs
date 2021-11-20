@@ -41,10 +41,16 @@ struct LightRingConfig {
     transforms: Srt,
 }
 
+#[derive(Clone, Copy, Debug, Deserialize)]
+enum GridVoxelAnimationType {
+    Ripple,
+    Wave,
+}
+
 #[derive(Debug, Deserialize)]
 struct GridVoxelConfig {
     voxel_scale: f32,
-    movement_type: GridVoxelMovementType,
+    animation_type: Option<GridVoxelAnimationType>,
     roughness: f32,
     pixmap_path: String,
     transforms: Srt,
@@ -80,13 +86,6 @@ impl Srt {
     }
 }
 
-#[derive(Clone, Copy, Debug, Deserialize)]
-enum GridVoxelMovementType {
-    Static,
-    Ripple,
-    Wave,
-}
-
 #[derive(Component)]
 struct LightRing;
 
@@ -97,10 +96,9 @@ struct LightRingVoxel;
 struct WaveSimulation(f32);
 
 #[derive(Component)]
-struct GridVoxel {
-    movement_type: GridVoxelMovementType,
-    x: f32,
-    y: f32,
+struct AnimatedGridVoxel {
+    animation_type: GridVoxelAnimationType,
+    grid_position_2d: Vec2,
 }
 
 fn setup(
@@ -323,30 +321,34 @@ fn setup(
                         let palette_index = row.chars().nth(w).unwrap();
 
                         if let Some(material) = palette.get(&palette_index) {
-                            parent
-                                .spawn_bundle(PbrBundle {
-                                    transform: Transform::from_matrix(
-                                        Mat4::from_scale_rotation_translation(
-                                            voxel_scale,
-                                            Quat::IDENTITY,
-                                            Vec3::new(
-                                                (w as f32 - width_offset)
-                                                    / (width as f32),
-                                                0.0,
-                                                (h as f32 - height_offset)
-                                                    / (height as f32),
-                                            ),
+                            let mut voxel = parent.spawn_bundle(PbrBundle {
+                                transform: Transform::from_matrix(
+                                    Mat4::from_scale_rotation_translation(
+                                        voxel_scale,
+                                        Quat::IDENTITY,
+                                        Vec3::new(
+                                            (w as f32 - width_offset)
+                                                / (width as f32),
+                                            0.0,
+                                            (h as f32 - height_offset)
+                                                / (height as f32),
                                         ),
                                     ),
-                                    mesh: unit_cube.clone(),
-                                    material: material.clone(),
-                                    ..Default::default()
-                                })
-                                .insert(GridVoxel {
-                                    movement_type: d.movement_type,
-                                    x: w as f32 / width_minus_one,
-                                    y: h as f32 / height_minus_one,
+                                ),
+                                mesh: unit_cube.clone(),
+                                material: material.clone(),
+                                ..Default::default()
+                            });
+
+                            if let Some(animation_type) = d.animation_type {
+                                voxel.insert(AnimatedGridVoxel {
+                                    animation_type: animation_type,
+                                    grid_position_2d: Vec2::new(
+                                        w as f32 / width_minus_one,
+                                        h as f32 / height_minus_one,
+                                    ),
                                 });
+                            }
                         }
                     }
                 }
@@ -410,33 +412,35 @@ fn animate_grid_voxels(
     config: Res<Config>,
     time: Res<Time>,
     mut wave_simulation: ResMut<WaveSimulation>,
-    mut query: Query<(&mut Transform, &GridVoxel)>,
+    mut query: Query<(&mut Transform, &AnimatedGridVoxel)>,
 ) {
     wave_simulation.0 += config.grid_wave_speed * time.delta_seconds();
     wave_simulation.0 %= std::f32::consts::TAU;
 
     for (mut transform, grid_voxel) in query.iter_mut() {
-        match grid_voxel.movement_type {
-            GridVoxelMovementType::Ripple => {
+        match grid_voxel.animation_type {
+            GridVoxelAnimationType::Ripple => {
                 transform.translation.y = 0.5
                     * config.grid_ripple_height
                     * (wave_simulation.0
                         + config.grid_wave_tiling
-                            * (grid_voxel.x + grid_voxel.y))
+                            * (grid_voxel.grid_position_2d.x
+                                + grid_voxel.grid_position_2d.y))
                         .sin();
             }
-            GridVoxelMovementType::Wave => {
+            GridVoxelAnimationType::Wave => {
                 transform.translation.y = 0.5
                     * config.grid_wave_height
                     * (0.5
                         * ((wave_simulation.0
-                            + config.grid_wave_tiling * grid_voxel.x)
+                            + config.grid_wave_tiling
+                                * grid_voxel.grid_position_2d.x)
                             .sin()
                             + (wave_simulation.0
-                                + config.grid_wave_tiling * grid_voxel.y)
+                                + config.grid_wave_tiling
+                                    * grid_voxel.grid_position_2d.y)
                                 .sin()));
             }
-            _ => {}
         }
     }
 }
