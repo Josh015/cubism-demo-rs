@@ -376,11 +376,13 @@ fn setup(
     // ---- Grids ----
     for d in GRID_DESCRIPTIONS.iter() {
         // XPM headers take the form "20 20 2 1", "16 16 4 1", etc.
-        let normalized_line_endings =
-            str::replace(&str::replace(d.pixmap, "\r\n", "\n")[..], "\r", "\n");
-        let xpm_data = &normalized_line_endings[..]
-            .split("\n")
-            .collect::<Vec<&str>>();
+        let normalized_line_endings = &str::replace(
+            &str::replace(d.pixmap, "\r\n", "\n")[..],
+            "\r",
+            "\n",
+        )[..];
+        let xpm_data =
+            normalized_line_endings.split("\n").collect::<Vec<&str>>();
         let header: Vec<&str> = xpm_data[1].split_ascii_whitespace().collect();
         let width: usize = header[0].parse().unwrap();
         let height: usize = header[1].parse().unwrap();
