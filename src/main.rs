@@ -27,106 +27,6 @@ const GRID_RIPPLE_HEIGHT: f32 = 0.06;
 const WALL_VOXEL_SCALE: f32 = 0.87;
 const WALL_GRID_SCALE: f32 = 1.8;
 
-const SPRITE_XPM: [&str; 21] = [
-    "16 16 4 1",
-    " 	c None",
-    ".	c #FFA044",
-    "+	c #F84848",
-    "@	c #5C40E4",
-    " ..   ++++   .. ",
-    " ... +@@@@+ ... ",
-    " @@ +@@@@@@+ @@ ",
-    " @@.@.+..+.@.@@ ",
-    " @@...@..@...@@ ",
-    "  @@........@@  ",
-    "  @@@..@@..@@@  ",
-    "  @@@+.@@.+@@@  ",
-    "   @++++++++@   ",
-    "   @++++++++@   ",
-    "   +++@@@@+++   ",
-    "   @@@@++@@@@   ",
-    "   +++@@@@+++   ",
-    "   ++++++++++   ",
-    "    @@@  @@@    ",
-    "    @@@  @@@    ",
-];
-
-const MAGENTA_XPM: [&str; 22] = [
-    "20 20 1 1",
-    ".	c #E61A80",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-];
-
-const ORANGE_XPM: [&str; 22] = [
-    "20 20 1 1",
-    ".	c #E6801A",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-];
-
-const BLUE_XPM: [&str; 23] = [
-    "20 20 2 1",
-    " 	c None",
-    ".	c #1A80E6",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "........    ........",
-    "........    ........",
-    "........    ........",
-    "........    ........",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-    "....................",
-];
-
 lazy_static! {
     static ref CAMERA_TRANSFORMS: [Mat4; 4] = {
         [
@@ -233,7 +133,7 @@ lazy_static! {
             // Sprite
             GridVoxelDesc {
                 voxel_scale: 1.0,
-                xpm_data: &SPRITE_XPM,
+                pixmap: include_str!("../assets/images/sprite.xpm"),
                 movement_type: GridVoxelMovementType::Static,
                 roughness: 0.25,
                 transform: Mat4::from_scale_rotation_translation(
@@ -247,7 +147,7 @@ lazy_static! {
             // Magenta ripple
             GridVoxelDesc {
                 voxel_scale: WALL_VOXEL_SCALE,
-                xpm_data: &MAGENTA_XPM,
+                pixmap: include_str!("../assets/images/magenta.xpm"),
                 movement_type: GridVoxelMovementType::Ripple,
                 roughness: 0.0,
                 transform: Mat4::from_scale_rotation_translation(
@@ -259,7 +159,7 @@ lazy_static! {
             // Orange ripple
             GridVoxelDesc {
                 voxel_scale: WALL_VOXEL_SCALE,
-                xpm_data: &ORANGE_XPM,
+                pixmap: include_str!("../assets/images/orange.xpm"),
                 movement_type: GridVoxelMovementType::Ripple,
                 roughness: 0.0,
                 transform: Mat4::from_scale_rotation_translation(
@@ -273,7 +173,7 @@ lazy_static! {
             // Blue wave
             GridVoxelDesc {
                 voxel_scale: WALL_VOXEL_SCALE,
-                xpm_data: &BLUE_XPM,
+                pixmap: include_str!("../assets/images/blue.xpm"),
                 movement_type: GridVoxelMovementType::Wave,
                 roughness: 0.0,
                 transform: Mat4::from_scale_rotation_translation(
@@ -304,7 +204,7 @@ struct GridVoxelDesc {
     movement_type: GridVoxelMovementType,
     transform: Mat4,
     roughness: f32,
-    xpm_data: &'static [&'static str],
+    pixmap: &'static str,
 }
 
 #[derive(Clone, Copy)]
@@ -476,8 +376,12 @@ fn setup(
     // ---- Grids ----
     for d in GRID_DESCRIPTIONS.iter() {
         // XPM headers take the form "20 20 2 1", "16 16 4 1", etc.
-        let header: Vec<&str> =
-            d.xpm_data[0].split_ascii_whitespace().collect();
+        let normalized_line_endings =
+            str::replace(&str::replace(d.pixmap, "\r\n", "\n")[..], "\r", "\n");
+        let xpm_data = &normalized_line_endings[..]
+            .split("\n")
+            .collect::<Vec<&str>>();
+        let header: Vec<&str> = xpm_data[1].split_ascii_whitespace().collect();
         let width: usize = header[0].parse().unwrap();
         let height: usize = header[1].parse().unwrap();
         let palette_size: usize = header[2].parse().unwrap();
@@ -486,7 +390,7 @@ fn setup(
         // Map palette indices to color materials.
         for i in 1..=palette_size {
             // XPM palette entries take the form " \tc None", ".\tc #000000", etc.
-            let palette_row = d.xpm_data[i];
+            let palette_row = xpm_data[i + 1];
             let palette_index: char = palette_row.chars().next().unwrap();
             let color_value: &str =
                 palette_row.split_ascii_whitespace().last().unwrap();
@@ -525,7 +429,7 @@ fn setup(
             })
             .with_children(|parent| {
                 for h in 0..height {
-                    let row = d.xpm_data[h + palette_size + 1];
+                    let row = xpm_data[h + palette_size + 2];
 
                     for w in 0..width {
                         let palette_index = row.chars().nth(w).unwrap();
