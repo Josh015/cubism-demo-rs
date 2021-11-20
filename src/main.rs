@@ -181,15 +181,15 @@ fn setup(
     }
 
     // ---- Light Rings ----
+    let axis_randomizer = Uniform::from(-1f32..=1f32);
+    let color_randomizer = Uniform::from(0f32..=1f32);
+
     for d in config.light_rings.iter() {
         let voxel_scale = Vec3::splat(d.light_size);
         let mut rng = rand::thread_rng();
-        let color_randomizer = Uniform::from(0f32..=1f32);
         let radius_randomizer = Uniform::from(d.inner_radius..=d.outer_radius);
         let height_randomizer =
             Uniform::from((-0.5 * d.height)..=(0.5 * d.height));
-        let x_randomizer = Uniform::from(-1f32..=1f32);
-        let z_randomizer = Uniform::from(-1f32..=1f32);
 
         commands
             .spawn_bundle(PbrBundle {
@@ -206,9 +206,9 @@ fn setup(
                         ),
                     );
                     let mut translation = Vec3::new(
-                        x_randomizer.sample(&mut rng),
+                        axis_randomizer.sample(&mut rng),
                         0.0,
-                        z_randomizer.sample(&mut rng),
+                        axis_randomizer.sample(&mut rng),
                     );
 
                     translation = translation.normalize()
