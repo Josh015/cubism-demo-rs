@@ -376,6 +376,8 @@ fn setup(
     // ---- Grids ----
     for d in GRID_DESCRIPTIONS.iter() {
         // XPM headers take the form "20 20 2 1", "16 16 4 1", etc.
+        const XPM_TYPE_HEADER_OFFSET: usize = 1;
+        const XPM_INFO_HEADER_OFFSET: usize = 1 + XPM_TYPE_HEADER_OFFSET;
         let normalized_line_endings = &str::replace(
             &str::replace(d.pixmap, "\r\n", "\n")[..],
             "\r",
@@ -392,7 +394,7 @@ fn setup(
         // Map palette indices to color materials.
         for i in 1..=palette_size {
             // XPM palette entries take the form " \tc None", ".\tc #000000", etc.
-            let palette_row = xpm_data[i + 1];
+            let palette_row = xpm_data[i + XPM_TYPE_HEADER_OFFSET];
             let palette_index: char = palette_row.chars().next().unwrap();
             let color_value: &str =
                 palette_row.split_ascii_whitespace().last().unwrap();
@@ -431,7 +433,8 @@ fn setup(
             })
             .with_children(|parent| {
                 for h in 0..height {
-                    let row = xpm_data[h + palette_size + 2];
+                    let row =
+                        xpm_data[h + palette_size + XPM_INFO_HEADER_OFFSET];
 
                     for w in 0..width {
                         let palette_index = row.chars().nth(w).unwrap();
