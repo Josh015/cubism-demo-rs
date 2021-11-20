@@ -28,6 +28,8 @@ cargo run --release
 - [x] Add onscreen instructions UI.
 - [x] Add PBR spherical area lights.
 - [x] Fix the UI instructions.
+- [ ] Add ron support and move configs out of code.
+- [ ] Modularize XPM code to support loading different types and multi-character pixels.
 - [ ] Restore 256 light setup once Bevy supports it.
 - [ ] Nicer UI?
 
