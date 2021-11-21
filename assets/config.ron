@@ -95,7 +95,7 @@
     // Cyan light ring
     (
       lights_count: 85,
-      light_size: 0.075,
+      light_size: 0.05,
       light_range: 0.5,
       // lights_count: 85,
       // light_size: 0.025,
@@ -104,7 +104,7 @@
       // light_size: 0.125,
       // light_range: 1.0,
       height: 0.25,
-      inner_radius: 0.55,
+      inner_radius: 0.45,
       outer_radius: 0.6,
       min_color: Rgba(red: 0.05, green: 0.2, blue: 0.3, alpha: 1.0),
       max_color: Rgba(red: 0.1, green: 0.5, blue: 0.7, alpha: 1.0),
@@ -118,7 +118,7 @@
     // Orange light ring
     (
       lights_count: 85,
-      light_size: 0.075,
+      light_size: 0.05,
       light_range: 0.5,
       // lights_count: 85,
       // light_size: 0.025,
@@ -127,7 +127,7 @@
       // light_size: 0.125,
       // light_range: 1.0,
       height: 0.25,
-      inner_radius: 0.55,
+      inner_radius: 0.45,
       outer_radius: 0.6,
       min_color: Rgba(red: 0.25, green: 0.4, blue: 0.05, alpha: 1.0),
       max_color: Rgba(red: 0.6, green: 0.5, blue: 0.1, alpha: 1.0),
@@ -141,7 +141,7 @@
     // Magenta light ring
     (
       lights_count: 85,
-      light_size: 0.075,
+      light_size: 0.05,
       light_range: 0.5,
       // lights_count: 85,
       // light_size: 0.025,
@@ -150,7 +150,7 @@
       // light_size: 0.125,
       // light_range: 1.0,
       height: 0.25,
-      inner_radius: 0.55,
+      inner_radius: 0.45,
       outer_radius: 0.6,
       min_color: Rgba(red: 0.1, green: 0.1, blue: 0.5, alpha: 1.0),
       max_color: Rgba(red: 0.6, green: 0.2, blue: 0.7, alpha: 1.0),

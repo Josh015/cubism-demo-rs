@@ -279,7 +279,7 @@ fn setup(
                                 .spawn_bundle(PbrBundle {
                                     mesh: unit_cube.clone(),
                                     material: materials.add(StandardMaterial {
-                                        base_color: light_color * 2.5,
+                                        base_color: light_color * 2.0,
                                         unlit: true,
                                         ..Default::default()
                                     }),
