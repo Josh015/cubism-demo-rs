@@ -125,10 +125,15 @@ fn setup(
             transform: Transform::from_translation(Vec3::new(-4.0, 6.0, 4.0)),
             ..Default::default()
         })
-        .insert(PointLight {
-            range: 20.0,
-            intensity: 200.0,
-            ..Default::default()
+        .with_children(|parent| {
+            parent.spawn_bundle(PointLightBundle {
+                point_light: PointLight {
+                    range: 20.0,
+                    intensity: 200.0,
+                    ..Default::default()
+                },
+                ..Default::default()
+            });
         });
 
     commands
@@ -242,14 +247,19 @@ fn setup(
                                     ),
                                     ..Default::default()
                                 })
-                                .insert(PointLight {
-                                    color: light_color,
-                                    intensity: light_intensity * 0.5,
-                                    range: d.light_range,
-                                    radius: 0.5 * d.light_size,
-                                    ..Default::default()
-                                })
-                                .insert(LightRingVoxel);
+                                .insert(LightRingVoxel)
+                                .with_children(|parent| {
+                                    parent.spawn_bundle(PointLightBundle {
+                                        point_light: PointLight {
+                                            color: light_color,
+                                            intensity: light_intensity * 0.5,
+                                            range: d.light_range,
+                                            radius: 0.5 * d.light_size,
+                                            ..Default::default()
+                                        },
+                                        ..Default::default()
+                                    });
+                                });
                         }
                     });
             });
