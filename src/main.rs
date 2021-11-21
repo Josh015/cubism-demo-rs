@@ -108,9 +108,6 @@ impl Srt {
 // #[derive(Component)]
 struct LightRing;
 
-// #[derive(Component)]
-struct LightRingVoxel;
-
 #[derive(Default)]
 struct WaveSimulation(f32);
 
@@ -235,6 +232,10 @@ fn setup(
     }
 
     // ---- Light Rings ----
+    let unit_sphere = meshes.add(Mesh::from(shape::Icosphere {
+        radius: 0.5,
+        subdivisions: 2,
+    }));
     let axis_randomizer = Uniform::from(-1f32..=1f32);
     let color_randomizer = Uniform::from(0f32..=1f32);
 
@@ -278,7 +279,7 @@ fn setup(
 
                             parent
                                 .spawn_bundle(PbrBundle {
-                                    mesh: unit_cube.clone(),
+                                    mesh: unit_sphere.clone(),
                                     material: materials.add(StandardMaterial {
                                         base_color: light_color
                                             * d.light_intensity.min(2.0f32),
@@ -294,7 +295,6 @@ fn setup(
                                     ),
                                     ..Default::default()
                                 })
-                                .insert(LightRingVoxel)
                                 .with_children(|parent| {
                                     parent.spawn_bundle(PointLightBundle {
                                         point_light: PointLight {
@@ -455,24 +455,16 @@ fn keyboard_input(
 fn rotate_light_rings(
     config: Res<Config>,
     time: Res<Time>,
-    mut query: Query<
-        (&mut Transform, Option<&LightRing>, Option<&LightRingVoxel>),
-        Or<(With<LightRing>, With<LightRingVoxel>)>,
-    >,
+    mut query: Query<(&mut Transform, &LightRing)>,
 ) {
     // Rotate the light rings while rotating their voxels the opposite way.
     let rotation = Quat::from_axis_angle(
         Vec3::Y,
         config.ring_rotation_speed * time.delta_seconds(),
     );
-    let inverse_rotation = rotation.inverse();
 
-    for (mut transform, light_ring, light_ring_voxel) in query.iter_mut() {
-        if light_ring.is_some() {
-            transform.rotate(rotation);
-        } else if light_ring_voxel.is_some() {
-            transform.rotate(inverse_rotation);
-        }
+    for (mut transform, _) in query.iter_mut() {
+        transform.rotate(rotation);
     }
 }
 

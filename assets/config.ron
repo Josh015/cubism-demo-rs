@@ -191,7 +191,7 @@
         voxel_scale: 0.87,
         pixmap_path: "/assets/images/magenta.xpm",
         animation_type: Some(Ripple),
-        roughness: 0.25,
+        roughness: 0.0,
         transforms: Srt(
             scale: (1.8, 1.8, 1.8),
             rotations: [
@@ -206,7 +206,7 @@
         voxel_scale: 0.87,
         pixmap_path: "/assets/images/orange.xpm",
         animation_type: Some(Ripple),
-        roughness: 0.25,
+        roughness: 0.0,
         transforms: Srt(
             scale: (1.8, 1.8, 1.8),
             rotations: [
@@ -222,7 +222,7 @@
         voxel_scale: 0.87,
         pixmap_path: "/assets/images/blue.xpm",
         animation_type: Some(Wave),
-        roughness: 0.25,
+        roughness: 0.0,
         transforms: Srt(
             scale: (1.8, 1.8, 1.8),
             rotations: [
