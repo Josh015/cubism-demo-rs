@@ -8,7 +8,7 @@ rust-version = "1.56"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bevy = { git = 'https://github.com/bevyengine/bevy.git' }
+bevy = { git = 'https://github.com/bevyengine/bevy.git', branch = "pipelined-rendering" }
 # bevy = "0.5.0"
 rand = "0.8.3"
 ron = "0.7.0"
