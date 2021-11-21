@@ -297,7 +297,7 @@ fn setup(
                                     parent.spawn_bundle(PointLightBundle {
                                         point_light: PointLight {
                                             color: light_color,
-                                            intensity: 50.0,
+                                            intensity: 5.0,
                                             range: d.light_range,
                                             radius: 0.5 * d.light_size,
                                             shadows_enabled: false,
