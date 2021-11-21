@@ -51,7 +51,7 @@
   pillars: [
     // Pedestal
     (
-      color: Rgba(red: 0.7, green: 0.7, blue: 0.7, alpha: 1.0),
+      color: Rgba(red: 0.8, green: 0.8, blue: 0.8, alpha: 1.0),
       transforms: Srt(
         scale: (0.34, 0.7, 0.34),
         rotations: [],
@@ -61,7 +61,7 @@
 
     // X pillar
     (
-      color: Rgba(red: 0.7, green: 0.7, blue: 0.7, alpha: 1.0),
+      color: Rgba(red: 0.8, green: 0.8, blue: 0.8, alpha: 1.0),
       transforms: Srt(
         scale: (2.0, 0.125, 0.125),
         rotations: [],
@@ -71,7 +71,7 @@
 
     // Y pillar
     (
-      color: Rgba(red: 0.7, green: 0.7, blue: 0.7, alpha: 1.0),
+      color: Rgba(red: 0.8, green: 0.8, blue: 0.8, alpha: 1.0),
       transforms: Srt(
         scale: (0.125, 2.0, 0.125),
         rotations: [],
@@ -81,7 +81,7 @@
 
     // Z pillar
     (
-      color: Rgba(red: 0.7, green: 0.7, blue: 0.7, alpha: 1.0),
+      color: Rgba(red: 0.8, green: 0.8, blue: 0.8, alpha: 1.0),
       transforms: Srt(
         scale: (0.125, 0.125, 2.0),
         rotations: [],
