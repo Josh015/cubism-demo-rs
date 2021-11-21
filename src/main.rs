@@ -48,6 +48,7 @@ struct PillarConfig {
 
 #[derive(Debug, Deserialize)]
 struct LightRingConfig {
+    light_intensity: f32,
     lights_count: u32,
     height: f32,
     inner_radius: f32,
@@ -259,12 +260,12 @@ fn setup(
                     .insert(LightRing)
                     .with_children(|parent| {
                         for _i in 0..d.lights_count {
-                            let light_color = Color::from(
-                                1.0 * Vec4::from(d.min_color).lerp(
+                            // HACK: Force linear color interpolation.
+                            let light_color =
+                                Color::from(Vec4::from(d.min_color).lerp(
                                     Vec4::from(d.max_color),
                                     color_randomizer.sample(&mut rng),
-                                ),
-                            );
+                                ));
                             let mut translation = Vec3::new(
                                 axis_randomizer.sample(&mut rng),
                                 0.0,
@@ -279,7 +280,8 @@ fn setup(
                                 .spawn_bundle(PbrBundle {
                                     mesh: unit_cube.clone(),
                                     material: materials.add(StandardMaterial {
-                                        base_color: light_color * 2.0,
+                                        base_color: light_color
+                                            * d.light_intensity.min(2.0f32),
                                         unlit: true,
                                         ..Default::default()
                                     }),
@@ -297,7 +299,7 @@ fn setup(
                                     parent.spawn_bundle(PointLightBundle {
                                         point_light: PointLight {
                                             color: light_color,
-                                            intensity: 5.0,
+                                            intensity: d.light_intensity,
                                             range: d.light_range,
                                             radius: 0.5 * d.light_size,
                                             shadows_enabled: false,
