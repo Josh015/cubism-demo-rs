@@ -196,52 +196,62 @@ fn setup(
                 transform: d.transforms.to_transform(),
                 ..Default::default()
             })
-            .insert(LightRing)
             .with_children(|parent| {
-                for _i in 0..d.lights_count {
-                    let light_color = Color::from(
-                        1.0 * Vec4::from(d.min_color).lerp(
-                            Vec4::from(d.max_color),
-                            color_randomizer.sample(&mut rng),
-                        ),
-                    );
-                    let mut translation = Vec3::new(
-                        axis_randomizer.sample(&mut rng),
-                        0.0,
-                        axis_randomizer.sample(&mut rng),
-                    );
-
-                    translation = translation.normalize()
-                        * radius_randomizer.sample(&mut rng);
-                    translation.y = height_randomizer.sample(&mut rng);
-
-                    let light_intensity = std::f32::consts::PI;
-
-                    parent
-                        .spawn_bundle(PbrBundle {
-                            mesh: unit_cube.clone(),
-                            material: materials.add(StandardMaterial {
-                                base_color: light_color * light_intensity,
-                                unlit: true,
-                                ..Default::default()
-                            }),
-                            transform: Transform::from_matrix(
-                                Mat4::from_scale_rotation_translation(
-                                    voxel_scale,
-                                    Quat::IDENTITY,
-                                    translation,
+                // Light ring must be a child component so it can rotate around
+                // its own local axis.
+                parent
+                    .spawn_bundle(MeshBundle {
+                        ..Default::default()
+                    })
+                    .insert(LightRing)
+                    .with_children(|parent| {
+                        for _i in 0..d.lights_count {
+                            let light_color = Color::from(
+                                1.0 * Vec4::from(d.min_color).lerp(
+                                    Vec4::from(d.max_color),
+                                    color_randomizer.sample(&mut rng),
                                 ),
-                            ),
-                            ..Default::default()
-                        })
-                        .insert(PointLight {
-                            color: light_color,
-                            intensity: light_intensity * 0.5,
-                            range: d.light_range,
-                            radius: 0.5 * d.light_size,
-                        })
-                        .insert(LightRingVoxel);
-                }
+                            );
+                            let mut translation = Vec3::new(
+                                axis_randomizer.sample(&mut rng),
+                                0.0,
+                                axis_randomizer.sample(&mut rng),
+                            );
+
+                            translation = translation.normalize()
+                                * radius_randomizer.sample(&mut rng);
+                            translation.y = height_randomizer.sample(&mut rng);
+
+                            let light_intensity = std::f32::consts::PI;
+
+                            parent
+                                .spawn_bundle(PbrBundle {
+                                    mesh: unit_cube.clone(),
+                                    material: materials.add(StandardMaterial {
+                                        base_color: light_color
+                                            * light_intensity,
+                                        unlit: true,
+                                        ..Default::default()
+                                    }),
+                                    transform: Transform::from_matrix(
+                                        Mat4::from_scale_rotation_translation(
+                                            voxel_scale,
+                                            Quat::IDENTITY,
+                                            translation,
+                                        ),
+                                    ),
+                                    ..Default::default()
+                                })
+                                .insert(PointLight {
+                                    color: light_color,
+                                    intensity: light_intensity * 0.5,
+                                    range: d.light_range,
+                                    radius: 0.5 * d.light_size,
+                                    ..Default::default()
+                                })
+                                .insert(LightRingVoxel);
+                        }
+                    });
             });
     }
 
