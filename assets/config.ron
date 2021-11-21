@@ -53,9 +53,9 @@
     (
       color: Rgba(red: 0.8, green: 0.8, blue: 0.8, alpha: 1.0),
       transforms: Srt(
-        scale: (0.34, 0.7, 0.34),
+        scale: (0.34, 0.5, 0.34),
         rotations: [],
-        translation: (0.0, -0.75, 0.0),
+        translation: (0.0, -0.95, 0.0),
       )
     ),
 
@@ -175,14 +175,14 @@
       voxel_scale: 1.0,
       pixmap_path: "/assets/images/sprite.xpm",
       animation_type: None,
-      roughness: 0.25,
+      roughness: 0.3,
       transforms: Srt(
           scale: (0.55, 0.55, 0.55),
           rotations: [
               (1.0, 0.0, 0.0, 90.0),
               (0.0, 0.0, 1.0, 45.0),
           ],
-          translation: (0.0, -0.125, 0.0)
+          translation: (0.0, -0.425, 0.0)
       ),
     ),
 
@@ -191,7 +191,7 @@
         voxel_scale: 0.87,
         pixmap_path: "/assets/images/magenta.xpm",
         animation_type: Some(Ripple),
-        roughness: 0.0,
+        roughness: 0.25,
         transforms: Srt(
             scale: (1.8, 1.8, 1.8),
             rotations: [
@@ -206,7 +206,7 @@
         voxel_scale: 0.87,
         pixmap_path: "/assets/images/orange.xpm",
         animation_type: Some(Ripple),
-        roughness: 0.0,
+        roughness: 0.25,
         transforms: Srt(
             scale: (1.8, 1.8, 1.8),
             rotations: [
@@ -222,7 +222,7 @@
         voxel_scale: 0.87,
         pixmap_path: "/assets/images/blue.xpm",
         animation_type: Some(Wave),
-        roughness: 0.0,
+        roughness: 0.25,
         transforms: Srt(
             scale: (1.8, 1.8, 1.8),
             rotations: [
