@@ -105,8 +105,8 @@
       // light_size: 0.125,
       // light_range: 1.0,
       height: 0.25,
-      inner_radius: 0.45,
-      outer_radius: 0.6,
+      inner_radius: 0.35,
+      outer_radius: 0.45,
       min_color: Rgba(red: 0.05, green: 0.2, blue: 0.3, alpha: 1.0),
       max_color: Rgba(red: 0.1, green: 0.5, blue: 0.7, alpha: 1.0),
       transforms: Srt(
