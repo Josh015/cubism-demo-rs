@@ -1,6 +1,24 @@
 use bevy::{
-    prelude::*,
-    render::{camera::Camera, mesh::shape},
+    core::Time,
+    ecs::prelude::*,
+    input::Input,
+    math::*,
+    pbr2::{
+        AmbientLight, DirectionalLight, DirectionalLightBundle, PbrBundle,
+        PointLight, PointLightBundle, StandardMaterial,
+    },
+    prelude::{
+        bevy_main, App, AssetServer, Assets, BuildChildren, KeyCode,
+        MeshBundle, Transform,
+    },
+    render2::{
+        camera::{Camera, OrthographicProjection, PerspectiveCameraBundle},
+        color::Color,
+        mesh::{shape, Mesh},
+        view::Msaa,
+    },
+    window::WindowDescriptor,
+    PipelinedDefaultPlugins,
 };
 use rand::distributions::{Distribution, Uniform};
 use ron::de::from_reader;
@@ -30,6 +48,7 @@ struct PillarConfig {
 
 #[derive(Debug, Deserialize)]
 struct LightRingConfig {
+    light_intensity: f32,
     lights_count: u32,
     height: f32,
     inner_radius: f32,
@@ -86,16 +105,13 @@ impl Srt {
     }
 }
 
-#[derive(Component)]
+// #[derive(Component)]
 struct LightRing;
-
-#[derive(Component)]
-struct LightRingVoxel;
 
 #[derive(Default)]
 struct WaveSimulation(f32);
 
-#[derive(Component)]
+// #[derive(Component)]
 struct AnimatedGridVoxel {
     animation_type: GridVoxelAnimationType,
     grid_position_2d: Vec2,
@@ -104,10 +120,10 @@ struct AnimatedGridVoxel {
 fn setup(
     config: Res<Config>,
     mut commands: Commands,
-    asset_server: ResMut<AssetServer>,
+    // asset_server: ResMut<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut color_materials: ResMut<Assets<ColorMaterial>>,
+    // mut color_materials: ResMut<Assets<ColorMaterial>>,
 ) {
     let unit_cube = meshes.add(Mesh::from(shape::Cube { size: 1.0 }));
 
@@ -129,50 +145,80 @@ fn setup(
             parent.spawn_bundle(PointLightBundle {
                 point_light: PointLight {
                     range: 20.0,
-                    intensity: 200.0,
+                    intensity: 2500.0,
                     ..Default::default()
                 },
                 ..Default::default()
             });
         });
 
-    commands
-        .spawn_bundle(UiCameraBundle::default())
-        // root node
-        .commands()
-        .spawn_bundle(NodeBundle {
-            style: Style {
-                position_type: PositionType::Absolute,
-                position: Rect {
-                    left: Val::Px(10.0),
-                    top: Val::Px(10.0),
-                    ..Default::default()
-                },
-                ..Default::default()
-            },
-            material: color_materials.add(Color::NONE.into()),
-            ..Default::default()
-        })
-        .with_children(|parent| {
-            parent.spawn_bundle(TextBundle {
-                text: Text::with_section(
-                    config.instructions.to_string(),
-                    TextStyle {
-                        font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                        font_size: 40.0,
-                        color: Color::rgb(0.8, 0.8, 0.8),
-                    },
-                    Default::default(),
-                ),
-                ..Default::default()
-            });
-        });
+    // // ambient light
+    // commands.insert_resource(AmbientLight {
+    //     color: Color::GRAY,
+    //     brightness: 1.0,
+    // });
+
+    // // directional 'sun' light
+    // const HALF_SIZE: f32 = 10.0;
+    // commands.spawn_bundle(DirectionalLightBundle {
+    //     directional_light: DirectionalLight {
+    //         // Configure the projection to better fit the scene
+    //         shadow_projection: OrthographicProjection {
+    //             left: -HALF_SIZE,
+    //             right: HALF_SIZE,
+    //             bottom: -HALF_SIZE,
+    //             top: HALF_SIZE,
+    //             near: -10.0 * HALF_SIZE,
+    //             far: 10.0 * HALF_SIZE,
+    //             ..Default::default()
+    //         },
+    //         ..Default::default()
+    //     },
+    //     transform: Transform {
+    //         translation: Vec3::new(0.0, 2.0, 0.0),
+    //         rotation: Quat::from_rotation_x(-std::f32::consts::FRAC_PI_4),
+    //         ..Default::default()
+    //     },
+    //     ..Default::default()
+    // });
+
+    // commands
+    //     .spawn_bundle(UiCameraBundle::default())
+    //     // root node
+    //     .commands()
+    //     .spawn_bundle(NodeBundle {
+    //         style: Style {
+    //             position_type: PositionType::Absolute,
+    //             position: Rect {
+    //                 left: Val::Px(10.0),
+    //                 top: Val::Px(10.0),
+    //                 ..Default::default()
+    //             },
+    //             ..Default::default()
+    //         },
+    //         material: color_materials.add(Color::NONE.into()),
+    //         ..Default::default()
+    //     })
+    //     .with_children(|parent| {
+    //         parent.spawn_bundle(TextBundle {
+    //             text: Text::with_section(
+    //                 config.instructions.to_string(),
+    //                 TextStyle {
+    //                     font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+    //                     font_size: 40.0,
+    //                     color: Color::rgb(0.8, 0.8, 0.8),
+    //                 },
+    //                 Default::default(),
+    //             ),
+    //             ..Default::default()
+    //         });
+    //     });
 
     // ---- Pillars ----
     for d in config.pillars.iter() {
         let material = materials.add(StandardMaterial {
             base_color: d.color,
-            roughness: 1.0,
+            perceptual_roughness: 1.0,
             // metallic: 1.0,
             ..Default::default()
         });
@@ -186,6 +232,10 @@ fn setup(
     }
 
     // ---- Light Rings ----
+    let unit_sphere = meshes.add(Mesh::from(shape::Icosphere {
+        radius: 0.5,
+        subdivisions: 2,
+    }));
     let axis_randomizer = Uniform::from(-1f32..=1f32);
     let color_randomizer = Uniform::from(0f32..=1f32);
 
@@ -211,12 +261,12 @@ fn setup(
                     .insert(LightRing)
                     .with_children(|parent| {
                         for _i in 0..d.lights_count {
-                            let light_color = Color::from(
-                                1.0 * Vec4::from(d.min_color).lerp(
+                            // HACK: Force linear color interpolation.
+                            let light_color =
+                                Color::from(Vec4::from(d.min_color).lerp(
                                     Vec4::from(d.max_color),
                                     color_randomizer.sample(&mut rng),
-                                ),
-                            );
+                                ));
                             let mut translation = Vec3::new(
                                 axis_randomizer.sample(&mut rng),
                                 0.0,
@@ -227,14 +277,12 @@ fn setup(
                                 * radius_randomizer.sample(&mut rng);
                             translation.y = height_randomizer.sample(&mut rng);
 
-                            let light_intensity = std::f32::consts::PI;
-
                             parent
                                 .spawn_bundle(PbrBundle {
-                                    mesh: unit_cube.clone(),
+                                    mesh: unit_sphere.clone(),
                                     material: materials.add(StandardMaterial {
                                         base_color: light_color
-                                            * light_intensity,
+                                            * d.light_intensity.min(2.0f32),
                                         unlit: true,
                                         ..Default::default()
                                     }),
@@ -247,14 +295,14 @@ fn setup(
                                     ),
                                     ..Default::default()
                                 })
-                                .insert(LightRingVoxel)
                                 .with_children(|parent| {
                                     parent.spawn_bundle(PointLightBundle {
                                         point_light: PointLight {
                                             color: light_color,
-                                            intensity: light_intensity * 0.5,
+                                            intensity: d.light_intensity,
                                             range: d.light_range,
                                             radius: 0.5 * d.light_size,
+                                            shadows_enabled: false,
                                             ..Default::default()
                                         },
                                         ..Default::default()
@@ -309,7 +357,7 @@ fn setup(
                         palette_index,
                         materials.add(StandardMaterial {
                             base_color: Color::hex(hex_color).unwrap(),
-                            roughness: d.roughness,
+                            perceptual_roughness: d.roughness,
                             // metallic: 1.0,
                             ..Default::default()
                         }),
@@ -407,24 +455,16 @@ fn keyboard_input(
 fn rotate_light_rings(
     config: Res<Config>,
     time: Res<Time>,
-    mut query: Query<
-        (&mut Transform, Option<&LightRing>, Option<&LightRingVoxel>),
-        Or<(With<LightRing>, With<LightRingVoxel>)>,
-    >,
+    mut query: Query<(&mut Transform, &LightRing)>,
 ) {
     // Rotate the light rings while rotating their voxels the opposite way.
     let rotation = Quat::from_axis_angle(
         Vec3::Y,
         config.ring_rotation_speed * time.delta_seconds(),
     );
-    let inverse_rotation = rotation.inverse();
 
-    for (mut transform, light_ring, light_ring_voxel) in query.iter_mut() {
-        if light_ring.is_some() {
-            transform.rotate(rotation);
-        } else if light_ring_voxel.is_some() {
-            transform.rotate(inverse_rotation);
-        }
+    for (mut transform, _) in query.iter_mut() {
+        transform.rotate(rotation);
     }
 }
 
@@ -488,7 +528,7 @@ fn main() {
             height: 720.,
             ..Default::default()
         })
-        .add_plugins(DefaultPlugins)
+        .add_plugins(PipelinedDefaultPlugins)
         // .add_plugin(PrintDiagnosticsPlugin::default())
         // .add_plugin(FrameTimeDiagnosticsPlugin::default())
         // .add_system(PrintDiagnosticsPlugin::print_diagnostics_system.system())
