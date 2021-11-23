@@ -1,0 +1,37 @@
+{
+  // See http://go.microsoft.com/fwlink/?LinkId=827846 to learn about workspace recommendations.
+  // Extension identifier format: ${publisher}.${name}. Example: vscode.csharp
+
+  // List of extensions which should be recommended for users of this workspace.
+  "recommendations": [
+    // Spellchecking.
+    "streetsidesoftware.code-spell-checker",
+
+    // Debug support.
+    "webfreak.debug",
+
+    // Apply shared editor configuration.
+    "editorconfig.editorconfig",
+
+    // TOML syntax highlighting.
+    "tamasfe.even-better-toml",
+
+    // Preview the UI font in-editor.
+    "stxr.iconfont-preview",
+
+    // Better than RLS, also needed for rustfmt on save.
+    "matklad.rust-analyzer",
+
+    // Tracking all the TODO & FIXME comments.
+    "gruntfuggly.todo-tree",
+
+    // Consistent markdown style.
+    "davidanson.vscode-markdownlint",
+
+    // RON syntax highlighting.
+    "a5huynh.vscode-ron",
+
+    // WGSL syntax highlighting.
+    "polymeilex.wgsl"
+  ]
+}
