@@ -6,7 +6,7 @@ A Bevy Engine port and refresh of an old C++ OpenGL lighting and shading demo I 
 
 To compile and run, use [cargo](https://www.rust-lang.org/learn/get-started):
 
-```
+```shell
 cargo run --release
 ```
 
@@ -35,4 +35,4 @@ cargo run --release
 
 [![Watch the video](https://i.vimeocdn.com/video/93015207_472x266.jpg)](https://vimeo.com/15442169)
 
-<p><a href="https://vimeo.com/15442169">Cubism Demo (ver. 2)</a> from <a href="https://vimeo.com/user2176585">Josh 015</a> on <a href="https://vimeo.com">Vimeo</a>.</p>
+[Cubism Demo (ver. 2)](https://vimeo.com/15442169) from [Josh 015](https://vimeo.com/user2176585) on [Vimeo](https://vimeo.com)
