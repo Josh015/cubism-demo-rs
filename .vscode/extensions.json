@@ -19,6 +19,9 @@
     // Preview the UI font in-editor.
     "stxr.iconfont-preview",
 
+    // Needed for debugging support.
+    "ms-vscode.cpptools",
+
     // Better than RLS, also needed for rustfmt on save.
     "matklad.rust-analyzer",
 
