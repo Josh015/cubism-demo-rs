@@ -23,7 +23,7 @@ use bevy::{
 use rand::distributions::{Distribution, Uniform};
 use ron::de::from_reader;
 use serde::Deserialize;
-use std::{cmp, collections::HashMap, fs::File, io::Read};
+use std::{collections::HashMap, fs::File, io::Read};
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, PrintDiagnosticsPlugin};
 
 #[derive(Debug, Deserialize)]
@@ -334,7 +334,7 @@ fn setup(
         }
 
         // Ensure that the largest dimension will be scaled into [0, 1].
-        let scale_factor = cmp::max(width, height) as f32;
+        let scale_factor = width.max(height) as f32;
         let voxel_scale = Vec3::splat(d.voxel_scale / scale_factor);
         let width_minus_one = (width - 1) as f32;
         let width_offset = width_minus_one * 0.5;
