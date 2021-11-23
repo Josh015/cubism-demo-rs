@@ -33,7 +33,6 @@ struct Config {
     grid_wave_tiling: f32,
     grid_wave_speed: f32,
     grid_wave_height: f32,
-    grid_ripple_height: f32,
     cameras: Vec<Srt>,
     pillars: Vec<PillarConfig>,
     light_rings: Vec<LightRingConfig>,
@@ -457,7 +456,7 @@ fn rotate_light_rings(
     time: Res<Time>,
     mut query: Query<(&mut Transform, &LightRing)>,
 ) {
-    // Rotate the light rings while rotating their voxels the opposite way.
+    // Rotate the light rings.
     let rotation = Quat::from_axis_angle(
         Vec3::Y,
         config.ring_rotation_speed * time.delta_seconds(),
@@ -478,30 +477,24 @@ fn animate_grid_voxels(
     wave_simulation.0 %= std::f32::consts::TAU;
 
     for (mut transform, grid_voxel) in query.iter_mut() {
-        match grid_voxel.animation_type {
-            GridVoxelAnimationType::Ripple => {
-                transform.translation.y = 0.5
-                    * config.grid_ripple_height
-                    * (wave_simulation.0
-                        + config.grid_wave_tiling
-                            * (grid_voxel.grid_position_2d.x
-                                + grid_voxel.grid_position_2d.y))
-                        .sin();
-            }
+        let waves = match grid_voxel.animation_type {
+            GridVoxelAnimationType::Ripple => (wave_simulation.0
+                + config.grid_wave_tiling
+                    * (grid_voxel.grid_position_2d.x
+                        + grid_voxel.grid_position_2d.y))
+                .sin(),
             GridVoxelAnimationType::Wave => {
-                transform.translation.y = 0.5
-                    * config.grid_wave_height
-                    * (0.5
-                        * ((wave_simulation.0
-                            + config.grid_wave_tiling
-                                * grid_voxel.grid_position_2d.x)
-                            .sin()
-                            + (wave_simulation.0
-                                + config.grid_wave_tiling
-                                    * grid_voxel.grid_position_2d.y)
-                                .sin()));
+                (wave_simulation.0
+                    + config.grid_wave_tiling * grid_voxel.grid_position_2d.x)
+                    .sin()
+                    + (wave_simulation.0
+                        + config.grid_wave_tiling
+                            * grid_voxel.grid_position_2d.y)
+                        .sin()
             }
-        }
+        };
+
+        transform.translation.y = 0.5 * config.grid_wave_height * waves;
     }
 }
 

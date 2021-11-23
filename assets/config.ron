@@ -167,8 +167,7 @@
 
   grid_wave_tiling: 10.0,
   grid_wave_speed: 2.0,
-  grid_wave_height: 0.12,
-  grid_ripple_height: 0.06,
+  grid_wave_height: 0.06,
   grids: [
     // Sprite
     (
