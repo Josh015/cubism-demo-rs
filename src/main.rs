@@ -151,36 +151,6 @@ fn setup(
             });
         });
 
-    // // ambient light
-    // commands.insert_resource(AmbientLight {
-    //     color: Color::GRAY,
-    //     brightness: 1.0,
-    // });
-
-    // // directional 'sun' light
-    // const HALF_SIZE: f32 = 10.0;
-    // commands.spawn_bundle(DirectionalLightBundle {
-    //     directional_light: DirectionalLight {
-    //         // Configure the projection to better fit the scene
-    //         shadow_projection: OrthographicProjection {
-    //             left: -HALF_SIZE,
-    //             right: HALF_SIZE,
-    //             bottom: -HALF_SIZE,
-    //             top: HALF_SIZE,
-    //             near: -10.0 * HALF_SIZE,
-    //             far: 10.0 * HALF_SIZE,
-    //             ..Default::default()
-    //         },
-    //         ..Default::default()
-    //     },
-    //     transform: Transform {
-    //         translation: Vec3::new(0.0, 2.0, 0.0),
-    //         rotation: Quat::from_rotation_x(-std::f32::consts::FRAC_PI_4),
-    //         ..Default::default()
-    //     },
-    //     ..Default::default()
-    // });
-
     // commands
     //     .spawn_bundle(UiCameraBundle::default())
     //     // root node
@@ -215,17 +185,15 @@ fn setup(
 
     // ---- Pillars ----
     for d in config.pillars.iter() {
-        let material = materials.add(StandardMaterial {
-            base_color: d.color,
-            perceptual_roughness: 1.0,
-            // metallic: 1.0,
-            ..Default::default()
-        });
-
         commands.spawn_bundle(PbrBundle {
             transform: d.transforms.to_transform(),
-            material: material,
             mesh: unit_cube.clone(),
+            material: materials.add(StandardMaterial {
+                base_color: d.color,
+                perceptual_roughness: 1.0,
+                // metallic: 1.0,
+                ..Default::default()
+            }),
             ..Default::default()
         });
     }
