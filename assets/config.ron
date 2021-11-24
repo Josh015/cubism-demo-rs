@@ -1,3 +1,6 @@
+#![enable(unwrap_newtypes)]
+#![enable(implicit_some)]
+
 (
   instructions: "
 ---- Views ----
@@ -189,7 +192,7 @@
     (
         voxel_scale: 0.87,
         pixmap_path: "assets/images/magenta.xpm",
-        animation_type: Some(Ripple),
+        animation_type: Ripple,
         roughness: 0.0,
         transforms: Srt(
             scale: (1.8, 1.8, 1.8),
@@ -204,7 +207,7 @@
     (
         voxel_scale: 0.87,
         pixmap_path: "assets/images/orange.xpm",
-        animation_type: Some(Ripple),
+        animation_type: Ripple,
         roughness: 0.0,
         transforms: Srt(
             scale: (1.8, 1.8, 1.8),
@@ -220,7 +223,7 @@
     (
         voxel_scale: 0.87,
         pixmap_path: "assets/images/blue.xpm",
-        animation_type: Some(Wave),
+        animation_type: Wave,
         roughness: 0.0,
         transforms: Srt(
             scale: (1.8, 1.8, 1.8),
