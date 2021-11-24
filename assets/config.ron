@@ -172,7 +172,7 @@
     // Sprite
     (
       voxel_scale: 1.0,
-      pixmap_path: "/assets/images/sprite.xpm",
+      pixmap_path: "assets/images/sprite.xpm",
       animation_type: None,
       roughness: 0.3,
       transforms: Srt(
@@ -188,7 +188,7 @@
     // Magenta ripple
     (
         voxel_scale: 0.87,
-        pixmap_path: "/assets/images/magenta.xpm",
+        pixmap_path: "assets/images/magenta.xpm",
         animation_type: Some(Ripple),
         roughness: 0.0,
         transforms: Srt(
@@ -203,7 +203,7 @@
     // Orange ripple
     (
         voxel_scale: 0.87,
-        pixmap_path: "/assets/images/orange.xpm",
+        pixmap_path: "assets/images/orange.xpm",
         animation_type: Some(Ripple),
         roughness: 0.0,
         transforms: Srt(
@@ -219,7 +219,7 @@
     // Blue wave
     (
         voxel_scale: 0.87,
-        pixmap_path: "/assets/images/blue.xpm",
+        pixmap_path: "assets/images/blue.xpm",
         animation_type: Some(Wave),
         roughness: 0.0,
         transforms: Srt(

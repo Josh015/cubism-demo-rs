@@ -23,7 +23,7 @@ use bevy::{
 use rand::distributions::{Distribution, Uniform};
 use ron::de::from_reader;
 use serde::Deserialize;
-use std::{collections::HashMap, fs::File, io::Read};
+use std::{collections::HashMap, fs::File, io::Read, path::PathBuf};
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, PrintDiagnosticsPlugin};
 
 #[derive(Debug, Deserialize)]
@@ -287,8 +287,9 @@ fn setup(
         const XPM_INFO_HEADER_OFFSET: usize = 1 + XPM_TYPE_HEADER_OFFSET;
 
         let input_path =
-            format!("{}{}", env!("CARGO_MANIFEST_DIR"), d.pixmap_path);
-        let mut f = File::open(&input_path).expect("Failed opening file");
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(&d.pixmap_path);
+        let mut f =
+            File::open(&input_path).expect("Failed opening pixmap file");
         let mut file_contents = String::new();
 
         f.read_to_string(&mut file_contents)
@@ -470,8 +471,8 @@ fn animate_grid_voxels(
 #[bevy_main]
 fn main() {
     let input_path =
-        format!("{}/assets/config.ron", env!("CARGO_MANIFEST_DIR"));
-    let f = File::open(&input_path).expect("Failed opening file");
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("assets/config.ron");
+    let f = File::open(&input_path).expect("Failed opening config file");
 
     let config: Config = match from_reader(f) {
         Ok(x) => x,
