@@ -309,14 +309,15 @@ fn setup(
 
         // Map palette indices to color materials.
         for i in 1..=palette_size {
-            // XPM palette entries take the form " \tc None", ".\tc #000000", etc.
+            // XPM palette entries take the form " \tc None", ".\tc #000000",
+            // etc.
             let palette_row = xpm_data[i + XPM_TYPE_HEADER_OFFSET];
             let palette_index: char = palette_row.chars().next().unwrap();
             let color_value: &str =
                 palette_row.split_ascii_whitespace().last().unwrap();
 
             match color_value {
-                "None" | "none" => {}
+                "None" | "none" => {},
                 _ => {
                     // Strip '#' off "#RRGGBB" before converting it to a Color.
                     let hex_color = color_value.strip_prefix('#').unwrap();
@@ -329,7 +330,7 @@ fn setup(
                             ..Default::default()
                         }),
                     );
-                }
+                },
             };
         }
 
@@ -377,7 +378,7 @@ fn setup(
 
                             if let Some(animation_type) = d.animation_type {
                                 voxel.insert(AnimatedGridVoxel {
-                                    animation_type: animation_type,
+                                    animation_type,
                                     grid_position_2d: Vec2::new(
                                         w as f32 / width_minus_one,
                                         h as f32 / height_minus_one,
@@ -459,7 +460,7 @@ fn animate_grid_voxels(
                         + config.grid_wave_tiling
                             * grid_voxel.grid_position_2d.y)
                         .sin()
-            }
+            },
         };
 
         transform.translation.y = 0.5 * config.grid_wave_height * waves;
@@ -478,7 +479,7 @@ fn main() {
             println!("Failed to load config: {}", e);
 
             std::process::exit(1);
-        }
+        },
     };
 
     App::new()
@@ -492,7 +493,8 @@ fn main() {
         .add_plugins(PipelinedDefaultPlugins)
         // .add_plugin(PrintDiagnosticsPlugin::default())
         // .add_plugin(FrameTimeDiagnosticsPlugin::default())
-        // .add_system(PrintDiagnosticsPlugin::print_diagnostics_system.system())
+        // .add_system(PrintDiagnosticsPlugin::print_diagnostics_system.
+        // system())
         .init_resource::<WaveSimulation>()
         .insert_resource(config)
         .add_startup_system(setup.system())
