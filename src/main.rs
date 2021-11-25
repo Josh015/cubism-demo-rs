@@ -28,6 +28,8 @@ use std::{collections::HashMap, io::Read};
 #[derive(Debug, Deserialize)]
 struct DemoConfig {
     title: String,
+    width: u32,
+    height: u32,
     instructions: String,
     cameras: Vec<Srt>,
     pillars: Vec<PillarConfig>,
@@ -405,8 +407,8 @@ fn main() {
         .insert_resource(Msaa { samples: 4 })
         .insert_resource(WindowDescriptor {
             title: config.title.clone(),
-            width: 1280.,
-            height: 720.,
+            width: config.width as f32,
+            height: config.height as f32,
             ..Default::default()
         })
         .add_plugins(PipelinedDefaultPlugins)

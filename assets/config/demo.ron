@@ -3,6 +3,8 @@
 
 (
   title: "Cubism",
+  width: 1280,
+  height: 720,
   instructions: "
 ---- Views ----
 1: Front
