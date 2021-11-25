@@ -16,14 +16,14 @@ impl Plugin for ComponentsPlugin {
 }
 
 #[derive(Clone, Copy, Debug, Deserialize)]
-pub enum WaveVoxelType {
+pub enum WaveVoxelAnimation {
     Ripple,
     Wave,
 }
 
 // #[derive(Component)]
 pub struct WaveVoxel {
-    pub wave_voxel_type: WaveVoxelType,
+    pub animation: WaveVoxelAnimation,
     pub grid_position_2d: Vec2,
 }
 
@@ -51,13 +51,13 @@ fn animate_wave_voxels(
     wave_simulation.0 %= std::f32::consts::TAU;
 
     for (mut transform, wave_voxel) in query.iter_mut() {
-        let waves = match wave_voxel.wave_voxel_type {
-            WaveVoxelType::Ripple => (wave_simulation.0
+        let waves = match wave_voxel.animation {
+            WaveVoxelAnimation::Ripple => (wave_simulation.0
                 + config.wave_voxel_tiling
                     * (wave_voxel.grid_position_2d.x
                         + wave_voxel.grid_position_2d.y))
                 .sin(),
-            WaveVoxelType::Wave => {
+            WaveVoxelAnimation::Wave => {
                 (wave_simulation.0
                     + config.wave_voxel_tiling * wave_voxel.grid_position_2d.x)
                     .sin()

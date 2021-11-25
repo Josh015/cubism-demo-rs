@@ -34,7 +34,7 @@ struct DemoConfig {
     cameras: Vec<Srt>,
     pillars: Vec<PillarConfig>,
     light_rings: Vec<LightRingConfig>,
-    grids: Vec<GridVoxelConfig>,
+    grids: Vec<GridConfig>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -58,9 +58,9 @@ struct LightRingConfig {
 }
 
 #[derive(Debug, Deserialize)]
-struct GridVoxelConfig {
+struct GridConfig {
     voxel_scale: f32,
-    wave_voxel_type: Option<WaveVoxelType>,
+    animation: Option<WaveVoxelAnimation>,
     roughness: f32,
     pixmap_path: String,
     transforms: Srt,
@@ -354,9 +354,9 @@ fn setup(
                                 ..Default::default()
                             });
 
-                            if let Some(wave_voxel_type) = d.wave_voxel_type {
+                            if let Some(animation) = d.animation {
                                 voxel.insert(WaveVoxel {
-                                    wave_voxel_type,
+                                    animation,
                                     grid_position_2d: Vec2::new(
                                         w as f32 / width_minus_one,
                                         h as f32 / height_minus_one,
