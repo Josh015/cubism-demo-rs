@@ -50,20 +50,20 @@ fn animate_wave_voxels(
     wave_simulation.0 += config.wave_voxel_speed * time.delta_seconds();
     wave_simulation.0 %= std::f32::consts::TAU;
 
-    for (mut transform, grid_voxel) in query.iter_mut() {
-        let waves = match grid_voxel.wave_voxel_type {
+    for (mut transform, wave_voxel) in query.iter_mut() {
+        let waves = match wave_voxel.wave_voxel_type {
             WaveVoxelType::Ripple => (wave_simulation.0
                 + config.wave_voxel_tiling
-                    * (grid_voxel.grid_position_2d.x
-                        + grid_voxel.grid_position_2d.y))
+                    * (wave_voxel.grid_position_2d.x
+                        + wave_voxel.grid_position_2d.y))
                 .sin(),
             WaveVoxelType::Wave => {
                 (wave_simulation.0
-                    + config.wave_voxel_tiling * grid_voxel.grid_position_2d.x)
+                    + config.wave_voxel_tiling * wave_voxel.grid_position_2d.x)
                     .sin()
                     + (wave_simulation.0
                         + config.wave_voxel_tiling
-                            * grid_voxel.grid_position_2d.y)
+                            * wave_voxel.grid_position_2d.y)
                         .sin()
             },
         };
@@ -77,7 +77,7 @@ fn auto_rotate_entity(
     time: Res<Time>,
     mut query: Query<(&mut Transform, &AutoRotateEntity)>,
 ) {
-    // Rotate the light rings.
+    // Rotate the child entity around its local y-axis.
     let rotation = Quat::from_axis_angle(
         Vec3::Y,
         config.auto_rotate_entity_speed * time.delta_seconds(),
