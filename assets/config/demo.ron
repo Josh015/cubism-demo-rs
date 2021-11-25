@@ -2,6 +2,7 @@
 #![enable(implicit_some)]
 
 (
+  title: "Cubism",
   instructions: "
 ---- Views ----
 1: Front
@@ -93,7 +94,6 @@
     ),
   ],
 
-  ring_rotation_speed: 1.0,
   light_rings: [
     // Cyan light ring
     (
@@ -168,15 +168,12 @@
     ),
   ],
 
-  grid_wave_tiling: 10.0,
-  grid_wave_speed: 2.0,
-  grid_wave_height: 0.06,
   grids: [
     // Sprite
     (
       voxel_scale: 1.0,
       pixmap_path: "assets/images/sprite.xpm",
-      animation_type: None,
+      wave_voxel_type: None,
       roughness: 0.3,
       transforms: Srt(
           scale: (0.55, 0.55, 0.55),
@@ -192,7 +189,7 @@
     (
         voxel_scale: 0.87,
         pixmap_path: "assets/images/magenta.xpm",
-        animation_type: Ripple,
+        wave_voxel_type: Ripple,
         roughness: 0.0,
         transforms: Srt(
             scale: (1.8, 1.8, 1.8),
@@ -207,7 +204,7 @@
     (
         voxel_scale: 0.87,
         pixmap_path: "assets/images/orange.xpm",
-        animation_type: Ripple,
+        wave_voxel_type: Ripple,
         roughness: 0.0,
         transforms: Srt(
             scale: (1.8, 1.8, 1.8),
@@ -223,7 +220,7 @@
     (
         voxel_scale: 0.87,
         pixmap_path: "assets/images/blue.xpm",
-        animation_type: Wave,
+        wave_voxel_type: Wave,
         roughness: 0.0,
         transforms: Srt(
             scale: (1.8, 1.8, 1.8),

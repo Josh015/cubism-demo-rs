@@ -1,18 +1,16 @@
+mod components;
+
 use bevy::{
-    core::Time,
     ecs::prelude::*,
     input::Input,
     math::*,
-    pbr2::{
-        AmbientLight, DirectionalLight, DirectionalLightBundle, PbrBundle,
-        PointLight, PointLightBundle, StandardMaterial,
-    },
+    pbr2::{PbrBundle, PointLight, PointLightBundle, StandardMaterial},
     prelude::{
         bevy_main, App, AssetServer, Assets, BuildChildren, KeyCode,
         MeshBundle, Transform,
     },
     render2::{
-        camera::{Camera, OrthographicProjection, PerspectiveCameraBundle},
+        camera::{Camera, PerspectiveCameraBundle},
         color::Color,
         mesh::{shape, Mesh},
         view::Msaa,
@@ -20,6 +18,7 @@ use bevy::{
     window::WindowDescriptor,
     PipelinedDefaultPlugins,
 };
+use components::*;
 use rand::distributions::{Distribution, Uniform};
 use ron::de::from_reader;
 use serde::Deserialize;
@@ -27,12 +26,9 @@ use std::{collections::HashMap, fs::File, io::Read, path::PathBuf};
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, PrintDiagnosticsPlugin};
 
 #[derive(Debug, Deserialize)]
-struct Config {
+struct DemoConfig {
+    title: String,
     instructions: String,
-    ring_rotation_speed: f32,
-    grid_wave_tiling: f32,
-    grid_wave_speed: f32,
-    grid_wave_height: f32,
     cameras: Vec<Srt>,
     pillars: Vec<PillarConfig>,
     light_rings: Vec<LightRingConfig>,
@@ -59,16 +55,10 @@ struct LightRingConfig {
     transforms: Srt,
 }
 
-#[derive(Clone, Copy, Debug, Deserialize)]
-enum GridVoxelAnimationType {
-    Ripple,
-    Wave,
-}
-
 #[derive(Debug, Deserialize)]
 struct GridVoxelConfig {
     voxel_scale: f32,
-    animation_type: Option<GridVoxelAnimationType>,
+    wave_voxel_type: Option<WaveVoxelType>,
     roughness: f32,
     pixmap_path: String,
     transforms: Srt,
@@ -104,20 +94,8 @@ impl Srt {
     }
 }
 
-// #[derive(Component)]
-struct LightRing;
-
-#[derive(Default)]
-struct WaveSimulation(f32);
-
-// #[derive(Component)]
-struct AnimatedGridVoxel {
-    animation_type: GridVoxelAnimationType,
-    grid_position_2d: Vec2,
-}
-
 fn setup(
-    config: Res<Config>,
+    config: Res<DemoConfig>,
     mut commands: Commands,
     // asset_server: ResMut<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -225,7 +203,7 @@ fn setup(
                     .spawn_bundle(MeshBundle {
                         ..Default::default()
                     })
-                    .insert(LightRing)
+                    .insert(AutoRotateEntity)
                     .with_children(|parent| {
                         for _i in 0..d.lights_count {
                             // HACK: Force linear color interpolation.
@@ -377,9 +355,9 @@ fn setup(
                                 ..Default::default()
                             });
 
-                            if let Some(animation_type) = d.animation_type {
-                                voxel.insert(AnimatedGridVoxel {
-                                    animation_type,
+                            if let Some(wave_voxel_type) = d.wave_voxel_type {
+                                voxel.insert(WaveVoxel {
+                                    wave_voxel_type,
                                     grid_position_2d: Vec2::new(
                                         w as f32 / width_minus_one,
                                         h as f32 / height_minus_one,
@@ -394,7 +372,7 @@ fn setup(
 }
 
 fn keyboard_input(
-    config: Res<Config>,
+    config: Res<DemoConfig>,
     keyboard_input: Res<Input<KeyCode>>,
     mut query: Query<(&mut Transform, &Camera)>,
 ) {
@@ -421,60 +399,13 @@ fn keyboard_input(
     }
 }
 
-fn rotate_light_rings(
-    config: Res<Config>,
-    time: Res<Time>,
-    mut query: Query<(&mut Transform, &LightRing)>,
-) {
-    // Rotate the light rings.
-    let rotation = Quat::from_axis_angle(
-        Vec3::Y,
-        config.ring_rotation_speed * time.delta_seconds(),
-    );
-
-    for (mut transform, _) in query.iter_mut() {
-        transform.rotate(rotation);
-    }
-}
-
-fn animate_grid_voxels(
-    config: Res<Config>,
-    time: Res<Time>,
-    mut wave_simulation: ResMut<WaveSimulation>,
-    mut query: Query<(&mut Transform, &AnimatedGridVoxel)>,
-) {
-    wave_simulation.0 += config.grid_wave_speed * time.delta_seconds();
-    wave_simulation.0 %= std::f32::consts::TAU;
-
-    for (mut transform, grid_voxel) in query.iter_mut() {
-        let waves = match grid_voxel.animation_type {
-            GridVoxelAnimationType::Ripple => (wave_simulation.0
-                + config.grid_wave_tiling
-                    * (grid_voxel.grid_position_2d.x
-                        + grid_voxel.grid_position_2d.y))
-                .sin(),
-            GridVoxelAnimationType::Wave => {
-                (wave_simulation.0
-                    + config.grid_wave_tiling * grid_voxel.grid_position_2d.x)
-                    .sin()
-                    + (wave_simulation.0
-                        + config.grid_wave_tiling
-                            * grid_voxel.grid_position_2d.y)
-                        .sin()
-            },
-        };
-
-        transform.translation.y = 0.5 * config.grid_wave_height * waves;
-    }
-}
-
 #[bevy_main]
 fn main() {
-    let input_path =
-        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("assets/config.ron");
+    let input_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("assets/config/demo.ron");
     let f = File::open(&input_path).expect("Failed opening config file");
 
-    let config: Config = match from_reader(f) {
+    let config: DemoConfig = match from_reader(f) {
         Ok(x) => x,
         Err(e) => {
             println!("Failed to load config: {}", e);
@@ -486,7 +417,7 @@ fn main() {
     App::new()
         .insert_resource(Msaa { samples: 4 })
         .insert_resource(WindowDescriptor {
-            title: "Cubism".to_string(),
+            title: config.title.clone(),
             width: 1280.,
             height: 720.,
             ..Default::default()
@@ -496,11 +427,9 @@ fn main() {
         // .add_plugin(FrameTimeDiagnosticsPlugin::default())
         // .add_system(PrintDiagnosticsPlugin::print_diagnostics_system.
         // system())
-        .init_resource::<WaveSimulation>()
         .insert_resource(config)
+        .add_plugin(ComponentsPlugin)
         .add_startup_system(setup.system())
         .add_system(keyboard_input.system())
-        .add_system(rotate_light_rings.system())
-        .add_system(animate_grid_voxels.system())
         .run();
 }
