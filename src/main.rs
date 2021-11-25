@@ -1,4 +1,5 @@
 mod components;
+mod config;
 
 use bevy::{
     ecs::prelude::*,
@@ -20,7 +21,6 @@ use bevy::{
 };
 use components::*;
 use rand::distributions::{Distribution, Uniform};
-use ron::de::from_reader;
 use serde::Deserialize;
 use std::{collections::HashMap, fs::File, io::Read, path::PathBuf};
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, PrintDiagnosticsPlugin};
@@ -401,18 +401,7 @@ fn keyboard_input(
 
 #[bevy_main]
 fn main() {
-    let input_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("assets/config/demo.ron");
-    let f = File::open(&input_path).expect("Failed opening config file");
-
-    let config: DemoConfig = match from_reader(f) {
-        Ok(x) => x,
-        Err(e) => {
-            println!("Failed to load config: {}", e);
-
-            std::process::exit(1);
-        },
-    };
+    let config: DemoConfig = config::load_from_file("assets/config/demo.ron");
 
     App::new()
         .insert_resource(Msaa { samples: 4 })

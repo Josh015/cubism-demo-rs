@@ -1,25 +1,12 @@
-use std::{fs::File, path::PathBuf};
-
 use bevy::{core::Time, math::Vec2, prelude::*};
-use ron::de::from_reader;
 use serde::Deserialize;
 
 pub struct ComponentsPlugin;
 
 impl Plugin for ComponentsPlugin {
     fn build(&self, app: &mut App) {
-        let input_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("assets/config/components.ron");
-        let f = File::open(&input_path).expect("Failed opening config file");
-
-        let config: ComponentsConfig = match from_reader(f) {
-            Ok(x) => x,
-            Err(e) => {
-                println!("Failed to load config: {}", e);
-
-                std::process::exit(1);
-            },
-        };
+        let config: ComponentsConfig =
+            crate::config::load_from_file("assets/config/components.ron");
 
         app.insert_resource(config)
             .init_resource::<WaveSimulation>()
