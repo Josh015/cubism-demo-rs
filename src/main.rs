@@ -1,5 +1,5 @@
 mod components;
-mod config;
+mod files;
 
 use bevy::{
     ecs::prelude::*,
@@ -22,7 +22,7 @@ use bevy::{
 use components::*;
 use rand::distributions::{Distribution, Uniform};
 use serde::Deserialize;
-use std::{collections::HashMap, fs::File, io::Read, path::PathBuf};
+use std::{collections::HashMap, io::Read};
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, PrintDiagnosticsPlugin};
 
 #[derive(Debug, Deserialize)]
@@ -264,10 +264,7 @@ fn setup(
         const XPM_TYPE_HEADER_OFFSET: usize = 1;
         const XPM_INFO_HEADER_OFFSET: usize = 1 + XPM_TYPE_HEADER_OFFSET;
 
-        let input_path =
-            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(&d.pixmap_path);
-        let mut f =
-            File::open(&input_path).expect("Failed opening pixmap file");
+        let mut f = files::open_local_file(&d.pixmap_path);
         let mut file_contents = String::new();
 
         f.read_to_string(&mut file_contents)
@@ -401,7 +398,8 @@ fn keyboard_input(
 
 #[bevy_main]
 fn main() {
-    let config: DemoConfig = config::load_from_file("assets/config/demo.ron");
+    let config: DemoConfig =
+        files::load_config_from_file("assets/config/demo.ron");
 
     App::new()
         .insert_resource(Msaa { samples: 4 })

@@ -6,7 +6,7 @@ pub struct ComponentsPlugin;
 impl Plugin for ComponentsPlugin {
     fn build(&self, app: &mut App) {
         let config: ComponentsConfig =
-            crate::config::load_from_file("assets/config/components.ron");
+            crate::files::load_config_from_file("assets/config/components.ron");
 
         app.insert_resource(config)
             .init_resource::<WaveSimulation>()
