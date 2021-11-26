@@ -10,6 +10,9 @@
 *.vert text eol=lf
 *.wgsl text eol=lf
 *.xpm text eol=lf
+*.ron text eol=lf
+*.json text eol=lf
+*.md text eol=lf
 
 # Declare files that will always have CRLF line endings on checkout.
 *.sln text eol=crlf
