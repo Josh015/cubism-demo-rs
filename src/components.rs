@@ -10,8 +10,8 @@ impl Plugin for ComponentsPlugin {
 
         app.insert_resource(config)
             .init_resource::<WaveSimulation>()
-            .add_system(animate_wave_voxels.system())
-            .add_system(auto_rotate_entity.system());
+            .add_system(animate_wave_voxels)
+            .add_system(auto_rotate_entity);
     }
 }
 
@@ -21,13 +21,13 @@ pub enum WaveVoxelAnimation {
     Wave,
 }
 
-// #[derive(Component)]
+#[derive(Component)]
 pub struct WaveVoxel {
     pub animation: WaveVoxelAnimation,
     pub grid_position_2d: Vec2,
 }
 
-// #[derive(Component)]
+#[derive(Component)]
 pub struct AutoRotateEntity;
 
 #[derive(Debug, Deserialize)]

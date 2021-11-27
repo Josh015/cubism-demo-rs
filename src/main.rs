@@ -418,7 +418,7 @@ fn main() {
         // system())
         .insert_resource(config)
         .add_plugin(ComponentsPlugin)
-        .add_startup_system(setup.system())
-        .add_system(keyboard_input.system())
+        .add_startup_system(setup)
+        .add_system(keyboard_input)
         .run();
 }
