@@ -370,7 +370,7 @@ fn setup(
     }
 }
 
-fn keyboard_input(
+fn keyboard_input_system(
     config: Res<DemoConfig>,
     keyboard_input: Res<Input<KeyCode>>,
     mut query: Query<(&mut Transform, &Camera, &PerspectiveProjection)>,
@@ -419,7 +419,7 @@ fn main() {
         .insert_resource(config)
         .add_plugin(ComponentsPlugin)
         .add_startup_system(setup)
-        .add_system(keyboard_input)
+        .add_system(keyboard_input_system)
         .add_system(bevy::input::system::exit_on_esc_system)
         .run();
 }

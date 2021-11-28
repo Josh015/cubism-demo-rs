@@ -10,8 +10,8 @@ impl Plugin for ComponentsPlugin {
 
         app.insert_resource(config)
             .init_resource::<WaveSimulation>()
-            .add_system(animate_wave_voxels)
-            .add_system(auto_rotate_entity);
+            .add_system(animate_wave_voxels_system)
+            .add_system(auto_rotate_entity_system);
     }
 }
 
@@ -41,7 +41,7 @@ struct ComponentsConfig {
 #[derive(Default)]
 struct WaveSimulation(f32);
 
-fn animate_wave_voxels(
+fn animate_wave_voxels_system(
     config: Res<ComponentsConfig>,
     time: Res<Time>,
     mut wave_simulation: ResMut<WaveSimulation>,
@@ -72,7 +72,7 @@ fn animate_wave_voxels(
     }
 }
 
-fn auto_rotate_entity(
+fn auto_rotate_entity_system(
     config: Res<ComponentsConfig>,
     time: Res<Time>,
     mut query: Query<(&mut Transform, &AutoRotateEntity)>,
