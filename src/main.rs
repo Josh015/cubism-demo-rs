@@ -11,7 +11,7 @@ use bevy::{
         MeshBundle, Transform,
     },
     render2::{
-        camera::{Camera, PerspectiveCameraBundle},
+        camera::{Camera, PerspectiveCameraBundle, PerspectiveProjection},
         color::Color,
         mesh::{shape, Mesh},
         view::Msaa,
@@ -373,28 +373,28 @@ fn setup(
 fn keyboard_input(
     config: Res<DemoConfig>,
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<(&mut Transform, &Camera)>,
+    mut query: Query<(&mut Transform, &Camera, &PerspectiveProjection)>,
 ) {
-    for (mut transform, _) in query.iter_mut() {
-        // Front
-        if keyboard_input.just_pressed(KeyCode::Key1) {
-            *transform = config.cameras[0].to_transform();
-        }
+    let (mut transform, _, _) = query.single_mut();
 
-        // Right
-        if keyboard_input.just_released(KeyCode::Key2) {
-            *transform = config.cameras[1].to_transform();
-        }
+    // Front
+    if keyboard_input.just_released(KeyCode::Key1) {
+        *transform = config.cameras[0].to_transform();
+    }
 
-        // Left
-        if keyboard_input.just_released(KeyCode::Key3) {
-            *transform = config.cameras[2].to_transform();
-        }
+    // Right
+    if keyboard_input.just_released(KeyCode::Key2) {
+        *transform = config.cameras[1].to_transform();
+    }
 
-        // Top
-        if keyboard_input.just_released(KeyCode::Key4) {
-            *transform = config.cameras[3].to_transform();
-        }
+    // Left
+    if keyboard_input.just_released(KeyCode::Key3) {
+        *transform = config.cameras[2].to_transform();
+    }
+
+    // Top
+    if keyboard_input.just_released(KeyCode::Key4) {
+        *transform = config.cameras[3].to_transform();
     }
 }
 
@@ -420,5 +420,6 @@ fn main() {
         .add_plugin(ComponentsPlugin)
         .add_startup_system(setup)
         .add_system(keyboard_input)
+        .add_system(bevy::input::system::exit_on_esc_system)
         .run();
 }
