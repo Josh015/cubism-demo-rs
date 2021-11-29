@@ -75,7 +75,7 @@ fn animate_wave_voxels_system(
 fn auto_rotate_entity_system(
     config: Res<ComponentsConfig>,
     time: Res<Time>,
-    mut query: Query<(&mut Transform, &AutoRotateEntity)>,
+    mut query: Query<&mut Transform, With<AutoRotateEntity>>,
 ) {
     // Rotate the child entity around its local y-axis.
     let rotation = Quat::from_axis_angle(
@@ -83,7 +83,7 @@ fn auto_rotate_entity_system(
         config.auto_rotate_entity_speed * time.delta_seconds(),
     );
 
-    for (mut transform, _) in query.iter_mut() {
+    for mut transform in query.iter_mut() {
         transform.rotate(rotation);
     }
 }

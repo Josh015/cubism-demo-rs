@@ -373,9 +373,12 @@ fn setup(
 fn keyboard_input_system(
     config: Res<DemoConfig>,
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<(&mut Transform, &Camera, &PerspectiveProjection)>,
+    mut query: Query<
+        &mut Transform,
+        (With<Camera>, With<PerspectiveProjection>),
+    >,
 ) {
-    let (mut transform, _, _) = query.single_mut();
+    let mut transform = query.single_mut();
 
     // Front
     if keyboard_input.just_released(KeyCode::Key1) {
