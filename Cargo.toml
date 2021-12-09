@@ -9,7 +9,6 @@ rust-version = "1.56"
 
 [dependencies]
 bevy = { git = 'https://github.com/bevyengine/bevy.git' }
-# bevy = { git = 'https://github.com/superdump/bevy.git', branch = "clustered-forward-rendering" }
 # bevy = "0.5.0"
 rand = "0.8.3"
 ron = "0.7.0"
