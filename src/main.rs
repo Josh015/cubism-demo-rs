@@ -1,28 +1,8 @@
 mod demo;
 mod files;
 
-use bevy::{
-    ecs::prelude::*,
-    input::Input,
-    math::*,
-    pbr2::{PbrBundle, PointLight, PointLightBundle, StandardMaterial},
-    prelude::{
-        bevy_main, App, AssetServer, Assets, BuildChildren, KeyCode,
-        MeshBundle, Transform,
-    },
-    render2::{
-        camera::{Camera, PerspectiveCameraBundle, PerspectiveProjection},
-        color::Color,
-        mesh::{shape, Mesh},
-        view::Msaa,
-    },
-    window::WindowDescriptor,
-    PipelinedDefaultPlugins,
-};
+use bevy::{prelude::*, PipelinedDefaultPlugins};
 use demo::*;
-use rand::distributions::{Distribution, Uniform};
-use serde::Deserialize;
-use std::{collections::HashMap, io::Read};
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, PrintDiagnosticsPlugin};
 
 #[bevy_main]
@@ -44,7 +24,7 @@ fn main() {
         // .add_system(PrintDiagnosticsPlugin::print_diagnostics_system.
         // system())
         .insert_resource(config)
-        .init_resource::<WaveSimulation>()
+        .init_resource::<wave_voxel::WaveSimulation>()
         .add_startup_system(demo::setup)
         .add_system(demo::keyboard_input_system)
         .add_system(auto_rotate_entity::rotate_on_local_axis_system)

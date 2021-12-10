@@ -1,6 +1,5 @@
 use super::DemoConfig;
-use bevy::{core::Time, math::Vec2, prelude::*};
-use serde::Deserialize;
+use bevy::prelude::*;
 
 #[derive(Component)]
 pub struct AutoRotateEntity;

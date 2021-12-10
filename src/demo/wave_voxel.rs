@@ -1,5 +1,5 @@
 use super::DemoConfig;
-use bevy::{core::Time, math::Vec2, prelude::*};
+use bevy::prelude::*;
 use serde::Deserialize;
 
 #[derive(Clone, Copy, Debug, Deserialize)]

@@ -11,17 +11,13 @@ use bevy::{
     math::*,
     pbr2::{PbrBundle, PointLight, PointLightBundle, StandardMaterial},
     prelude::{
-        bevy_main, App, AssetServer, Assets, BuildChildren, KeyCode,
-        MeshBundle, Transform,
+        AssetServer, Assets, BuildChildren, KeyCode, MeshBundle, Transform,
     },
     render2::{
         camera::{Camera, PerspectiveCameraBundle, PerspectiveProjection},
         color::Color,
         mesh::{shape, Mesh},
-        view::Msaa,
     },
-    window::WindowDescriptor,
-    PipelinedDefaultPlugins,
 };
 use rand::distributions::{Distribution, Uniform};
 use serde::Deserialize;
