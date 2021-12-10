@@ -1,9 +1,0 @@
-#![enable(unwrap_newtypes)]
-#![enable(implicit_some)]
-
-(
-  wave_voxel_tiling: 10.0,
-  wave_voxel_speed: 2.0,
-  wave_voxel_height: 0.06,
-  auto_rotate_entity_speed: 1.0,
-)

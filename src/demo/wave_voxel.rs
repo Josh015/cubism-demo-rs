@@ -1,19 +1,6 @@
+use super::DemoConfig;
 use bevy::{core::Time, math::Vec2, prelude::*};
 use serde::Deserialize;
-
-pub struct ComponentsPlugin;
-
-impl Plugin for ComponentsPlugin {
-    fn build(&self, app: &mut App) {
-        let config: ComponentsConfig =
-            crate::files::load_config_from_file("assets/config/components.ron");
-
-        app.insert_resource(config)
-            .init_resource::<WaveSimulation>()
-            .add_system(animate_wave_voxels_system)
-            .add_system(auto_rotate_entity_system);
-    }
-}
 
 #[derive(Clone, Copy, Debug, Deserialize)]
 pub enum WaveVoxelAnimation {
@@ -27,22 +14,11 @@ pub struct WaveVoxel {
     pub grid_position_2d: Vec2,
 }
 
-#[derive(Component)]
-pub struct AutoRotateEntity;
-
-#[derive(Debug, Deserialize)]
-struct ComponentsConfig {
-    wave_voxel_tiling: f32,
-    wave_voxel_speed: f32,
-    wave_voxel_height: f32,
-    auto_rotate_entity_speed: f32,
-}
-
 #[derive(Default)]
-struct WaveSimulation(f32);
+pub struct WaveSimulation(f32);
 
-fn animate_wave_voxels_system(
-    config: Res<ComponentsConfig>,
+pub fn animate_wave_voxels_system(
+    config: Res<DemoConfig>,
     time: Res<Time>,
     mut wave_simulation: ResMut<WaveSimulation>,
     mut query: Query<(&mut Transform, &WaveVoxel)>,
@@ -69,21 +45,5 @@ fn animate_wave_voxels_system(
         };
 
         transform.translation.y = 0.5 * config.wave_voxel_height * waves;
-    }
-}
-
-fn auto_rotate_entity_system(
-    config: Res<ComponentsConfig>,
-    time: Res<Time>,
-    mut query: Query<&mut Transform, With<AutoRotateEntity>>,
-) {
-    // Rotate the child entity around its local y-axis.
-    let rotation = Quat::from_axis_angle(
-        Vec3::Y,
-        config.auto_rotate_entity_speed * time.delta_seconds(),
-    );
-
-    for mut transform in query.iter_mut() {
-        transform.rotate(rotation);
     }
 }
