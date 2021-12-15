@@ -5,20 +5,7 @@ pub mod wave_voxel;
 pub use wave_voxel::*;
 
 use crate::files;
-use bevy::{
-    ecs::prelude::*,
-    input::Input,
-    math::*,
-    pbr2::{PbrBundle, PointLight, PointLightBundle, StandardMaterial},
-    prelude::{
-        AssetServer, Assets, BuildChildren, KeyCode, MeshBundle, Transform,
-    },
-    render2::{
-        camera::{Camera, PerspectiveCameraBundle, PerspectiveProjection},
-        color::Color,
-        mesh::{shape, Mesh},
-    },
-};
+use bevy::prelude::*;
 use rand::distributions::{Distribution, Uniform};
 use serde::Deserialize;
 use std::{collections::HashMap, io::Read};
@@ -97,10 +84,9 @@ impl Srt {
 pub fn setup(
     config: Res<DemoConfig>,
     mut commands: Commands,
-    // asset_server: ResMut<AssetServer>,
+    asset_server: ResMut<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    // mut color_materials: ResMut<Assets<ColorMaterial>>,
 ) {
     let unit_cube = meshes.add(Mesh::from(shape::Cube { size: 1.0 }));
 
@@ -112,54 +98,48 @@ pub fn setup(
             ..Default::default()
         });
 
-    commands
-        // Light
-        .spawn_bundle(MeshBundle {
-            transform: Transform::from_translation(Vec3::new(-4.0, 6.0, 4.0)),
+    // Light
+    commands.spawn_bundle(PointLightBundle {
+        transform: Transform::from_translation(Vec3::new(-4.0, 6.0, 4.0)),
+        point_light: PointLight {
+            range: 20.0,
+            intensity: 2500.0,
             ..Default::default()
-        })
-        .with_children(|parent| {
-            parent.spawn_bundle(PointLightBundle {
-                point_light: PointLight {
-                    range: 20.0,
-                    intensity: 2500.0,
+        },
+        ..Default::default()
+    });
+
+    commands
+        .spawn_bundle(UiCameraBundle::default())
+        // root node
+        .commands()
+        .spawn_bundle(NodeBundle {
+            style: Style {
+                position_type: PositionType::Absolute,
+                position: Rect {
+                    left: Val::Px(10.0),
+                    top: Val::Px(10.0),
                     ..Default::default()
                 },
                 ..Default::default()
+            },
+            color: Color::NONE.into(),
+            ..Default::default()
+        })
+        .with_children(|parent| {
+            parent.spawn_bundle(TextBundle {
+                text: Text::with_section(
+                    config.instructions.to_string(),
+                    TextStyle {
+                        font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                        font_size: 40.0,
+                        color: Color::rgb(0.8, 0.8, 0.8),
+                    },
+                    Default::default(),
+                ),
+                ..Default::default()
             });
         });
-
-    // commands
-    //     .spawn_bundle(UiCameraBundle::default())
-    //     // root node
-    //     .commands()
-    //     .spawn_bundle(NodeBundle {
-    //         style: Style {
-    //             position_type: PositionType::Absolute,
-    //             position: Rect {
-    //                 left: Val::Px(10.0),
-    //                 top: Val::Px(10.0),
-    //                 ..Default::default()
-    //             },
-    //             ..Default::default()
-    //         },
-    //         material: color_materials.add(Color::NONE.into()),
-    //         ..Default::default()
-    //     })
-    //     .with_children(|parent| {
-    //         parent.spawn_bundle(TextBundle {
-    //             text: Text::with_section(
-    //                 config.instructions.to_string(),
-    //                 TextStyle {
-    //                     font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-    //                     font_size: 40.0,
-    //                     color: Color::rgb(0.8, 0.8, 0.8),
-    //                 },
-    //                 Default::default(),
-    //             ),
-    //             ..Default::default()
-    //         });
-    //     });
 
     // ---- Pillars ----
     for d in config.pillars.iter() {
@@ -200,9 +180,12 @@ pub fn setup(
                 // Light ring must be a child component so it can rotate around
                 // its own local axis.
                 parent
-                    .spawn_bundle(MeshBundle {
-                        ..Default::default()
-                    })
+                    .spawn_bundle((
+                        Transform::default(),
+                        GlobalTransform::default(),
+                        Visibility::default(),
+                        ComputedVisibility::default(),
+                    ))
                     .insert(AutoRotateEntity)
                     .with_children(|parent| {
                         for _i in 0..d.lights_count {
@@ -247,7 +230,6 @@ pub fn setup(
                                             intensity: d.light_intensity,
                                             range: d.light_range,
                                             radius: 0.5 * d.light_size,
-                                            shadows_enabled: false,
                                             ..Default::default()
                                         },
                                         ..Default::default()
@@ -319,11 +301,12 @@ pub fn setup(
         let height_offset = height_minus_one * 0.5;
 
         commands
-            .spawn_bundle(MeshBundle {
-                transform: d.transforms.to_transform(),
-                // mesh: cube.clone(),
-                ..Default::default()
-            })
+            .spawn_bundle((
+                d.transforms.to_transform(),
+                GlobalTransform::default(),
+                Visibility::default(),
+                ComputedVisibility::default(),
+            ))
             .with_children(|parent| {
                 for h in 0..height {
                     let row =

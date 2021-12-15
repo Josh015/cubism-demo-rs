@@ -1,7 +1,7 @@
 mod demo;
 mod files;
 
-use bevy::{prelude::*, PipelinedDefaultPlugins};
+use bevy::prelude::*;
 use demo::*;
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, PrintDiagnosticsPlugin};
 
@@ -18,7 +18,7 @@ fn main() {
             height: config.height as f32,
             ..Default::default()
         })
-        .add_plugins(PipelinedDefaultPlugins)
+        .add_plugins(DefaultPlugins)
         // .add_plugin(PrintDiagnosticsPlugin::default())
         // .add_plugin(FrameTimeDiagnosticsPlugin::default())
         // .add_system(PrintDiagnosticsPlugin::print_diagnostics_system.
