@@ -180,12 +180,7 @@ pub fn setup(
                 // Light ring must be a child component so it can rotate around
                 // its own local axis.
                 parent
-                    .spawn_bundle((
-                        Transform::default(),
-                        GlobalTransform::default(),
-                        Visibility::default(),
-                        ComputedVisibility::default(),
-                    ))
+                    .spawn_bundle(PbrBundle::default())
                     .insert(AutoRotateEntity)
                     .with_children(|parent| {
                         for _i in 0..d.lights_count {
@@ -301,12 +296,10 @@ pub fn setup(
         let height_offset = height_minus_one * 0.5;
 
         commands
-            .spawn_bundle((
-                d.transforms.to_transform(),
-                GlobalTransform::default(),
-                Visibility::default(),
-                ComputedVisibility::default(),
-            ))
+            .spawn_bundle(PbrBundle {
+                transform: d.transforms.to_transform(),
+                ..Default::default()
+            })
             .with_children(|parent| {
                 for h in 0..height {
                     let row =
