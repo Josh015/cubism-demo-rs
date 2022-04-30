@@ -27,7 +27,7 @@ cargo run --release
 - [x] Fix the UI instructions.
 - [x] Add ron support and move configs out of code.
 - [x] Restore 256 light setup once Bevy supports it.
-- [ ] Restore UI.
+- [x] Restore UI.
 - [ ] Add hot reloading for the config file?
 - [ ] Modularize XPM code to support loading different types and multi-character pixels.
 
