@@ -1,5 +1,4 @@
-use super::DemoConfig;
-use bevy::prelude::*;
+use crate::prelude::*;
 use serde::Deserialize;
 
 #[derive(Clone, Copy, Debug, Deserialize)]

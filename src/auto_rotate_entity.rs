@@ -1,5 +1,4 @@
-use super::DemoConfig;
-use bevy::prelude::*;
+use crate::prelude::*;
 
 #[derive(Component)]
 pub struct AutoRotateEntity;
