@@ -23,7 +23,7 @@
     "ms-vscode.cpptools",
 
     // Better than RLS, also needed for rustfmt on save.
-    "matklad.rust-analyzer",
+    "rust-lang.rust-analyzer",
 
     // Tracking all the TODO & FIXME comments.
     "gruntfuggly.todo-tree",
