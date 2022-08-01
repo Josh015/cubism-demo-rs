@@ -14,7 +14,7 @@ pub fn rotate_on_local_axis_system(
         config.auto_rotate_entity_speed * time.delta_seconds(),
     );
 
-    for mut transform in query.iter_mut() {
+    for mut transform in &mut query {
         transform.rotate(rotation);
     }
 }

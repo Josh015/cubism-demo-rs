@@ -3,10 +3,7 @@ use crate::prelude::*;
 pub fn keyboard_input_system(
     config: Res<DemoConfig>,
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<
-        &mut Transform,
-        (With<Camera>, With<PerspectiveProjection>),
-    >,
+    mut query: Query<&mut Transform, (With<Camera>, With<Camera3d>)>,
 ) {
     let mut transform = query.single_mut();
 

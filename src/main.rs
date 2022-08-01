@@ -41,7 +41,7 @@ fn main() {
         .add_system(demo::keyboard_input_system)
         .add_system(auto_rotate_entity::rotate_on_local_axis_system)
         .add_system(wave_voxel::animate_wave_voxels_system)
-        .add_system(bevy::input::system::exit_on_esc_system)
+        .add_system(bevy::window::close_on_esc)
         .run();
 }
 
@@ -55,14 +55,12 @@ pub fn setup(
     let unit_cube = meshes.add(Mesh::from(shape::Cube { size: 1.0 }));
 
     // ---- Camera ----
-    commands
-        // Camera
-        .spawn_bundle(PerspectiveCameraBundle {
-            transform: config.cameras[0].to_transform(),
-            ..Default::default()
-        });
+    commands.spawn_bundle(Camera3dBundle {
+        transform: config.cameras[0].to_transform(),
+        ..Default::default()
+    });
 
-    // Light
+    // ---- Light ----
     commands.spawn_bundle(PointLightBundle {
         transform: Transform::from_translation(Vec3::new(-4.0, 6.0, 4.0)),
         point_light: PointLight {
@@ -73,14 +71,12 @@ pub fn setup(
         ..Default::default()
     });
 
+    // ---- UI ----
     commands
-        .spawn_bundle(UiCameraBundle::default())
-        // root node
-        .commands()
         .spawn_bundle(NodeBundle {
             style: Style {
                 position_type: PositionType::Absolute,
-                position: Rect {
+                position: UiRect {
                     left: Val::Px(10.0),
                     top: Val::Px(10.0),
                     ..Default::default()
@@ -92,21 +88,20 @@ pub fn setup(
         })
         .with_children(|parent| {
             parent.spawn_bundle(TextBundle {
-                text: Text::with_section(
+                text: Text::from_section(
                     config.instructions.to_string(),
                     TextStyle {
                         font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                         font_size: 40.0,
                         color: Color::rgb(0.8, 0.8, 0.8),
                     },
-                    Default::default(),
                 ),
                 ..Default::default()
             });
         });
 
     // ---- Pillars ----
-    for d in config.pillars.iter() {
+    for d in &config.pillars {
         commands.spawn_bundle(PbrBundle {
             transform: d.transforms.to_transform(),
             mesh: unit_cube.clone(),
@@ -128,7 +123,7 @@ pub fn setup(
     let axis_randomizer = Uniform::from(-1f32..=1f32);
     let color_randomizer = Uniform::from(0f32..=1f32);
 
-    for d in config.light_rings.iter() {
+    for d in &config.light_rings {
         let voxel_scale = Vec3::splat(d.light_size);
         let mut rng = rand::thread_rng();
         let radius_randomizer = Uniform::from(d.inner_radius..=d.outer_radius);
@@ -200,7 +195,7 @@ pub fn setup(
     }
 
     // ---- Grids ----
-    for d in config.grids.iter() {
+    for d in &config.grids {
         // XPM headers take the form "20 20 2 1", "16 16 4 1", etc.
         const XPM_TYPE_HEADER_OFFSET: usize = 1;
         const XPM_INFO_HEADER_OFFSET: usize = 1 + XPM_TYPE_HEADER_OFFSET;

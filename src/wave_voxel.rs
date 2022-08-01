@@ -25,7 +25,7 @@ pub fn animate_wave_voxels_system(
     wave_simulation.0 += config.wave_voxel_speed * time.delta_seconds();
     wave_simulation.0 %= std::f32::consts::TAU;
 
-    for (mut transform, wave_voxel) in query.iter_mut() {
+    for (mut transform, wave_voxel) in &mut query {
         let waves = match wave_voxel.animation {
             WaveVoxelAnimation::Ripple => (wave_simulation.0
                 + config.wave_voxel_tiling
