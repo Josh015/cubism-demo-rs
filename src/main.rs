@@ -36,7 +36,6 @@ fn main() {
         // .add_system(PrintDiagnosticsPlugin::print_diagnostics_system.
         // system())
         .insert_resource(config)
-        .init_resource::<wave_voxel::WaveSimulation>()
         .add_startup_system(setup)
         .add_system(demo::keyboard_input_system)
         .add_system(auto_rotate_entity::rotate_on_local_axis_system)
