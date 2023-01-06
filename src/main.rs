@@ -260,43 +260,43 @@ pub fn setup(
                 ..Default::default()
             })
             .with_children(|parent| {
+                // Voxelize the 2D image into a 3D grid.
                 for h in 0..height {
                     let row =
                         xpm_data[h + palette_size + XPM_INFO_HEADER_OFFSET];
 
                     for w in 0..width {
+                        // Convert each pixel to a voxel with the same color.
                         let palette_index = row.chars().nth(w).unwrap();
-
-                        if let Some(material) = palette.get(&palette_index) {
-                            let mut voxel = parent.spawn(PbrBundle {
-                                transform: Transform::from_matrix(
-                                    Mat4::from_scale_rotation_translation(
-                                        voxel_scale,
-                                        Quat::IDENTITY,
-                                        Vec3::new(
-                                            (w as f32 - width_offset)
-                                                / (width as f32),
-                                            0.0,
-                                            (h as f32 - height_offset)
-                                                / (height as f32),
-                                        ),
+                        let Some(material) = palette.get(&palette_index) else { continue };
+                        let mut voxel = parent.spawn(PbrBundle {
+                            transform: Transform::from_matrix(
+                                Mat4::from_scale_rotation_translation(
+                                    voxel_scale,
+                                    Quat::IDENTITY,
+                                    Vec3::new(
+                                        (w as f32 - width_offset)
+                                            / (width as f32),
+                                        0.0,
+                                        (h as f32 - height_offset)
+                                            / (height as f32),
                                     ),
                                 ),
-                                mesh: unit_cube.clone(),
-                                material: material.clone(),
-                                ..Default::default()
-                            });
+                            ),
+                            mesh: unit_cube.clone(),
+                            material: material.clone(),
+                            ..Default::default()
+                        });
 
-                            if let Some(animation) = d.animation {
-                                voxel.insert(WaveVoxel {
-                                    animation,
-                                    grid_position_2d: Vec2::new(
-                                        w as f32 / width_minus_one,
-                                        h as f32 / height_minus_one,
-                                    ),
-                                });
-                            }
-                        }
+                        // Add an optional animation to the new voxel.
+                        let Some(animation) = d.animation else { continue };
+                        voxel.insert(WaveVoxel {
+                            animation,
+                            grid_position_2d: Vec2::new(
+                                w as f32 / width_minus_one,
+                                h as f32 / height_minus_one,
+                            ),
+                        });
                     }
                 }
             });
