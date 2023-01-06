@@ -1,7 +1,7 @@
 use crate::prelude::*;
 use serde::Deserialize;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Resource)]
 pub struct DemoConfig {
     pub title: String,
     pub width: u32,

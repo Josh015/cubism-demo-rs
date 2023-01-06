@@ -5,14 +5,12 @@ mod files;
 mod wave_voxel;
 
 mod prelude {
-    pub use crate::auto_rotate_entity::*;
-    pub use crate::config::*;
-    pub use crate::demo::*;
-    pub use crate::wave_voxel::*;
+    pub use crate::{auto_rotate_entity::*, config::*, demo::*, wave_voxel::*};
     pub use bevy::prelude::*;
 }
 
 use crate::prelude::*;
+use bevy::window::PresentMode;
 use rand::{distributions::Uniform, prelude::Distribution};
 use std::{collections::HashMap, io::Read};
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, PrintDiagnosticsPlugin};
@@ -23,14 +21,17 @@ fn main() {
         files::load_config_from_file("assets/config/demo.ron");
 
     App::new()
+        .add_plugins(DefaultPlugins.set(WindowPlugin {
+            window: WindowDescriptor {
+                title: config.title.clone(),
+                width: config.width as f32,
+                height: config.height as f32,
+                present_mode: PresentMode::AutoVsync,
+                ..default()
+            },
+            ..default()
+        }))
         .insert_resource(Msaa { samples: 4 })
-        .insert_resource(WindowDescriptor {
-            title: config.title.clone(),
-            width: config.width as f32,
-            height: config.height as f32,
-            ..Default::default()
-        })
-        .add_plugins(DefaultPlugins)
         // .add_plugin(PrintDiagnosticsPlugin::default())
         // .add_plugin(FrameTimeDiagnosticsPlugin::default())
         // .add_system(PrintDiagnosticsPlugin::print_diagnostics_system.
@@ -54,13 +55,13 @@ pub fn setup(
     let unit_cube = meshes.add(Mesh::from(shape::Cube { size: 1.0 }));
 
     // ---- Camera ----
-    commands.spawn_bundle(Camera3dBundle {
+    commands.spawn(Camera3dBundle {
         transform: config.cameras[0].to_transform(),
         ..Default::default()
     });
 
     // ---- Light ----
-    commands.spawn_bundle(PointLightBundle {
+    commands.spawn(PointLightBundle {
         transform: Transform::from_translation(Vec3::new(-4.0, 6.0, 4.0)),
         point_light: PointLight {
             range: 20.0,
@@ -72,7 +73,7 @@ pub fn setup(
 
     // ---- UI ----
     commands
-        .spawn_bundle(NodeBundle {
+        .spawn(NodeBundle {
             style: Style {
                 position_type: PositionType::Absolute,
                 position: UiRect {
@@ -82,11 +83,11 @@ pub fn setup(
                 },
                 ..Default::default()
             },
-            color: Color::NONE.into(),
+            background_color: Color::NONE.into(),
             ..Default::default()
         })
         .with_children(|parent| {
-            parent.spawn_bundle(TextBundle {
+            parent.spawn(TextBundle {
                 text: Text::from_section(
                     config.instructions.to_string(),
                     TextStyle {
@@ -101,7 +102,7 @@ pub fn setup(
 
     // ---- Pillars ----
     for d in &config.pillars {
-        commands.spawn_bundle(PbrBundle {
+        commands.spawn(PbrBundle {
             transform: d.transforms.to_transform(),
             mesh: unit_cube.clone(),
             material: materials.add(StandardMaterial {
@@ -130,7 +131,7 @@ pub fn setup(
             Uniform::from((-0.5 * d.height)..=(0.5 * d.height));
 
         commands
-            .spawn_bundle(PbrBundle {
+            .spawn(PbrBundle {
                 transform: d.transforms.to_transform(),
                 ..Default::default()
             })
@@ -138,7 +139,7 @@ pub fn setup(
                 // Light ring must be a child component so it can rotate around
                 // its own local axis.
                 parent
-                    .spawn_bundle(PbrBundle::default())
+                    .spawn(PbrBundle::default())
                     .insert(AutoRotateEntity)
                     .with_children(|parent| {
                         for _i in 0..d.lights_count {
@@ -159,7 +160,7 @@ pub fn setup(
                             translation.y = height_randomizer.sample(&mut rng);
 
                             parent
-                                .spawn_bundle(PbrBundle {
+                                .spawn(PbrBundle {
                                     mesh: unit_sphere.clone(),
                                     material: materials.add(StandardMaterial {
                                         base_color: light_color
@@ -177,7 +178,7 @@ pub fn setup(
                                     ..Default::default()
                                 })
                                 .with_children(|parent| {
-                                    parent.spawn_bundle(PointLightBundle {
+                                    parent.spawn(PointLightBundle {
                                         point_light: PointLight {
                                             color: light_color,
                                             intensity: d.light_intensity,
@@ -223,8 +224,8 @@ pub fn setup(
             // XPM palette entries take the form " \tc None", ".\tc #000000",
             // etc.
             let palette_row = xpm_data[i + XPM_TYPE_HEADER_OFFSET];
-            let palette_index: char = palette_row.chars().next().unwrap();
-            let color_value: &str =
+            let palette_index = palette_row.chars().next().unwrap();
+            let color_value =
                 palette_row.split_ascii_whitespace().last().unwrap();
 
             match color_value {
@@ -254,7 +255,7 @@ pub fn setup(
         let height_offset = height_minus_one * 0.5;
 
         commands
-            .spawn_bundle(PbrBundle {
+            .spawn(PbrBundle {
                 transform: d.transforms.to_transform(),
                 ..Default::default()
             })
@@ -267,7 +268,7 @@ pub fn setup(
                         let palette_index = row.chars().nth(w).unwrap();
 
                         if let Some(material) = palette.get(&palette_index) {
-                            let mut voxel = parent.spawn_bundle(PbrBundle {
+                            let mut voxel = parent.spawn(PbrBundle {
                                 transform: Transform::from_matrix(
                                     Mat4::from_scale_rotation_translation(
                                         voxel_scale,

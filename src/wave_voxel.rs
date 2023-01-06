@@ -18,8 +18,7 @@ pub fn animate_wave_voxels_system(
     time: Res<Time>,
     mut query: Query<(&mut Transform, &WaveVoxel)>,
 ) {
-    let wave_simulation = (config.wave_voxel_speed
-        * time.time_since_startup().as_secs_f32())
+    let wave_simulation = (config.wave_voxel_speed * time.elapsed_seconds())
         % std::f32::consts::TAU;
 
     for (mut transform, wave_voxel) in &mut query {
