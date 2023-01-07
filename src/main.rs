@@ -139,8 +139,7 @@ pub fn setup(
                 // Light ring must be a child component so it can rotate around
                 // its own local axis.
                 parent
-                    .spawn(PbrBundle::default())
-                    .insert(AutoRotateEntity)
+                    .spawn((AutoRotateEntity, PbrBundle::default()))
                     .with_children(|parent| {
                         for _i in 0..d.lights_count {
                             // HACK: Force linear color interpolation.
