@@ -207,7 +207,7 @@ pub fn setup(
             "\n",
         )[..];
         let xpm_data =
-            normalized_line_endings.split("\n").collect::<Vec<&str>>();
+            normalized_line_endings.split('\n').collect::<Vec<&str>>();
         let header: Vec<&str> = xpm_data[1].split_ascii_whitespace().collect();
         let width: usize = header[0].parse().unwrap();
         let height: usize = header[1].parse().unwrap();

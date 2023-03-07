@@ -5,7 +5,7 @@ use serde::de::DeserializeOwned;
 
 pub fn open_local_file(path: &str) -> File {
     let input_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(path);
-    File::open(&input_path)
+    File::open(input_path)
         .expect(&format!("Failed opening file: {:#?}", path)[..])
 }
 
