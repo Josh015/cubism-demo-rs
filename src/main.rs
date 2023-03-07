@@ -10,38 +10,33 @@ mod prelude {
 }
 
 use crate::prelude::*;
-use bevy::window::PresentMode;
+use bevy::window::{PresentMode, WindowResolution};
 use rand::{distributions::Uniform, prelude::Distribution};
 use std::{collections::HashMap, io::Read};
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, PrintDiagnosticsPlugin};
 
-#[bevy_main]
 fn main() {
     let config: DemoConfig =
         files::load_config_from_file("assets/config/demo.ron");
 
     App::new()
         .add_plugins(DefaultPlugins.set(WindowPlugin {
-            window: WindowDescriptor {
+            primary_window: Some(Window {
                 title: config.title.clone(),
-                width: config.width as f32,
-                height: config.height as f32,
+                resolution: WindowResolution::new(config.width as f32, config.height as f32),
                 present_mode: PresentMode::AutoVsync,
                 ..default()
-            },
+            }),
             ..default()
         }))
-        .insert_resource(Msaa { samples: 4 })
+        .insert_resource(Msaa::default())
         // .add_plugin(PrintDiagnosticsPlugin::default())
         // .add_plugin(FrameTimeDiagnosticsPlugin::default())
         // .add_system(PrintDiagnosticsPlugin::print_diagnostics_system.
         // system())
         .insert_resource(config)
         .add_startup_system(setup)
-        .add_system(demo::keyboard_input_system)
-        .add_system(auto_rotate_entity::rotate_on_local_axis_system)
-        .add_system(wave_voxel::animate_wave_voxels_system)
-        .add_system(bevy::window::close_on_esc)
+        .add_systems((demo::keyboard_input_system, auto_rotate_entity::rotate_on_local_axis_system, wave_voxel::animate_wave_voxels_system, bevy::window::close_on_esc))
         .run();
 }
 
@@ -116,9 +111,10 @@ pub fn setup(
     }
 
     // ---- Light Rings ----
-    let unit_sphere = meshes.add(Mesh::from(shape::Icosphere {
+    let unit_sphere = meshes.add(Mesh::from(shape::UVSphere {
         radius: 0.5,
-        subdivisions: 2,
+        sectors: 30,
+        stacks: 30,
     }));
     let axis_randomizer = Uniform::from(-1f32..=1f32);
     let color_randomizer = Uniform::from(0f32..=1f32);
