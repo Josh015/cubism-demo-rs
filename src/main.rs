@@ -159,7 +159,8 @@ pub fn setup(
                                     mesh: unit_sphere.clone(),
                                     material: materials.add(StandardMaterial {
                                         base_color: light_color
-                                            * d.light_intensity.min(2.0f32),
+                                            * d.light_intensity
+                                            * 0.8,
                                         unlit: true,
                                         ..Default::default()
                                     }),
