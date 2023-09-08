@@ -1,5 +1,7 @@
 use bevy::prelude::*;
-use rand::{distributions::Uniform, prelude::Distribution};
+use rand::{
+    distributions::Uniform, prelude::Distribution, rngs::SmallRng, SeedableRng,
+};
 use std::{collections::HashMap, io::Read};
 
 use crate::{components::*, serialization::*};
@@ -156,7 +158,7 @@ pub fn spawn_demo_scene(
 
     for d in &config.light_rings {
         let voxel_scale = Vec3::splat(d.light_size);
-        let mut rng = rand::thread_rng();
+        let mut rng = SmallRng::from_entropy();
         let radius_randomizer = Uniform::from(d.inner_radius..=d.outer_radius);
         let height_randomizer =
             Uniform::from((-0.5 * d.height)..=(0.5 * d.height));
