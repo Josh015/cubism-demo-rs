@@ -155,10 +155,10 @@ pub fn spawn_demo_scene(
     }));
     let axis_randomizer = Uniform::from(-1f32..=1f32);
     let color_randomizer = Uniform::from(0f32..=1f32);
+    let mut rng = SmallRng::from_entropy();
 
     for d in &config.light_rings {
         let voxel_scale = Vec3::splat(d.light_size);
-        let mut rng = SmallRng::from_entropy();
         let radius_randomizer = Uniform::from(d.inner_radius..=d.outer_radius);
         let height_randomizer =
             Uniform::from((-0.5 * d.height)..=(0.5 * d.height));
