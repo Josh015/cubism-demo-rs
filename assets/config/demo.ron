@@ -103,7 +103,7 @@
   light_rings: [
     // Cyan light ring
     (
-      light_intensity: 5.0,
+      light_intensity: 1.75,
       lights_count: 85,
       light_size: 0.05,
       light_range: 0.5,
@@ -127,7 +127,7 @@
 
     // Orange light ring
     (
-      light_intensity: 5.0,
+      light_intensity: 1.75,
       lights_count: 85,
       light_size: 0.05,
       light_range: 0.5,
@@ -151,7 +151,7 @@
 
     // Magenta light ring
     (
-      light_intensity: 5.0,
+      light_intensity: 1.75,
       lights_count: 85,
       light_size: 0.05,
       light_range: 0.5,

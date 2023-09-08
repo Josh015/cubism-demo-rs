@@ -1,8 +1,16 @@
-use crate::prelude::*;
-use serde::Deserialize;
+use bevy::prelude::*;
+use ron::de::from_reader;
+use serde::{de::DeserializeOwned, Deserialize};
+use std::{fs::File, path::PathBuf};
+
+#[derive(Clone, Copy, Debug, Deserialize)]
+pub enum WaveVoxelAnimation {
+    Ripple,
+    Wave,
+}
 
 #[derive(Debug, Deserialize, Resource)]
-pub struct DemoConfig {
+pub struct Config {
     pub title: String,
     pub width: u32,
     pub height: u32,
@@ -69,5 +77,24 @@ impl Srt {
                 .normalize(),
             self.translation.into(),
         ))
+    }
+}
+
+pub fn open_local_file(path: &str) -> File {
+    let input_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(path);
+    File::open(input_path)
+        .expect(&format!("Failed opening file: {:#?}", path)[..])
+}
+
+pub fn load_config_from_ron_file<T: DeserializeOwned>(path: &str) -> T {
+    let f = open_local_file(path);
+
+    match from_reader(f) {
+        Ok(x) => x,
+        Err(e) => {
+            eprintln!("Failed to load config: {}", e);
+
+            std::process::exit(1);
+        },
     }
 }
