@@ -8,28 +8,28 @@ use crate::{components::*, serialization::*};
 
 pub fn handle_keyboard_input(
     config: Res<Config>,
-    keyboard_input: Res<Input<KeyCode>>,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
     mut query: Query<&mut Transform, (With<Camera>, With<Camera3d>)>,
 ) {
     let mut transform = query.single_mut();
 
     // Front
-    if keyboard_input.just_pressed(KeyCode::Key1) {
+    if keyboard_input.just_pressed(KeyCode::Digit1) {
         *transform = config.cameras[0].to_transform();
     }
 
     // Right
-    if keyboard_input.just_pressed(KeyCode::Key2) {
+    if keyboard_input.just_pressed(KeyCode::Digit2) {
         *transform = config.cameras[1].to_transform();
     }
 
     // Left
-    if keyboard_input.just_pressed(KeyCode::Key3) {
+    if keyboard_input.just_pressed(KeyCode::Digit3) {
         *transform = config.cameras[2].to_transform();
     }
 
     // Top
-    if keyboard_input.just_pressed(KeyCode::Key4) {
+    if keyboard_input.just_pressed(KeyCode::Digit4) {
         *transform = config.cameras[3].to_transform();
     }
 }
@@ -87,7 +87,9 @@ pub fn spawn_demo_scene(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let unit_cube = meshes.add(Mesh::from(shape::Cube { size: 1.0 }));
+    let unit_cube = meshes.add(Mesh::from(Cuboid {
+        half_size: Vec3::splat(0.5),
+    }));
 
     // ---- Camera ----
     commands.spawn(Camera3dBundle {
@@ -95,12 +97,18 @@ pub fn spawn_demo_scene(
         ..default()
     });
 
-    // ---- Light ----
+    // ---- Environment Lighting ----
+    commands.insert_resource(AmbientLight {
+        color: Color::WHITE,
+        brightness: 250.0,
+    });
+
     commands.spawn(PointLightBundle {
-        transform: Transform::from_translation(Vec3::new(-4.0, 6.0, 4.0)),
+        transform: Transform::from_translation(Vec3::new(-0.75, 1.5, 0.75)),
         point_light: PointLight {
-            range: 20.0,
-            intensity: 2500.0,
+            range: 50.0,
+            intensity: 80000.0,
+            radius: 10.0,
             ..default()
         },
         ..default()
@@ -148,11 +156,7 @@ pub fn spawn_demo_scene(
     }
 
     // ---- Light Rings ----
-    let unit_sphere = meshes.add(Mesh::from(shape::UVSphere {
-        radius: 0.5,
-        sectors: 30,
-        stacks: 30,
-    }));
+    let unit_sphere = meshes.add(Mesh::from(Sphere { radius: 0.5 }));
     let axis_randomizer = Uniform::from(-1f32..=1f32);
     let color_randomizer = Uniform::from(0f32..=1f32);
     let mut rng = SmallRng::from_entropy();
@@ -176,11 +180,15 @@ pub fn spawn_demo_scene(
                     .with_children(|parent| {
                         for _i in 0..d.lights_count {
                             // HACK: Force linear color interpolation.
-                            let light_color =
-                                Color::from(Vec4::from(d.min_color).lerp(
-                                    Vec4::from(d.max_color),
+
+                            let interpolated_color =
+                                d.min_color.rgba_linear_to_vec4().lerp(
+                                    d.max_color.rgba_linear_to_vec4(),
                                     color_randomizer.sample(&mut rng),
-                                ));
+                                );
+                            let light_color = Color::rgba_linear_from_array(
+                                interpolated_color.to_array(),
+                            );
                             let mut translation = Vec3::new(
                                 axis_randomizer.sample(&mut rng),
                                 0.0,
@@ -196,7 +204,8 @@ pub fn spawn_demo_scene(
                                     mesh: unit_sphere.clone(),
                                     material: materials.add(StandardMaterial {
                                         base_color: light_color
-                                            * d.light_intensity,
+                                            * d.light_intensity
+                                            * 2.0,
                                         unlit: true,
                                         ..default()
                                     }),
@@ -213,7 +222,8 @@ pub fn spawn_demo_scene(
                                     parent.spawn(PointLightBundle {
                                         point_light: PointLight {
                                             color: light_color,
-                                            intensity: d.light_intensity,
+                                            intensity: d.light_intensity
+                                                * 1000.0,
                                             range: d.light_range,
                                             radius: 0.5 * d.light_size,
                                             ..default()

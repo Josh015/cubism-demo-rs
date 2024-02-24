@@ -9,7 +9,7 @@ rust-version = "1.64"
 
 [dependencies]
 # bevy = { git = 'https://github.com/bevyengine/bevy.git' }
-bevy = "0.11.0"
+bevy = "0.13.0"
 rand = { version = "0.8.5", features = ["small_rng"] }
 ron = "0.8.1"
-serde = { version = "1.0.188", features = ["serde_derive"] }
+serde = { version = "1.0.197", features = ["serde_derive"] }
