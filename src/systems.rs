@@ -100,7 +100,7 @@ pub fn spawn_demo_scene(
     // ---- Environment Lighting ----
     commands.insert_resource(AmbientLight {
         color: Color::WHITE,
-        brightness: 250.0,
+        brightness: 180.0,
     });
 
     commands.spawn(PointLightBundle {
@@ -205,7 +205,7 @@ pub fn spawn_demo_scene(
                                     material: materials.add(StandardMaterial {
                                         base_color: light_color
                                             * d.light_intensity
-                                            * 2.0,
+                                            * 2.5,
                                         unlit: true,
                                         ..default()
                                     }),
@@ -223,7 +223,7 @@ pub fn spawn_demo_scene(
                                         point_light: PointLight {
                                             color: light_color,
                                             intensity: d.light_intensity
-                                                * 1000.0,
+                                                * 1100.0,
                                             range: d.light_range,
                                             radius: 0.5 * d.light_size,
                                             ..default()
