@@ -11,26 +11,15 @@ pub fn handle_keyboard_input(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut query: Query<&mut Transform, (With<Camera>, With<Camera3d>)>,
 ) {
+    use KeyCode::*;
+
     let mut transform = query.single_mut();
+    const CAMERA_BUTTONS: [KeyCode; 4] = [Digit1, Digit2, Digit3, Digit4];
 
-    // Front
-    if keyboard_input.just_pressed(KeyCode::Digit1) {
-        *transform = config.cameras[0].to_transform();
-    }
-
-    // Right
-    if keyboard_input.just_pressed(KeyCode::Digit2) {
-        *transform = config.cameras[1].to_transform();
-    }
-
-    // Left
-    if keyboard_input.just_pressed(KeyCode::Digit3) {
-        *transform = config.cameras[2].to_transform();
-    }
-
-    // Top
-    if keyboard_input.just_pressed(KeyCode::Digit4) {
-        *transform = config.cameras[3].to_transform();
+    for (i, key_code) in CAMERA_BUTTONS.iter().enumerate() {
+        if keyboard_input.just_pressed(*key_code) {
+            *transform = config.cameras[i].to_transform();
+        }
     }
 }
 
