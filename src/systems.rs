@@ -348,7 +348,6 @@ impl Plugin for SystemsPlugin {
                 handle_keyboard_input,
                 automatically_rotate_on_local_axis,
                 animate_wave_voxels,
-                bevy::window::close_on_esc,
             ),
         )
         .add_systems(Startup, spawn_demo_scene);

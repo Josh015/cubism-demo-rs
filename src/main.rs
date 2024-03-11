@@ -31,5 +31,6 @@ fn main() {
         // system())
         .insert_resource(config)
         .add_plugins(SystemsPlugin)
+        .add_systems(Update, bevy::window::close_on_esc)
         .run();
 }
