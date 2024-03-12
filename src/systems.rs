@@ -76,9 +76,9 @@ pub fn spawn_demo_scene(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let unit_cube = meshes.add(Mesh::from(Cuboid {
+    let unit_cube = meshes.add(Cuboid {
         half_size: Vec3::splat(0.5),
-    }));
+    });
 
     // ---- Camera ----
     commands.spawn(Camera3dBundle {
@@ -145,7 +145,7 @@ pub fn spawn_demo_scene(
     }
 
     // ---- Light Rings ----
-    let unit_sphere = meshes.add(Mesh::from(Sphere { radius: 0.5 }));
+    let unit_sphere = meshes.add(Sphere { radius: 0.5 });
     let axis_randomizer = Uniform::from(-1f32..=1f32);
     let color_randomizer = Uniform::from(0f32..=1f32);
     let mut rng = SmallRng::from_entropy();
