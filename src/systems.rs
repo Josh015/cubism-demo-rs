@@ -96,7 +96,7 @@ pub fn spawn_demo_scene(
         transform: Transform::from_translation(Vec3::new(-0.75, 1.5, 0.75)),
         point_light: PointLight {
             range: 50.0,
-            intensity: 80000.0,
+            intensity: 80_000.0,
             radius: 10.0,
             ..default()
         },
