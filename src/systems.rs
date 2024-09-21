@@ -7,11 +7,10 @@ use std::{collections::HashMap, io::Read};
 use crate::{components::*, serialization::*};
 
 pub fn handle_keyboard_input(
-    mut commands: Commands,
-    focused_windows: Query<(Entity, &Window)>,
     config: Res<Config>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut query: Query<&mut Transform, (With<Camera>, With<Camera3d>)>,
+    mut writer: EventWriter<AppExit>,
 ) {
     use KeyCode::*;
 
@@ -25,12 +24,7 @@ pub fn handle_keyboard_input(
     }
 
     if keyboard_input.just_pressed(KeyCode::Escape) {
-        for (window, focus) in focused_windows.iter() {
-            if !focus.focused {
-                continue;
-            }
-            commands.entity(window).despawn();
-        }
+        writer.send(AppExit::Success);
     }
 }
 
