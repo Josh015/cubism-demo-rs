@@ -24,13 +24,12 @@ fn main() {
             ..default()
         }))
         .insert_resource(Msaa::default())
-        .insert_resource(ClearColor(Color::rgb(0.35, 0.35, 0.35)))
+        .insert_resource(ClearColor(Color::srgb(0.35, 0.35, 0.35)))
         // .add_plugin(PrintDiagnosticsPlugin::default())
         // .add_plugin(FrameTimeDiagnosticsPlugin::default())
         // .add_system(PrintDiagnosticsPlugin::print_diagnostics_system.
         // system())
         .insert_resource(config)
         .add_plugins(SystemsPlugin)
-        .add_systems(Update, bevy::window::close_on_esc)
         .run();
 }

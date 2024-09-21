@@ -61,7 +61,7 @@
   pillars: [
     // Pedestal
     (
-      color: Rgba(red: 0.8, green: 0.8, blue: 0.8, alpha: 1.0),
+      color: Srgba(Srgba(red: 0.8, green: 0.8, blue: 0.8, alpha: 1.0)),
       transforms: Srt(
         scale: (0.34, 0.5, 0.34),
         rotations: [],
@@ -71,7 +71,7 @@
 
     // X pillar
     (
-      color: Rgba(red: 0.8, green: 0.8, blue: 0.8, alpha: 1.0),
+      color: Srgba(Srgba(red: 0.8, green: 0.8, blue: 0.8, alpha: 1.0)),
       transforms: Srt(
         scale: (2.0, 0.125, 0.125),
         rotations: [],
@@ -81,7 +81,7 @@
 
     // Y pillar
     (
-      color: Rgba(red: 0.8, green: 0.8, blue: 0.8, alpha: 1.0),
+      color: Srgba(Srgba(red: 0.8, green: 0.8, blue: 0.8, alpha: 1.0)),
       transforms: Srt(
         scale: (0.125, 2.0, 0.125),
         rotations: [],
@@ -91,7 +91,7 @@
 
     // Z pillar
     (
-      color: Rgba(red: 0.8, green: 0.8, blue: 0.8, alpha: 1.0),
+      color: Srgba(Srgba(red: 0.8, green: 0.8, blue: 0.8, alpha: 1.0)),
       transforms: Srt(
         scale: (0.125, 0.125, 2.0),
         rotations: [],
@@ -116,8 +116,8 @@
       height: 0.25,
       inner_radius: 0.35,
       outer_radius: 0.45,
-      min_color: Rgba(red: 0.05, green: 0.2, blue: 0.3, alpha: 1.0),
-      max_color: Rgba(red: 0.1, green: 0.5, blue: 0.7, alpha: 1.0),
+      min_color: Srgba(Srgba(red: 0.05, green: 0.2, blue: 0.3, alpha: 1.0)),
+      max_color: Srgba(Srgba(red: 0.1, green: 0.5, blue: 0.7, alpha: 1.0)),
       transforms: Srt(
         scale: (1.0, 1.0, 1.0),
         rotations: [],
@@ -140,8 +140,8 @@
       height: 0.25,
       inner_radius: 0.45,
       outer_radius: 0.6,
-      min_color: Rgba(red: 0.25, green: 0.4, blue: 0.05, alpha: 1.0),
-      max_color: Rgba(red: 0.6, green: 0.5, blue: 0.1, alpha: 1.0),
+      min_color: Srgba(Srgba(red: 0.25, green: 0.4, blue: 0.05, alpha: 1.0)),
+      max_color: Srgba(Srgba(red: 0.6, green: 0.5, blue: 0.1, alpha: 1.0)),
       transforms: Srt(
         scale: (1.0, 1.0, 1.0),
         rotations: [(1.0, 0.0, 0.0, 90.0)],
@@ -164,8 +164,8 @@
       height: 0.25,
       inner_radius: 0.45,
       outer_radius: 0.6,
-      min_color: Rgba(red: 0.1, green: 0.1, blue: 0.5, alpha: 1.0),
-      max_color: Rgba(red: 0.6, green: 0.2, blue: 0.7, alpha: 1.0),
+      min_color: Srgba(Srgba(red: 0.1, green: 0.1, blue: 0.5, alpha: 1.0)),
+      max_color: Srgba(Srgba(red: 0.6, green: 0.2, blue: 0.7, alpha: 1.0)),
       transforms: Srt(
         scale: (1.0, 1.0, 1.0),
         rotations: [(0.0, 0.0, 1.0, -90.0)],

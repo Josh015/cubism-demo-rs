@@ -7,6 +7,8 @@ use std::{collections::HashMap, io::Read};
 use crate::{components::*, serialization::*};
 
 pub fn handle_keyboard_input(
+    mut commands: Commands,
+    focused_windows: Query<(Entity, &Window)>,
     config: Res<Config>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut query: Query<&mut Transform, (With<Camera>, With<Camera3d>)>,
@@ -19,6 +21,15 @@ pub fn handle_keyboard_input(
     for (i, key_code) in CAMERA_BUTTONS.iter().enumerate() {
         if keyboard_input.just_pressed(*key_code) {
             *transform = config.cameras[i].to_transform();
+        }
+    }
+
+    if keyboard_input.just_pressed(KeyCode::Escape) {
+        for (window, focus) in focused_windows.iter() {
+            if !focus.focused {
+                continue;
+            }
+            commands.entity(window).despawn();
         }
     }
 }
@@ -122,7 +133,7 @@ pub fn spawn_demo_scene(
                     TextStyle {
                         font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                         font_size: 40.0,
-                        color: Color::rgb(0.8, 0.8, 0.8),
+                        color: Color::srgb(0.8, 0.8, 0.8),
                     },
                 ),
                 ..default()
@@ -170,13 +181,9 @@ pub fn spawn_demo_scene(
                         for _i in 0..d.lights_count {
                             // HACK: Force linear color interpolation.
 
-                            let interpolated_color =
-                                d.min_color.rgba_linear_to_vec4().lerp(
-                                    d.max_color.rgba_linear_to_vec4(),
-                                    color_randomizer.sample(&mut rng),
-                                );
-                            let light_color = Color::rgba_linear_from_array(
-                                interpolated_color.to_array(),
+                            let light_color = d.min_color.mix(
+                                &d.max_color,
+                                color_randomizer.sample(&mut rng),
                             );
                             let mut translation = Vec3::new(
                                 axis_randomizer.sample(&mut rng),
@@ -192,9 +199,10 @@ pub fn spawn_demo_scene(
                                 .spawn(PbrBundle {
                                     mesh: unit_sphere.clone(),
                                     material: materials.add(StandardMaterial {
-                                        base_color: light_color
+                                        base_color: (light_color.to_linear()
                                             * d.light_intensity
-                                            * 2.5,
+                                            * 2.5)
+                                            .into(),
                                         unlit: true,
                                         ..default()
                                     }),
@@ -267,7 +275,7 @@ pub fn spawn_demo_scene(
                     palette.insert(
                         palette_index,
                         materials.add(StandardMaterial {
-                            base_color: Color::hex(hex_color).unwrap(),
+                            base_color: Srgba::hex(hex_color).unwrap().into(),
                             perceptual_roughness: d.roughness,
                             // metallic: 1.0,
                             ..default()
