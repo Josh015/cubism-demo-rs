@@ -10,7 +10,7 @@ pub fn handle_keyboard_input(
     config: Res<Config>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut query: Query<&mut Transform, (With<Camera>, With<Camera3d>)>,
-    mut writer: EventWriter<AppExit>,
+    mut app_exit: EventWriter<AppExit>,
 ) {
     use KeyCode::*;
 
@@ -24,7 +24,7 @@ pub fn handle_keyboard_input(
     }
 
     if keyboard_input.just_pressed(KeyCode::Escape) {
-        writer.send(AppExit::Success);
+        app_exit.send_default();
     }
 }
 
