@@ -38,6 +38,7 @@ rngs
 rrggbb
 rustfmt
 seedable
+serde
 signum
 spawnable
 srgb
