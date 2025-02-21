@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use rand::{
-    distributions::Uniform, prelude::Distribution, rngs::SmallRng, SeedableRng,
+    SeedableRng, distr::Uniform, prelude::Distribution, rngs::SmallRng,
 };
 use std::{collections::HashMap, io::Read};
 
@@ -151,15 +151,16 @@ pub fn spawn_demo_scene(
 
     // ---- Light Rings ----
     let unit_sphere = meshes.add(Sphere { radius: 0.5 });
-    let axis_randomizer = Uniform::from(-1f32..=1f32);
-    let color_randomizer = Uniform::from(0f32..=1f32);
-    let mut rng = SmallRng::from_entropy();
+    let axis_randomizer = Uniform::try_from(-1f32..=1f32).unwrap();
+    let color_randomizer = Uniform::try_from(0f32..=1f32).unwrap();
+    let mut rng = SmallRng::from_os_rng();
 
     for d in &config.light_rings {
         let voxel_scale = Vec3::splat(d.light_size);
-        let radius_randomizer = Uniform::from(d.inner_radius..=d.outer_radius);
+        let radius_randomizer =
+            Uniform::try_from(d.inner_radius..=d.outer_radius).unwrap();
         let height_randomizer =
-            Uniform::from((-0.5 * d.height)..=(0.5 * d.height));
+            Uniform::try_from((-0.5 * d.height)..=(0.5 * d.height)).unwrap();
 
         commands
             .spawn(PbrBundle {
