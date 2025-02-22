@@ -12,4 +12,4 @@ rust-version = "1.85.0"
 bevy = "0.14.2"
 rand = { version = "0.9.0", features = ["small_rng"] }
 ron = "0.8.1"
-serde = { version = "1.0.210", features = ["serde_derive"] }
+serde = { version = "1.0.218", features = ["serde_derive"] }
