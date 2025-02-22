@@ -33,8 +33,8 @@ pub fn animate_wave_voxels(
     time: Res<Time>,
     mut query: Query<(&mut Transform, &WaveVoxel)>,
 ) {
-    let wave_simulation = (config.wave_voxel_speed * time.elapsed_seconds())
-        % std::f32::consts::TAU;
+    let wave_simulation =
+        (config.wave_voxel_speed * time.elapsed_secs()) % std::f32::consts::TAU;
 
     for (mut transform, wave_voxel) in &mut query {
         let waves = match wave_voxel.animation {
@@ -66,7 +66,7 @@ pub fn automatically_rotate_on_local_axis(
     // Rotate the child entity around its local y-axis.
     let rotation = Quat::from_axis_angle(
         Vec3::Y,
-        config.auto_rotate_entity_speed * time.delta_seconds(),
+        config.auto_rotate_entity_speed * time.delta_secs(),
     );
 
     for mut transform in &mut query {
@@ -86,10 +86,11 @@ pub fn spawn_demo_scene(
     });
 
     // ---- Camera ----
-    commands.spawn(Camera3dBundle {
-        transform: config.cameras[0].to_transform(),
-        ..default()
-    });
+    commands.spawn((
+        Camera3d::default(),
+        Msaa::Sample8,
+        config.cameras[0].to_transform(),
+    ));
 
     // ---- Environment Lighting ----
     commands.insert_resource(AmbientLight {
@@ -97,56 +98,48 @@ pub fn spawn_demo_scene(
         brightness: 180.0,
     });
 
-    commands.spawn(PointLightBundle {
-        transform: Transform::from_translation(Vec3::new(-0.75, 1.5, 0.75)),
-        point_light: PointLight {
+    commands.spawn((
+        PointLight {
             range: 50.0,
             intensity: 80_000.0,
             radius: 10.0,
             ..default()
         },
-        ..default()
-    });
+        Transform::from_translation(Vec3::new(-0.75, 1.5, 0.75)),
+    ));
 
     // ---- UI ----
     commands
-        .spawn(NodeBundle {
-            style: Style {
-                position_type: PositionType::Absolute,
-                left: Val::Px(10.0),
-                top: Val::Px(10.0),
-                ..default()
-            },
-            background_color: Color::NONE.into(),
+        .spawn(Node {
+            position_type: PositionType::Absolute,
+            left: Val::Px(10.0),
+            top: Val::Px(10.0),
             ..default()
         })
         .with_children(|parent| {
-            parent.spawn(TextBundle {
-                text: Text::from_section(
-                    config.instructions.to_string(),
-                    TextStyle {
-                        font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                        font_size: 40.0,
-                        color: Color::srgb(0.8, 0.8, 0.8),
-                    },
-                ),
-                ..default()
-            });
+            parent.spawn((
+                Text(config.instructions.to_string()),
+                TextFont {
+                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                    font_size: 40.0,
+                    ..default()
+                },
+                TextColor(Color::srgb(0.8, 0.8, 0.8)),
+            ));
         });
 
     // ---- Pillars ----
     for d in &config.pillars {
-        commands.spawn(PbrBundle {
-            transform: d.transforms.to_transform(),
-            mesh: unit_cube.clone(),
-            material: materials.add(StandardMaterial {
+        commands.spawn((
+            Mesh3d(unit_cube.clone()),
+            MeshMaterial3d(materials.add(StandardMaterial {
                 base_color: d.color,
                 perceptual_roughness: 1.0,
                 // metallic: 1.0,
                 ..default()
-            }),
-            ..default()
-        });
+            })),
+            d.transforms.to_transform(),
+        ));
     }
 
     // ---- Light Rings ----
@@ -163,15 +156,12 @@ pub fn spawn_demo_scene(
             Uniform::try_from((-0.5 * d.height)..=(0.5 * d.height)).unwrap();
 
         commands
-            .spawn(PbrBundle {
-                transform: d.transforms.to_transform(),
-                ..default()
-            })
+            .spawn((Visibility::default(), d.transforms.to_transform()))
             .with_children(|parent| {
                 // Light ring must be a child component so it can rotate around
                 // its own local axis.
                 parent
-                    .spawn((AutomaticRotation, PbrBundle::default()))
+                    .spawn((Mesh3d::default(), AutomaticRotation))
                     .with_children(|parent| {
                         for _i in 0..d.lights_count {
                             // HACK: Force linear color interpolation.
@@ -191,35 +181,33 @@ pub fn spawn_demo_scene(
                             translation.y = height_randomizer.sample(&mut rng);
 
                             parent
-                                .spawn(PbrBundle {
-                                    mesh: unit_sphere.clone(),
-                                    material: materials.add(StandardMaterial {
-                                        base_color: (light_color.to_linear()
-                                            * d.light_intensity
-                                            * 2.5)
-                                            .into(),
-                                        unlit: true,
-                                        ..default()
-                                    }),
-                                    transform: Transform::from_matrix(
+                                .spawn((
+                                    Mesh3d(unit_sphere.clone()),
+                                    MeshMaterial3d(
+                                        materials.add(StandardMaterial {
+                                            base_color: (light_color
+                                                .to_linear()
+                                                * d.light_intensity
+                                                * 2.5)
+                                                .into(),
+                                            unlit: true,
+                                            ..default()
+                                        }),
+                                    ),
+                                    Transform::from_matrix(
                                         Mat4::from_scale_rotation_translation(
                                             voxel_scale,
                                             Quat::IDENTITY,
                                             translation,
                                         ),
                                     ),
-                                    ..default()
-                                })
+                                ))
                                 .with_children(|parent| {
-                                    parent.spawn(PointLightBundle {
-                                        point_light: PointLight {
-                                            color: light_color,
-                                            intensity: d.light_intensity
-                                                * 1100.0,
-                                            range: d.light_range,
-                                            radius: 0.5 * d.light_size,
-                                            ..default()
-                                        },
+                                    parent.spawn(PointLight {
+                                        color: light_color,
+                                        intensity: d.light_intensity * 1100.0,
+                                        range: d.light_range,
+                                        radius: 0.5 * d.light_size,
                                         ..default()
                                     });
                                 });
@@ -289,10 +277,7 @@ pub fn spawn_demo_scene(
         let height_offset = height_minus_one * 0.5;
 
         commands
-            .spawn(PbrBundle {
-                transform: d.transforms.to_transform(),
-                ..default()
-            })
+            .spawn((Visibility::default(), d.transforms.to_transform()))
             .with_children(|parent| {
                 // Voxelize the 2D image into a 3D grid.
                 for h in 0..height {
@@ -305,8 +290,10 @@ pub fn spawn_demo_scene(
                         let Some(material) = palette.get(&palette_index) else {
                             continue;
                         };
-                        let mut voxel = parent.spawn(PbrBundle {
-                            transform: Transform::from_matrix(
+                        let mut voxel = parent.spawn((
+                            Mesh3d(unit_cube.clone()),
+                            MeshMaterial3d(material.clone()),
+                            Transform::from_matrix(
                                 Mat4::from_scale_rotation_translation(
                                     voxel_scale,
                                     Quat::IDENTITY,
@@ -319,10 +306,7 @@ pub fn spawn_demo_scene(
                                     ),
                                 ),
                             ),
-                            mesh: unit_cube.clone(),
-                            material: material.clone(),
-                            ..default()
-                        });
+                        ));
 
                         // Add an optional animation to the new voxel.
                         let Some(animation) = d.animation else {

@@ -23,7 +23,6 @@ fn main() {
             }),
             ..default()
         }))
-        .insert_resource(Msaa::default())
         .insert_resource(ClearColor(Color::srgb(0.35, 0.35, 0.35)))
         // .add_plugin(PrintDiagnosticsPlugin::default())
         // .add_plugin(FrameTimeDiagnosticsPlugin::default())
