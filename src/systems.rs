@@ -160,59 +160,56 @@ pub fn spawn_demo_scene(
             .with_children(|parent| {
                 // Light ring must be a child component so it can rotate around
                 // its own local axis.
-                parent
-                    .spawn((Mesh3d::default(), AutomaticRotation))
-                    .with_children(|parent| {
-                        for _i in 0..d.lights_count {
-                            // HACK: Force linear color interpolation.
+                parent.spawn(AutomaticRotation).with_children(|parent| {
+                    for _i in 0..d.lights_count {
+                        // HACK: Force linear color interpolation.
 
-                            let light_color = d.min_color.mix(
-                                &d.max_color,
-                                color_randomizer.sample(&mut rng),
-                            );
-                            let mut translation = Vec3::new(
-                                axis_randomizer.sample(&mut rng),
-                                0.0,
-                                axis_randomizer.sample(&mut rng),
-                            );
+                        let light_color = d.min_color.mix(
+                            &d.max_color,
+                            color_randomizer.sample(&mut rng),
+                        );
+                        let mut translation = Vec3::new(
+                            axis_randomizer.sample(&mut rng),
+                            0.0,
+                            axis_randomizer.sample(&mut rng),
+                        );
 
-                            translation = translation.normalize()
-                                * radius_randomizer.sample(&mut rng);
-                            translation.y = height_randomizer.sample(&mut rng);
+                        translation = translation.normalize()
+                            * radius_randomizer.sample(&mut rng);
+                        translation.y = height_randomizer.sample(&mut rng);
 
-                            parent
-                                .spawn((
-                                    Mesh3d(unit_sphere.clone()),
-                                    MeshMaterial3d(
-                                        materials.add(StandardMaterial {
-                                            base_color: (light_color
-                                                .to_linear()
-                                                * d.light_intensity
-                                                * 2.5)
-                                                .into(),
-                                            unlit: true,
-                                            ..default()
-                                        }),
-                                    ),
-                                    Transform::from_matrix(
-                                        Mat4::from_scale_rotation_translation(
-                                            voxel_scale,
-                                            Quat::IDENTITY,
-                                            translation,
-                                        ),
-                                    ),
-                                ))
-                                .with_children(|parent| {
-                                    parent.spawn(PointLight {
-                                        color: light_color,
-                                        intensity: d.light_intensity * 1100.0,
-                                        range: d.light_range,
-                                        radius: 0.5 * d.light_size,
+                        parent
+                            .spawn((
+                                Mesh3d(unit_sphere.clone()),
+                                MeshMaterial3d(
+                                    materials.add(StandardMaterial {
+                                        base_color: (light_color.to_linear()
+                                            * d.light_intensity
+                                            * 2.5)
+                                            .into(),
+                                        unlit: true,
                                         ..default()
-                                    });
+                                    }),
+                                ),
+                                Transform::from_matrix(
+                                    Mat4::from_scale_rotation_translation(
+                                        voxel_scale,
+                                        Quat::IDENTITY,
+                                        translation,
+                                    ),
+                                ),
+                            ))
+                            .with_children(|parent| {
+                                parent.spawn(PointLight {
+                                    color: light_color,
+                                    intensity: d.light_intensity * 1100.0,
+                                    range: d.light_range,
+                                    radius: 0.5 * d.light_size,
+                                    ..default()
                                 });
-                        }
-                    });
+                            });
+                    }
+                });
             });
     }
 
