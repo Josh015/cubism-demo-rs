@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use ron::de::from_reader;
-use serde::{de::DeserializeOwned, Deserialize};
+use serde::{Deserialize, de::DeserializeOwned};
 use std::{fs::File, path::PathBuf};
 
 #[derive(Clone, Copy, Debug, Deserialize)]
