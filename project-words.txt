@@ -52,5 +52,6 @@ voxel
 voxels
 vsmarketplacebadge
 vsync
+wgpu
 xyza
 xyzw
